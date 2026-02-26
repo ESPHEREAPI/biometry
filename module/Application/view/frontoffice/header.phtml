@@ -1,0 +1,361 @@
+<?php
+	
+	use Zend\Session\Container;
+	
+	$sessionInternaute = new Container('internaute');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	
+	$nomCompletInternaute = $sessionInternaute->offsetGet("nom")." ".$sessionInternaute->offsetGet("prenom");
+	$idInternauteHere = $sessionInternaute->offsetGet("id");
+	
+	$explodeNomInternaute = explode(" ", $sessionInternaute->offsetGet("nom"));
+	$explodePreNomInternaute = explode(" ", $sessionInternaute->offsetGet("prenom"));
+	$nomCompletInternauteCourt = @$explodeNomInternaute[0]." ".@$explodePreNomInternaute[0];
+	
+	$reseauxSociaux = $appliConfig->get("reseaux_sociaux");
+	
+	function construireSousMenu($unMenu, $phpRender, $niveauMenu)
+	{
+		$niveauMenu++;
+		$varRetour = "";
+		
+		if(empty($unMenu['url']))
+			$unMenu['url'] = "";
+		
+		$nbreSousMenus = 0;
+		if(isset($unMenu['sousMenus']) && is_array($unMenu['sousMenus']))
+			$nbreSousMenus = count($unMenu['sousMenus']);
+		
+		$classMenu = "";
+		$classLien = "";
+		if($nbreSousMenus > 0)
+		{
+			$classLien = "dropdown-toggle";
+			if($niveauMenu == 1)
+				$classMenu = "dropdown";
+			else
+				$classMenu = "dropdown-submenu";
+		}
+		
+		$classActive = "";
+		
+		$urlHere = $unMenu['url'];
+		
+		if(!empty($urlHere))
+		{
+			if(substr_count(str_replace("/public", "/", $_SERVER['REQUEST_URI']), str_replace("/public", "/", $unMenu['url'])) > 0)
+				$classMenu .= ' active';
+		}
+		elseif($_SERVER['REQUEST_URI'] == "" || $_SERVER['REQUEST_URI'] == "/")
+		{
+			$classMenu .= ' active';
+		}
+		
+		// echo '<input type="hidden" value="'.str_replace("/public", "/", $_SERVER['REQUEST_URI']).'#####'.$unMenu['url'].'" />';
+		
+		$varRetour .= '<li class="'.$classMenu.'">';
+		
+		$varRetour .= '<a href="'.$phpRender->basePath($unMenu['url']).'" class="'.$classLien.'">
+						 '.$unMenu['nom'].'
+					   </a>';
+		
+		if($nbreSousMenus > 0)
+		{
+			$varRetour .= '<ul class="dropdown-menu" data-dropdown-in="fadeInUp" data-dropdown-out="fadeOutDown">';
+			
+			$tabSousMenu = $unMenu['sousMenus'];
+			
+			foreach ($tabSousMenu as $unSousMenu)
+			{
+				$varRetour .= construireSousMenu($unSousMenu, $phpRender, $niveauMenu);
+			}
+			
+			$varRetour .= '</ul>';
+		}
+		
+		$varRetour .= '</li>';
+		
+		return $varRetour;
+	}
+?>
+
+
+
+<div class="header-body" style="top: 0px;">
+
+	<div class="header-top header-top-style-2">
+		<div class="container">
+			<div class="header-search">
+				<nav class="header-nav-top pull-right">
+					<ul class="nav nav-pills">
+						<li>
+							<form id="formulaireRechercheHeader">
+								<div class="input-group">
+									<input type="text" title="<?= $this->translate("Recherchez une actualite ou un produit", "application"); ?>" class="form-control" name="rechercheHeader" id="rechercheHeader" placeholder="<?= $this->translate("Recherche", "application"); ?>..." />
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+									</span>
+								</div>
+							</form>
+						</li>
+						
+						<li id="ctneurUserCnecteHeader">
+							<?php if(empty($idInternauteHere)) : ?>
+								
+								<a href="#" id="connexionModale" data-toggle="modal" data-target="#ctneurConnexionModale">
+									<?= $this->translate("Connexion", "application").' / '.$this->translate("Inscription", "application"); ?>
+								</a>
+							
+							<?php else : ?>
+							
+								<a href="#" class="dropdown-menu-toggle" id="dropdownLanguage" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+									<i class="fa fa-user"></i> <?= $nomCompletInternauteCourt; ?>
+									<i class="fa fa-angle-down"></i>
+								</a>
+								<ul class="dropdown-menu dropdown-menu-right multi-level" aria-labelledby="dropdownLanguage">
+									<li>
+										<a href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/parametre">
+											<?= $this->translate("Parametre", "application"); ?>
+										</a>
+									</li>
+									
+									<li class="dropdown-submenu">
+						                <a tabindex="-1" href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/e-insurance/client">
+						                	<?= $this->translate("E-Insurance", "application"); ?>
+						                </a>
+						                <ul class="dropdown-menu">
+						                  <li>
+						                    <a href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/e-insurance/client/souscription">
+						                    	<?= $this->translate("Souscription", "application"); ?>
+						                    </a>
+						                  </li>
+						                  <li>
+						                    <a href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/e-insurance/client/sinistre">
+						                    	<?= $this->translate("Sinistre", "application"); ?>
+						                    </a>
+						                  </li>
+						                </ul>
+						            </li>
+									
+									<li>
+										<a href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/deconnexion">
+											<?= $this->translate("Deconnexion", "application"); ?>
+										</a>
+									</li>
+								</ul>
+							
+							<?php endif ; ?>
+						</li>
+						
+						<li>
+							 | 
+							<a href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/contact">
+								<?= $this->translate("Nous contacter", "application"); ?>
+							</a>
+						</li>
+					</ul>
+				</nav>
+			
+			</div>
+			
+
+			<nav class="header-nav-top">
+				<ul class="nav nav-pills">
+					<li>
+						<a href="tel:<?= $appliConfig->get("telephone_complet"); ?>"><span class="ws-nowrap"><?= $appliConfig->get("telephone"); ?></span></a>
+						/
+						<a href="tel:<?= $appliConfig->get("telephone_service_client_complet"); ?>"><span class="ws-nowrap"><i class="fa fa-phone"></i> <?= $appliConfig->get("telephone_service_client"); ?></span></a>
+					</li>
+					
+					<?php if(isset($this->objetLangueNavigation) && isset($this->tabLangueActives)
+						&& is_array($this->tabLangueActives) && count($this->tabLangueActives) > 1) : ?>
+					
+						<li class="dropdown">
+							<a href="#" class="dropdown-menu-toggle" id="dropdownLanguage" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								<img src="<?= $this->basePath(); ?>/img/blank.gif" alt="<?= $this->objetLangueNavigation->getNom(); ?>" /> <?= $this->objetLangueNavigation->getNom(); ?>
+								<i class="fa fa-angle-down"></i>
+							</a>
+							<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownLanguage" data-dropdown-in="fadeInLeft" data-dropdown-out="fadeOutRight">
+								
+								<?php foreach($this->tabLangueActives as $uneLangue) : ?>
+									
+									<?php if($uneLangue->getId() != $this->objetLangueNavigation->getId()) : ?>
+										<li><a href="<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/changerlangue/<?= $uneLangue->getCode(); ?>"><img src="<?= $this->basePath(); ?>/img/blank.gif" alt="<?= $uneLangue->getNom(); ?>" /> <?= $uneLangue->getNom(); ?></a></li>
+									<?php endif ; ?>
+									
+								<?php endforeach ; ?>
+							</ul>
+						</li>
+					
+					<?php endif ; ?>
+					
+					<li>
+						<a href="<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/zenithe-business-club"><?= $this->translate("Zenithe Business Club", "application") ?></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+
+
+	<div class="header-container container">
+		<div class="header-row">
+			<div class="header-column">
+				<div class="header-logo">
+					<a href="<?= $this->basePath(""); ?>">
+						<img version="1.0" alt="<?= $this->translate("Logo", "application");?>" width="80" height="40" src="<?= $this->basePath("img/logo.png"); ?>">
+					</a>
+				</div>
+			</div>
+			
+			<div class="header-column">
+				<div class="header-devise">
+					<?php  echo ucfirst(strtolower($this->translate("QUAND NOUS ASSURONS NOUS ASSUMONS", "application"))); ?>
+				</div>
+			</div>
+			
+			<div class="header-column">
+				<div class="header-row">
+					<div class="header-nav">
+						<button class="btn header-btn-collapse-nav" data-toggle="collapse" data-target=".header-nav-main">
+							<i class="fa fa-bars"></i>
+						</button>
+						
+						<?php if(is_array($reseauxSociaux) && count($reseauxSociaux) > 0) : ?>
+							<ul class="header-social-icons social-icons hidden-xs">
+								<?php foreach ($reseauxSociaux as $keyReseau => $unReseau) : ?>
+									<li class="<?= $unReseau['class'] ?>"><a href="<?= $unReseau['lien'] ?>" target="_blank" title="<?= $unReseau['nom'] ?>"><i class="<?= $unReseau['icon'] ?> msbt-social-icon"></i></a></li>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
+
+						<div class="header-nav-main header-nav-main-effect-1 header-nav-main-sub-effect-1 collapse">
+							<nav>
+								<ul class="nav nav-pills" id="mainNav">
+									
+									
+									<?php
+										foreach ($this->tabMenu as $unMenu)
+										{
+											echo construireSousMenu($unMenu, $this, 0);
+										}
+									?>
+									
+								</ul>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#formulaireRechercheHeader").submit(function() {
+			window.location = "<?= $this->basePath(); ?>/<?= $sessionInternaute->offsetGet('code_iso_langue'); ?>/recherche?q="+$("#rechercheHeader").val();
+
+			return false;
+        });
+        
+
+        /*************** Pour les menus animés **************************************/
+
+        /* ========================================================================
+         * Tutorial specific Javascript
+         * 
+         * ========================================================================
+         * Copyright 2015 Bootbites.com (unless otherwise stated)
+         * For license information see: http://bootbites.com/license
+         * ======================================================================== */
+
+        var dropdownSelectors = $('.dropdown, .dropup');
+
+        // Custom function to read dropdown data
+        // =========================
+        function dropdownEffectData(target) {
+          // @todo - page level global?
+          var effectInDefault = null,
+              effectOutDefault = null;
+          var dropdown = $(target),
+              dropdownMenu = $('.dropdown-menu', target);
+          var parentUl = dropdown.parents('ul.nav'); 
+
+          // If parent is ul.nav allow global effect settings
+          if (parentUl.size() > 0) {
+            effectInDefault = parentUl.data('dropdown-in') || null;
+            effectOutDefault = parentUl.data('dropdown-out') || null;
+          }
+          
+          return {
+            target:       target,
+            dropdown:     dropdown,
+            dropdownMenu: dropdownMenu,
+            effectIn:     dropdownMenu.data('dropdown-in') || effectInDefault,
+            effectOut:    dropdownMenu.data('dropdown-out') || effectOutDefault,  
+          };
+        }
+
+        // Custom function to start effect (in or out)
+        // =========================
+        function dropdownEffectStart(data, effectToStart) {
+          if (effectToStart) {
+            data.dropdown.addClass('dropdown-animating');
+            data.dropdownMenu.addClass('animated');
+            data.dropdownMenu.addClass(effectToStart);    
+          }
+        }
+
+        // Custom function to read when animation is over
+        // =========================
+        function dropdownEffectEnd(data, callbackFunc) {
+          var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+          data.dropdown.one(animationEnd, function() {
+            data.dropdown.removeClass('dropdown-animating');
+            data.dropdownMenu.removeClass('animated');
+            data.dropdownMenu.removeClass(data.effectIn);
+            data.dropdownMenu.removeClass(data.effectOut);
+            
+            // Custom callback option, used to remove open class in out effect
+            if(typeof callbackFunc == 'function'){
+              callbackFunc();
+            }
+          });
+        }
+
+        // Bootstrap API hooks
+        // =========================
+        dropdownSelectors.on({
+          "show.bs.dropdown": function () {
+            // On show, start in effect
+            var dropdown = dropdownEffectData(this);
+            dropdownEffectStart(dropdown, dropdown.effectIn);
+          },
+          "shown.bs.dropdown": function () {
+            // On shown, remove in effect once complete
+            var dropdown = dropdownEffectData(this);
+            if (dropdown.effectIn && dropdown.effectOut) {
+              dropdownEffectEnd(dropdown, function() {}); 
+            }
+          },  
+          "hide.bs.dropdown":  function(e) {
+            // On hide, start out effect
+            var dropdown = dropdownEffectData(this);
+            if (dropdown.effectOut) {
+              e.preventDefault();   
+              dropdownEffectStart(dropdown, dropdown.effectOut);   
+              dropdownEffectEnd(dropdown, function() {
+                dropdown.dropdown.removeClass('open');
+              }); 
+            }    
+          }, 
+        });
+
+        /*********************** Fin pour les menus animés *****************************/
+        
+    });
+</script>

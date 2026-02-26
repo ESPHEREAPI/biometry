@@ -1,0 +1,77 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+
+$varRetour .= '<table class="table table-bordered table-striped" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+$varRetour .= '        <th>'.$this->getTranslator("Nom").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Categorie").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Ville").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Telephone").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Email").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Adresse").'</th>';
+$varRetour .= '        <th class="rsv-table-title-status">'.$this->getTranslator("Statut").'</th>';
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+ 
+foreach($tab as $element)
+{
+	if($element->getStatut() == -1) { $classtatut =  "table_inactive"; $titleStatut =  $this->getTranslator("Activer"); $newStatut = 1; }
+	else { $classtatut =  "table_active"; $titleStatut =  $this->getTranslator("Desactiver"); $newStatut = -1; }
+	
+	$element->afficheChaine();
+	
+	$ville = $element->getVille();
+	
+	$nomVilleLangue = "";
+	if($ville)
+	{
+	    $villeLangue = $this->getEntityManager()->getRepository('Entity\VilleLangue')->findOneBy(array('ville' => $ville->getId(), 'langue' => $sessionEmploye->offsetGet("id_langue")));
+	    if($villeLangue)
+	    {
+	        $villeLangue->afficheChaine();
+	        $nomVilleLangue = $villeLangue->getNom();
+	    }
+	}
+	
+		
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+	$varRetour .= '        <td>'.$element->getNom().'</td>';
+	$varRetour .= '        <td>'.$element->getCategorie()->getNom().'</td>';
+	$varRetour .= '        <td>'.$nomVilleLangue.'</td>';
+	
+	$varRetour .= '        <td>'.$element->getTelephone().'</td>';
+	$varRetour .= '        <td>'.$element->getEmail().'</td>';
+	$varRetour .= '        <td>'.$element->getAdresse().'</td>';
+	
+	
+	
+	$varRetour .= '        <td class="rsv-table-elt-btn"><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/activer_commun/'.$newStatut.'/Prestataire/'.$element->getId().'"><span class="'.$classtatut.'" title="'.$titleStatut.'"></span></a></td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn">';
+	$varRetour .= '             <div class="btn-group">
+							                      <button class="btn btn-default btn-modifier-heres" type="button" href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/administration/prestataire/modifier/'.$element->getId().'"><a><i class="fa fa-edit"></i> '.$this->getTranslator("Modifier").'</a></button>
+							                      <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+							                        <span class="caret"></span>
+							                        <span class="sr-only">'.$this->getTranslator("Toggle Dropdown").'</span>
+							                      </button>
+							                      <ul role="menu" class="dropdown-menu rsv-btn-group-tab">
+							                        <li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Prestataire/'.$element->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>
+							                      </ul>
+											</div>';
+	$varRetour .= '        </td>';
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+?>

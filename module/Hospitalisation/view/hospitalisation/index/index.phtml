@@ -1,0 +1,193 @@
+<?php 
+	use Zend\Session\Container;
+	$sessionEmploye = new Container('employe');
+
+	$appliConfig =  new \Application\Core\AppliConfig();
+	
+	include_once 'jsImprimerPrestation.phtml';
+	
+	
+	$contentRechercherVisite = '<form role="form" id="formRechercheVisite">';
+	$contentRechercherVisite .= ' <div class="box-body" id="body_formRechercheVisite">';
+	
+	$htmlRechercherVisiteForm = str_replace("\r", "", $this->htmlRechercherVisiteForm);
+	$htmlRechercherVisiteForm = str_replace("\n", "", $htmlRechercherVisiteForm);
+	$htmlRechercherVisiteForm = str_replace("\r\n", "", $htmlRechercherVisiteForm);
+	
+	
+	$contentRechercherVisite .= $htmlRechercherVisiteForm;
+	
+// 	$contentRechercherVisite .= '   <div class="form-group" id="ligne_prestataireRechercheVisite">';
+// 	$contentRechercherVisite .= '     <label for="prestataire">'.$this->translate("Centre hospitalier", "application").'</label>';
+// 	// $contentRechercherVisite .= '     <input type="text" class="form-control" name="visite" id="visite" placeholder="'.$this->translate("Saisissez le code de la visite", "application").'" />';
+	
+// 	$contentRechercherVisite .= '     <select class="form-control" name="prestataireRechercheVisite" id="prestataireRechercheVisite">';
+// 	$contentRechercherVisite .= '         <option value="">'.$this->translate("Selectionnez", "application").'</option>';
+//     	                                  foreach ($this->tabPrestataire as $unPrestataire)
+//     	                                  {
+//     	                                      $unPrestataire->afficheChaine();
+//     	                                      $contentRechercherVisite .= '<option value="'.$unPrestataire->getId().'">'.$unPrestataire->getNom().'</option>';
+//     	                                  }
+
+// 	$contentRechercherVisite .= '     </select>';
+	
+	
+	
+// 	$contentRechercherVisite .= '   </div>';
+	
+	
+// 	$contentRechercherVisite .= '   <div class="form-group" id="ligne_visite">';
+// 	$contentRechercherVisite .= '     <label for="visite">'.$this->translate("Code de la visite", "application").'</label>';
+// 	$contentRechercherVisite .= '     <input type="text" class="form-control" name="visite" id="visite" placeholder="'.$this->translate("Saisissez le code de la visite", "application").'" />';
+// 	$contentRechercherVisite .= '   </div>';
+	$contentRechercherVisite .= '  </div>';
+	$contentRechercherVisite .= '</form>';
+?>
+
+<script type="text/javascript" src="<?= $this->basePath()."/js/biometry.js"; ?>"></script>
+
+<!-- La fenetre modale pour l'ajout et la modification des rechercher-visites -->
+<div class="container">
+	<!-- Modal -->
+  	<div class="modal fade" id="modal-rechercher-visite" role="dialog">
+    	<div class="modal-dialog">
+      		<!-- Modal content-->
+	      	<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<?= $this->translate("Fermer", "application"); ?>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="title-modal-rechercher-visite"><?= $this->translate("Rechercher visite", "application"); ?></h4>
+				</div>
+				<div class="modal-body" id="modal-rechercher-visite-body">
+					<form class="form-horizontal form-horizontal-custom-modal" enctype="multipart/form-data" role="form" id="modal-form-rechercher-visite" action="">
+						<div class="box-body" id="body-form-rechercher-visite">
+	                    	
+							<?= $this->htmlRechercherVisiteForm; ?>
+							
+							<input type="reset" style="display: none;" id="btn-reset-modal-form-rechercher-visite" />
+							
+	                  	</div><!-- /.box-body -->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= $this->translate("Fermer", "application"); ?></button>
+	                <button type="button" class="btn btn-primary" id="btn-rechercher-visite"><?= $this->translate("Valider", "application"); ?></button>
+				</div>
+			</div><!-- /.modal-content -->
+    	</div>
+	</div>
+</div><!-- /.container -->
+
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+
+		if("<?= $this->typeProfil ?>" == "prestataire")
+		{
+			$prestataire = $("#prestataire");
+			$prestataire.parent().hide();
+		}
+		
+		
+		typeTriColonePagination = "DESC";
+		nomColoneTriPagination = "date";
+		
+		otherElementsToPost = "&nomColoneTriPagination="+nomColoneTriPagination+"&typeTriColonePagination="+typeTriColonePagination+"&nbreMaxLigneTableau="+nbreMaxLigneTableau;
+		
+
+		$rechercherVisiteForm = $("#modal-form-rechercher-visite");
+		$visite = $("#visite");
+		$prestataireRechercheVisite = $("#prestataireRechercheVisite");
+
+		// console.log($prestataire.html());
+
+
+		$rechercherVisiteForm.formValidation({
+	        framework: 'bootstrap',
+	        excluded: [':disabled', ':hidden', ':not(:visible)'],
+	        icon: {
+	            valid: 'fa fa-check',
+	            invalid: 'fa fa-info',
+	            validating: 'fa fa-refresh'
+	        },
+	        locale: '<?= $sessionEmploye->offsetGet("code_langue"); ?>',
+	        fields: {
+	        	prestataireRechercheVisite: {
+	        		// trigger: 'blur',
+	                validators: {
+	                	notEmpty: {
+		                },
+		                stringLength: {
+	                        min: 2,
+	                        max:100
+	                    },
+	                    blank: {}
+	                }
+	            },
+	            visite: {
+	            	// trigger: 'blur',
+	                validators: {
+	                	notEmpty: {
+		                },
+	                    stringLength: {
+	                        min: 6,
+	                        max:6
+	                    },
+	                    blank: {}
+	                }
+	            },
+	        }
+	    })
+	    
+	    .on('prevalidate.form.fv', function(e) {
+            // $(e.target) --> The form instance
+            // $(e.target).data('formValidation')
+            //             --> The FormValidation instance
+
+            // Do something ...
+        })
+
+        .on('err.form.fv', function(e) {
+        	traiterErreurFormValidation(e, "modal-rechercher-visite-body");
+        })
+        
+	    .on('success.form.fv', function(e) {
+		    
+	    	var tabAutresParametres = [];
+	    	var tabOtherPostValues = [];
+
+
+// 	    	tabAutresParametres['prestataireRechercheVisite'] = $prestataireRechercheVisite.val();
+// 	    	tabAutresParametres['visite'] = $visite.val();
+	    	
+	    	var action = '<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>'+'/<?= $this->naturePrestation ?>/recherche-visite-pour-mettre-prix';
+		    
+	    	traiterSuccesFormValidation(e, "modal-rechercher-visite-body", action, tabAutresParametres, tabOtherPostValues);
+        });
+
+        $('#visite').keypress(function(event) {
+			
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if(keycode == '13') {
+				// $("#unite_visite").click();
+				return false;	
+			}
+
+		});
+
+
+		$("body").on("click", "#btn-rechercher-visite", function() {
+			$rechercherVisiteForm.submit();
+		});
+	        	        
+	});
+
+
+
+
+	function callbackSuccesFormValidation(html, tabAutresParametres, varRetour)
+    {
+		window.location = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/details/"+html.prestationId;
+    }
+</script>

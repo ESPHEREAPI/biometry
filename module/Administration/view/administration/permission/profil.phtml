@@ -1,0 +1,103 @@
+<?php 
+
+function construireSousMenu($unMenu, $permissionController, $idProfil)
+{
+	$varRetour = "";
+	
+	$nbreSousMenus = 0;
+	if(isset($unMenu['sousMenus']) && is_array($unMenu['sousMenus']))
+		$nbreSousMenus = count($unMenu['sousMenus']);
+	
+		
+	$permission = $permissionController->getEntityManager()->getRepository('Entity\Permission')->findOneBy(array('menu' => $unMenu['id'],
+    																										'profil' => $idProfil,
+    																								  ));
+	
+	$checked = "";
+	if($permission)
+		$checked = "checked";
+		
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td>'.$unMenu['nom'].'</td>';
+	$varRetour .= '        <td>'.$unMenu['descCourte'].'</td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau_'.$unMenu['id'].'" class="elt_check_tableau" rel="'.$unMenu['id'].'" '.$checked.' /></td>';
+	$varRetour .= '    </tr>';
+	
+	if($nbreSousMenus > 0)
+	{
+		$tabSousMenu = $unMenu['sousMenus'];
+		
+		foreach ($tabSousMenu as $unSousMenu)
+		{
+			$varRetour .= construireSousMenu($unSousMenu, $permissionController, $idProfil);
+		}
+	}
+	
+	return $varRetour;
+}
+
+
+
+$varRetour .= '<form id="formLiteEltsTab"><table class="table table-bordered table-striped" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th>'.$this->getTranslator("Module").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Fonctionnalite").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Description").'</th>';
+$varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+ 
+foreach($tab as $element)
+{
+	$rowspan = 1;
+	$sousMenus = $element;
+	while(isset($sousMenus['sousMenus']))
+	{
+		$rowspan += count($sousMenus['sousMenus']);
+		$sousMenus = $sousMenus['sousMenus'];
+	}
+	
+	if($rowspan > 1)
+		$rowspan = 'rowspan="'.$rowspan.'"';
+	else
+		$rowspan = "";
+	
+		
+	$permission = $permissionController->getEntityManager()->getRepository('Entity\Permission')->findOneBy(array('menu' => $element['id'],
+    																										'profil' => $idProfil,
+    																								  ));
+	
+	$checked = "";
+	if($permission)
+		$checked = "checked";
+	
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td '.$rowspan.'>'.$element['nomModule'].'</td>';
+	$varRetour .= '        <td>'.$element['nom'].'</td>';
+	$varRetour .= '        <td>'.$element['descCourte'].' ('.$element['nomModule'].'\\'.$element['nomControlleur'].'\\'.$element['nomAction'].')</td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau_'.$element['id'].'" class="elt_check_tableau" rel="'.$element['id'].'" '.$checked.' /></td>';
+	$varRetour .= '    </tr>';
+	
+	
+	$sousMenus = $element;
+	if(isset($sousMenus['sousMenus']))
+	{
+		foreach ($sousMenus['sousMenus'] as $unSousMenu)
+		{
+			$varRetour .= construireSousMenu($unSousMenu, $permissionController, $idProfil);
+		}
+		
+	}
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table></form>';
+
+
+$varRetour .= '<div class="box-footer">
+				<input style="width: 100px;" name="submit" type="submit" id="submit" class="btn btn-primary form-control pull-right" value="'.$this->getTranslator("Valider").'">
+			  </div>';
+
+?>

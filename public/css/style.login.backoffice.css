@@ -1,0 +1,17 @@
+.login-page .navbar, .login-page .navbar-default, .login-page .navbar-fixed-top {
+    background-color: #3c8dbc;
+    color: #fff;
+}
+
+.login-page .navbar-default .navbar-brand, .login-page .navbar-default .navbar-nav>li>a {
+    color: #fff;
+}
+
+.login-page, .register-page {
+    background: #EFF1F2; 
+}
+
+.login-box-body, .register-box-body {
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}

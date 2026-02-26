@@ -1,0 +1,723 @@
+<?php 
+	use Zend\Session\Container;
+	$sessionEmploye = new Container('employe');
+    
+	$appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<script type="text/javascript" src="<?= $this->basePath()."/js/biometry.js"; ?>"></script>
+
+<!-- La fenetre modale pour l'ajout et la modification des valider-consultations -->
+<div class="container">
+	<!-- Modal -->
+  	<div class="modal fade" id="modal-valider-consultation" role="dialog">
+    	<div class="modal-dialog modal-lg">
+      		<!-- Modal content-->
+	      	<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<?= $this->translate("Fermer", "application"); ?>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="title-modal-valider-consultation"><?= $this->translate("Valider une consultation", "application"); ?></h4>
+				</div>
+				<div class="modal-body" id="modal-valider-consultation-body">
+					<div id="cteneurDetailsAssure"></div>
+				
+					<form class="form-horizontal form-horizontal-custom-modal" enctype="multipart/form-data" role="form" id="modal-form-valider-consultation" action="">
+						<div class="box-body" id="body-form-valider-consultation">
+	                    	
+							<?= $this->htmlValiderConsultationForm; ?>
+							
+							<input type="reset" style="display: none;" id="btn-reset-modal-form-valider-consultation" />
+							
+							<input type="hidden" name="idConsultation" id="idConsultation" />
+							
+	                  	</div><!-- /.box-body -->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= $this->translate("Fermer", "application"); ?></button>
+	                <button type="button" class="btn btn-primary" id="btn-valider-consultation"><?= $this->translate("Valider", "application"); ?></button>
+				</div>
+			</div><!-- /.modal-content -->
+    	</div>
+	</div>
+</div><!-- /.container -->
+
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+		$cteneurDetailsAssure = $("#cteneurDetailsAssure");
+		$taux = $("#taux");
+		$validerConsultationForm = $("#modal-form-valider-consultation");
+		$idConsultation = $("#idConsultation");
+		$montantModif = $("#montantModif");
+		$observations = $("#observations");
+
+		contentDetailsAssure = '<div><table class="table dataTable table-striped" style="margin: 0 auto; width: 500px;"><tbody>';
+
+		contentDetailsAssure += '  <tr class="">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Assure principal", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style="" class="nomAdherent"></td>';
+		contentDetailsAssure += '  </tr>';
+
+		contentDetailsAssure += '  <tr class="detailsAyantDroit">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Ayant droit", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="nomAyantDroit"></td>';
+		contentDetailsAssure += '  </tr>';
+
+
+		contentDetailsAssure += '  <tr class="">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Groupe", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style="" class="groupe"></td>';
+		contentDetailsAssure += '  </tr>';
+
+		contentDetailsAssure += '  <tr class="">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Souscripteur", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="nomSouscripteur"></td>';
+		contentDetailsAssure += '  </tr>';
+
+		contentDetailsAssure += '  <tr class="">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Taux de couverture", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="tauxCouverture"></td>';
+		contentDetailsAssure += '  </tr>';
+
+		contentDetailsAssure += '  <tr class="detailsTypeConsultation">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Type consulation", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="typeConsultation"></td>';
+		contentDetailsAssure += '  </tr>';
+
+
+		contentDetailsAssure += '  <tr class="detailsNatureAffection">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Nature affection", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="natureAffection"></td>';
+		contentDetailsAssure += '  </tr>';
+		
+
+		contentDetailsAssure += '  <tr class="detailsMontantDeclare">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Montant declare", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="montantDeclare"></td>';
+		contentDetailsAssure += '  </tr>';
+		
+							
+		contentDetailsAssure += '</tbody></table></div>';
+		
+
+
+		if("<?= $this->typeProfil ?>" == "prestataire")
+		{
+			$prestataire = $("#prestataire");
+			$prestataire.parent().hide();
+		}
+		
+		
+		typeTriColonePagination = "DESC";
+		nomColoneTriPagination = "date";
+		
+		otherElementsToPost = "&nomColoneTriPagination="+nomColoneTriPagination+"&typeTriColonePagination="+typeTriColonePagination+"&nbreMaxLigneTableau="+nbreMaxLigneTableau;
+
+
+		$validerConsultationForm.formValidation({
+	        framework: 'bootstrap',
+	        excluded: [':disabled', ':hidden', ':not(:visible)'],
+	        icon: {
+	            valid: 'fa fa-check',
+	            invalid: 'fa fa-info',
+	            validating: 'fa fa-refresh'
+	        },
+	        locale: '<?= $sessionEmploye->offsetGet("code_langue"); ?>',
+	        fields: {
+	        	montantModif: {
+	        		// trigger: 'blur',
+	                validators: {
+	                	notEmpty: {
+		                },
+	                    integer: {
+	                    },
+	                    blank: {}
+	                }
+	            },
+	            taux: {
+	        		// trigger: 'blur',
+	                validators: {
+	                	notEmpty: {
+		                },
+	                    numeric: {
+	                    },
+	                    blank: {}
+	                }
+	            },
+	            observations: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    stringLength: {
+	                        min: 2,
+	                        max:255
+	                    },
+	                    blank: {}
+	                }
+	            },
+	        }
+	    })
+	    
+	    .on('prevalidate.form.fv', function(e) {
+            // $(e.target) --> The form instance
+            // $(e.target).data('formValidation')
+            //             --> The FormValidation instance
+
+            // Do something ...
+        })
+
+        .on('err.form.fv', function(e) {
+        	traiterErreurFormValidation(e, "modal-valider-consultation-body");
+        })
+        
+	    .on('success.form.fv', function(e) {
+
+	    	var tabAutresParametres = [];
+	    	var tabOtherPostValues = [];
+
+
+	    	tabAutresParametres['idConsultation'] = $idConsultation.val();
+	    	tabAutresParametres['montantModif'] = $montantModif.val();
+	    	tabAutresParametres['observations'] = $observations.val();
+	    	tabAutresParametres['action'] = "validerConsultation";
+	    	
+	    	var action = "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>/consultation/valider-consultation/"+$idConsultation.val();
+		    
+	    	traiterSuccesFormValidation(e, "modal-valider-consultation-body", action, tabAutresParametres, tabOtherPostValues);
+        });
+
+
+
+
+		$("body").on("click", "#liteEltsTab .validerConsultation", function() {
+			$this = $(this);
+
+			$idConsultation.val($this.attr("rel"));
+
+			$contentDetailsAssure = $(contentDetailsAssure);
+
+			$contentDetailsAssure.find(".nomAdherent").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomAdherent"));
+			$contentDetailsAssure.find(".groupe").html($("#ligne_consultation_"+$this.attr("rel")).attr("groupe"));
+			$contentDetailsAssure.find(".nomSouscripteur").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomSouscripteur"));
+			$contentDetailsAssure.find(".montantDeclare").html($("#ligne_consultation_"+$this.attr("rel")).attr("montantDeclare"));
+			$contentDetailsAssure.find(".typeConsultation").html($("#ligne_consultation_"+$this.attr("rel")).attr("typeConsultation"));
+			$contentDetailsAssure.find(".natureAffection").html($("#ligne_consultation_"+$this.attr("rel")).attr("natureAffection"));
+			$contentDetailsAssure.find(".tauxCouverture").html($("#ligne_consultation_"+$this.attr("rel")).attr("tauxCouverture")+"%");
+			
+			if($("#ligne_consultation_"+$this.attr("rel")).attr("nomAyantDroit") != "")
+			{
+				$contentDetailsAssure.find(".nomAyantDroit").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomAyantDroit"));
+			}
+			else
+			{
+				$contentDetailsAssure.find(".detailsAyantDroit").remove();
+			}
+
+			$contentDetailsAssure.find(".detailsNatureAffection").remove();
+
+			$taux.val($("#ligne_consultation_"+$this.attr("rel")).attr("tauxCouverture"));
+			$montantModif.val($("#ligne_consultation_"+$this.attr("rel")).attr("montantPropose"));
+
+			
+			$cteneurDetailsAssure.html($contentDetailsAssure.html());
+		});
+		
+
+		
+		$("body").on("click", "#btn-valider-consultation", function() {
+			
+			$this = $(this);
+			$montantModif = $("#montantModif");
+
+
+			contentHere  = "<?= $this->translate("Confirmer la validation avec le montant", "application"); ?> <b>"+$montantModif.val()+" <?= $this->translate("FCFA", "application"); ?></b> ";
+			contentHere += "<?= $this->translate("et le taux", "application"); ?> <b>"+$taux.val()+"%</b>";
+			
+			$.confirm({
+				icon: 'fa fa-info',
+			    title: "<?= $this->translate("Confirmation", "application"); ?>",
+			    content: contentHere,
+			    buttons: {
+			    	confirm: {
+			    		closeIcon: true,
+			            text: "<?= $this->translate("Oui", "application"); ?>",
+			            action: function() {
+
+			            	var self = this;
+			            	$validerConsultationForm.submit();
+			            	self.close();
+			            }
+			        },
+			        cancel: {
+			        	text: "<?= $this->translate("Non", "application"); ?>",
+			        }
+			    }
+			});
+			
+        });
+
+		$("body").on("click", "#liteEltsTab .rejeterConsultation, #liteEltsTab .derejeterConsultation, #liteEltsTab .devaliderConsultation", function() {
+			
+			$this = $(this);
+
+			actionChoisie = "";
+			if($this.hasClass("rejeterConsultation"))
+			{
+				actionChoisie = "rejeter";
+			}
+			else if($this.hasClass("derejeterConsultation"))
+			{
+				actionChoisie = "derejeter";
+			}
+			else if($this.hasClass("devaliderConsultation"))
+			{
+				actionChoisie = "devalider";
+			}
+			
+			if(actionChoisie == "")
+			{
+				$.confirm({
+	        		icon: 'fa fa-exclamation-triangle',
+	        	    title: "<?=  $this->translate("Erreur", "application"); ?>",
+	        	    content: "<?=  $this->translate("Impossible de trouver l'action", "application"); ?>",
+	        	    type: 'red',
+	        	    typeAnimated: true,
+	        	    buttons: {
+	        	        close: {
+	        	            text: "<?=  $this->translate("OK", "application");?>",
+	        	        }
+	        	    }
+	        	});
+	        	
+				return false;
+			}
+
+
+			$contentDetailsAssure = $(contentDetailsAssure);
+
+			$contentDetailsAssure.find(".nomAdherent").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomAdherent"));
+			$contentDetailsAssure.find(".nomSouscripteur").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomSouscripteur"));
+			$contentDetailsAssure.find(".tauxCouverture").html($("#ligne_consultation_"+$this.attr("rel")).attr("tauxCouverture"));
+			if($("#ligne_consultation_"+$this.attr("rel")).attr("nomAyantDroit") != "")
+			{
+				$contentDetailsAssure.find(".nomAyantDroit").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomAyantDroit"));
+			}
+			else
+			{
+				$contentDetailsAssure.find(".detailsAyantDroit").remove();
+			}
+
+			$contentDetailsAssure.find(".detailsTypeConsultation").remove();
+			$contentDetailsAssure.find(".detailsNatureAffection").remove();
+			$contentDetailsAssure.find(".detailsMontantDeclare").remove();
+			
+			$contentDetailsAssure.find("table").attr("style", "");
+
+			
+			contenuFenetre = $contentDetailsAssure.html()+"\n<?= $this->translate("Voulez-vous vraiment", "application"); ?> "+actionChoisie+" <?= $this->translate("cette consultation", "application"); ?> ?";
+
+			
+
+			$.confirm({
+				icon: 'fa fa-info',
+			    title: "<?= $this->translate("Confirmation", "application"); ?>",
+			    content: contenuFenetre,
+			    columnClass: 'col-md-6 col-md-offset-3',
+			    buttons: {
+			    	confirm: {
+			    		closeIcon: true,
+			            text: "<?= $this->translate("Oui", "application"); ?>",
+			            action: function() {
+
+
+
+			            	$.confirm({
+			            	    content: function () {
+			            	        var self = this;
+				            	        return $.ajax({
+				            	            url: "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>/consultation/"+actionChoisie+"-consultation/"+$this.attr("rel"),
+				            	            dataType: 'json',
+				            	            method: 'post'
+				            	        }).done(function (response) {
+
+										if(response.error != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-exclamation-triangle',
+				            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+				            	        	    content: response.error,
+				            	        	    type: 'red',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.info != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-info',
+				            	        	    title: "<?=  $this->translate("Info", "application");?>",
+				            	        	    content: response.info,
+				            	        	    type: 'orange',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	            action: function(){
+						            	        	    	location.reload();
+						            	                }
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.varRetour != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-check',
+				            	        	    title: "<?=  $this->translate("Succes", "application");?>",
+				            	        	    content: response.varRetour,
+				            	        	    type: 'green',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	            action: function(){
+						            	        	    	location.reload();
+						            	                }
+				            	        	        },
+				            	        	    }
+				            	        	});
+										}
+
+			            	            self.close();
+			            	        }).fail(function(){
+			            	        	$.confirm({
+			            	        		icon: 'fa fa-exclamation-triangle',
+			            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			            	        	    content: "<?=  $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>",
+			            	        	    type: 'red',
+			            	        	    typeAnimated: true,
+			            	        	    buttons: {
+			            	        	        close: {
+			            	        	            text: "<?=  $this->translate("OK", "application");?>",
+			            	        	        }
+			            	        	    }
+			            	        	});
+
+			            	        	self.close();
+			            	        });
+			            	    }
+			            	});
+			            }
+			        },
+			        cancel: {
+			        	text: "<?= $this->translate("Non", "application"); ?>",
+			        }
+			    }
+			});
+			
+        });
+
+        $("body").on("click", "#liteEltsTab .encaisserConsultation", function() {
+			
+			$this = $(this);
+
+			$ligneConsultation = $("#ligne_consultation_"+$this.attr("rel"));
+
+
+			montantCentreHospitalier = $("#encaisserConsultation_"+$this.attr("rel")).data("montant");
+			montantAssureur = $("#encaisserConsultation_"+$this.attr("rel")).data("montantmodif");
+			montantAssure = parseFloat(montantCentreHospitalier) - parseFloat(montantAssureur);
+			
+			
+			contentEncaissement = '<table class="table dataTable table-striped"><tbody>';
+
+			contentEncaissement += '  <tr class="">';
+			contentEncaissement += '     <td width="70%" style="font-weight: bold;"><?= $this->translate("Montant valide", "application"); ?></td>';
+			contentEncaissement += '     <td width="30%" style="">'+$ligneConsultation.attr("montantValide")+'</td>';
+			contentEncaissement += '  </tr>';
+
+			contentEncaissement += '  <tr class="">';
+			contentEncaissement += '     <td width="70%" style="font-weight: bold; "><?= $this->translate("Montant paye par Zenithe", "application"); ?></td>';
+			contentEncaissement += '     <td width="30%" style="">'+$ligneConsultation.attr("montantPayeZenithe")+'</td>';
+			contentEncaissement += '  </tr>';
+
+			contentEncaissement += '  <tr class="">';
+			contentEncaissement += '     <td width="70%" style="font-weight: bold; "><?= $this->translate("Part assure", "application"); ?></td>';
+			contentEncaissement += '     <td width="30%" style="">'+$ligneConsultation.attr("partAssure")+'</td>';
+			contentEncaissement += '  </tr>';
+								
+			contentEncaissement += '</tbody></table>';
+			
+			
+
+			$.confirm({
+				icon: 'fa fa-exclamation-triangle',
+			    title: "<?= $this->translate("Confirmer l'encaissement", "application"); ?>",
+			    content: contentEncaissement,
+			    buttons: {
+			    	confirm: {
+			    		closeIcon: true,
+			            text: "<?= $this->translate("Oui", "application"); ?>",
+			            action: function() {
+
+
+
+			            	$.confirm({
+			            	    content: function () {
+			            	        var self = this;
+				            	        return $.ajax({
+				            	            url: "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>/consultation/encaisser-consultation/"+$this.attr("rel"),
+				            	            dataType: 'json',
+				            	            method: 'post'
+				            	        }).done(function (response) {
+
+										if(response.error != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-exclamation-triangle',
+				            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+				            	        	    content: response.error,
+				            	        	    type: 'red',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.info != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-exclamation-triangle',
+				            	        	    title: "<?=  $this->translate("Info", "application");?>",
+				            	        	    content: response.info,
+				            	        	    type: 'orange',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	            action: function(){
+						            	        	    	location.reload();
+						            	                }
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.varRetour != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-exclamation-triangle',
+				            	        	    title: "<?=  $this->translate("Succes", "application");?>",
+				            	        	    content: response.varRetour,
+				            	        	    type: 'green',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	            action: function(){
+						            	        	    	location.reload();
+						            	                }
+				            	        	        },
+				            	        	    }
+				            	        	});
+										}
+
+			            	            self.close();
+			            	        }).fail(function(){
+			            	        	$.confirm({
+			            	        		icon: 'fa fa-exclamation-triangle',
+			            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			            	        	    content: "<?=  $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>",
+			            	        	    type: 'red',
+			            	        	    typeAnimated: true,
+			            	        	    buttons: {
+			            	        	        close: {
+			            	        	            text: "<?=  $this->translate("OK", "application");?>",
+			            	        	        }
+			            	        	    }
+			            	        	});
+
+			            	        	self.close();
+			            	        });
+			            	    }
+			            	});
+			            }
+			        },
+			        cancel: {
+			        	text: "<?= $this->translate("Non", "application"); ?>",
+			        }
+			    }
+			});
+			
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		$("body").on("click", "#liteEltsTab .imprimerRecuConsultation", function() {
+
+			$this = $(this);
+
+
+
+
+			$contentDetailsAssure = $(contentDetailsAssure);
+
+			$contentDetailsAssure.find(".nomAdherent").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomAdherent"));
+			$contentDetailsAssure.find(".nomSouscripteur").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomSouscripteur"));
+			$contentDetailsAssure.find(".tauxCouverture").html($("#ligne_consultation_"+$this.attr("rel")).attr("tauxCouverture"));
+			if($("#ligne_consultation_"+$this.attr("rel")).attr("nomAyantDroit") != "")
+			{
+				$contentDetailsAssure.find(".nomAyantDroit").html($("#ligne_consultation_"+$this.attr("rel")).attr("nomAyantDroit"));
+			}
+			else
+			{
+				$contentDetailsAssure.find(".detailsAyantDroit").remove();
+			}
+
+			$contentDetailsAssure.find(".detailsTypeConsultation").remove();
+			$contentDetailsAssure.find(".detailsNatureAffection").remove();
+			$contentDetailsAssure.find(".detailsMontantDeclare").remove();
+			
+			$contentDetailsAssure.find("table").attr("style", "");
+
+			
+			contenuFenetre = $contentDetailsAssure.html()+"\n<?= $this->translate("Voulez-vous vraiment imprimer le recu pour cette consultation", "application"); ?> ?";
+
+			
+
+			$.confirm({
+				icon: 'fa fa-info',
+			    title: "<?= $this->translate("Confirmation", "application"); ?>",
+			    content: contenuFenetre,
+			    columnClass: 'col-md-6 col-md-offset-3',
+			    buttons: {
+			    	confirm: {
+			    		closeIcon: true,
+			            text: "<?= $this->translate("Oui", "application"); ?>",
+			            action: function() {
+			            	$.confirm({
+			            	    content: function () {
+			            	        var self = this;
+				            	        return $.ajax({
+				            	            url: "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>/consultation/imprimer-recu/"+$this.attr("rel"),
+				            	            dataType: 'json',
+				            	            method: 'post'
+				            	        }).done(function (response) {
+
+										if(response.error != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-exclamation-triangle',
+				            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+				            	        	    content: response.error,
+				            	        	    type: 'red',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.info != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-info',
+				            	        	    title: "<?=  $this->translate("Info", "application");?>",
+				            	        	    content: response.info,
+				            	        	    type: 'orange',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	            action: function(){
+						            	        	    	location.reload();
+						            	                }
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.varRetour != "")
+										{
+											$('body').append(response.varRetour);
+							       			
+							       			$printStuff = $("#cntneurDocExportPdf");
+							       			$printStuff.jqprint();
+							    			$printStuff.empty().remove();
+										}
+
+			            	            self.close();
+			            	        }).fail(function(){
+			            	        	$.confirm({
+			            	        		icon: 'fa fa-exclamation-triangle',
+			            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			            	        	    content: "<?=  $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>",
+			            	        	    type: 'red',
+			            	        	    typeAnimated: true,
+			            	        	    buttons: {
+			            	        	        close: {
+			            	        	            text: "<?=  $this->translate("OK", "application");?>",
+			            	        	        }
+			            	        	    }
+			            	        	});
+
+			            	        	self.close();
+			            	        });
+			            	    }
+			            	});
+			            }
+			        },
+			        cancel: {
+			        	text: "<?= $this->translate("Non", "application"); ?>",
+			        }
+			    }
+			});
+        });      
+	});
+
+
+
+
+	function callbackSuccesFormValidation(html, tabAutresParametres, varRetour)
+    {
+		$('#modal-valider-consultation').modal('hide');
+	    
+		$.confirm({
+			icon: 'fa fa-check',
+    	    title: "<?=  $this->translate("Succes", "application");?>",
+    	    content: html.varRetour,
+    	    type: 'green',
+    	    typeAnimated: true,
+    	    buttons: {
+    	        close: {
+    	            text: "<?=  $this->translate("OK", "application");?>",
+    	            action: function(){
+	        	    	location.reload();
+	                }
+    	        },
+    	    }
+    	});
+    }
+</script>

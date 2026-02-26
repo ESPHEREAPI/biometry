@@ -1,0 +1,62 @@
+<?= $this->doctype(); ?>
+
+<?php
+	use Zend\Session\Container;
+	
+	$sessionEmploye = new Container('employe');
+	$sessionAgence = new Container('agence');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	
+	$nomPage = $this->nomPage;
+	if(empty($nomPage))
+	{
+	    $nomPage = $this->translate("Acces refuse", "application");
+	}
+?>
+
+<html lang="<?= $sessionEmploye->offsetGet("lang"); ?>">
+    <head>
+		<meta charset="utf-8" />
+		
+		<!-- Pour empecher l'indexation des pages du backoffice -->
+		<meta name="robots" content="noindex,nofollow" />
+		
+		<?= $this->headTitle($this->nomPage." - ".$sessionAgence->offsetGet("nom"))->setSeparator(' - ')->setAutoEscape(false) ?>
+		
+		<!-- Tell the browser to be responsive to screen width -->
+		<?= $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+        
+        <!-- Le styles -->
+        <?= $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+        				->prependStylesheet($this->basePath('css/style.css'))
+        				
+        				->prependStylesheet ($this->basePath().'/js/jquery-confirm-master-v3-0-1/css/jquery-confirm.css')
+        				
+        				->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/font-awesome.min.css'))
+        				
+				        ->prependStylesheet($this->basePath('js/jqueryui/development-bundle/themes/base/jquery.ui.all.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/bootstrap/css/bootstrap.min.css')) ?>
+        
+        
+        
+        <!-- Scripts -->
+        <?= $this->headScript()
+        	->prependFile($this->basePath('js/script.js'))
+			->prependFile($this->basePath().'/js/jquery-confirm-master-v3-0-1/js/jquery-confirm.js')
+
+        	->prependFile($this->basePath().'/js/jquery-ui.min.js', 'text/javascript')
+            
+            ->prependFile($this->basePath('AdminLTE-2.2.1/plugins/jQuery/jQuery-2.1.4.min.js'))
+        ; ?>
+	</head>
+	
+    <body class="skin-blue sidebar-mini wysihtml5-supported">
+	    <div class="wrapper">
+	      	<?= $this->content; ?>
+	    </div><!-- ./wrapper -->
+    </body>
+</html>

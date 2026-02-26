@@ -1,0 +1,418 @@
+<?php
+	use Zend\Session\Container;
+	//include 'showconsultation.php';
+	
+    $sessionEmploye = new Container('employe');	
+	$sessionUtilisateur = new Container('utilisateur');
+	$sessionAppli = new Container('appli');
+	
+	    $typeProfil = $sessionEmploye->offsetGet("type_profil");
+		$prestataireId = $sessionEmploye->offsetGet("id_prestataire");
+		
+	   $nomCompletEmploye = $sessionUtilisateur->offsetGet("nom")." ".$sessionUtilisateur->offsetGet("prenom");
+	   
+	    if ($typeProfil=="prestataire")
+			{
+		    
+			 $classCallOut="callout callout-success";
+		    }
+			else
+			{
+			
+			 $classCallOut="callout callout-warning";
+			}
+	
+	
+	function construireSousMenu($unMenu, $phpRender)
+	{
+	$sessionEmploye = new Container('employe');	
+	$typeProfil = $sessionEmploye->offsetGet("type_profil");
+		
+		$varRetour = "";
+		
+		$nbreSousMenus = 0;
+		if(isset($unMenu['sousMenus']) && is_array($unMenu['sousMenus']))
+			$nbreSousMenus = count($unMenu['sousMenus']);
+		
+		$classMenu = "";
+		$iconeMenu = "";
+		if($nbreSousMenus > 0)
+		{
+			$classMenu = "treeview";
+			$iconeMenu = '  <i class="fa fa-angle-left pull-right"></i>';
+		}
+		
+		$classActive = "";
+		if(substr_count(str_replace("/public", "/", $_SERVER['REQUEST_URI']), str_replace("/public", "/", $unMenu['url'])) > 0)
+			$classMenu .= 'active';
+		
+		
+		if($unMenu['classImage'] && $unMenu['classImage'] != "")
+			$classImage = $unMenu['classImage'];
+		else
+		{
+			$classImage = "fa fa-circle-o";
+		}
+		    $classLabel="";
+			$classCallOut="";
+			
+			
+            if ($typeProfil=="prestataire")
+			{
+		     $classLabel="label-success";
+			 $classCallOut="callout callout-success";
+		    }
+			else
+			{
+			$classLabel="label-warning";
+			 $classCallOut="callout callout-warning";
+			}
+	        
+		 
+		
+		$varRetour .= '<li class="'.$classMenu.'">';
+		
+		$varRetour .= '<a href="'.$phpRender->basePath($unMenu['url']).'">
+						 <i class="'.$classImage.'"></i> 
+						 <span class="MenuNom" id="Menu_'.$unMenu['nom'].'">'.$unMenu['nom'].'
+						 </span>'.$iconeMenu.'
+						 
+						 <span id="mnfa_'.$unMenu['nom'].'" style="display: none;">
+						 <span  class="fa fa-envelope-o"></span>
+						 <span class="label '. $classLabel.'" id="notif_'.$unMenu['nom'].'"></span>
+                         </span>
+						 
+					   </a>';
+		
+		
+		if($nbreSousMenus > 0)
+		{
+			$varRetour .= '<ul class="treeview-menu">';
+			
+			$tabSousMenu = $unMenu['sousMenus'];
+			
+			foreach ($tabSousMenu as $unSousMenu)
+			{
+				$varRetour .= construireSousMenu($unSousMenu, $phpRender);
+			}
+			
+			$varRetour .= '</ul>';
+		}
+		
+		$varRetour .= '</li>';
+		
+		return $varRetour;
+	}
+	
+	
+?>
+
+<!-- sidebar: style can be found in sidebar.less -->
+<section class="sidebar">
+  <!-- Sidebar user panel -->
+  <div class="user-panel">
+	<div class="pull-left image">
+	  <img src="<?= $this->basePath('AdminLTE-2.2.1/dist/img/user2-160x160.png')?>" class="img-circle" alt="User Image">
+	</div>
+	<div class="pull-left info">
+	  <p><?= $nomCompletEmploye; ?></p>
+	  <a href="#"><i class="fa fa-circle text-success"></i> <?= $this->translate("En ligne", "application"); ?></a>
+	</div>
+  </div>
+  <!-- sidebar menu: : style can be found in sidebar.less -->
+  <ul class="sidebar-menu">
+	
+	<?php
+		foreach ($this->tabMenu as $unMenu)
+		{
+			echo construireSousMenu($unMenu, $this);
+		}
+	?>
+	
+  </ul>
+
+	<div class="<?= $classCallOut; ?>" id="appel" style="display: none;">
+<h4 id="sujet"></h4>
+<p id="corps"></p>
+</div>
+
+<div class="<?= $classCallOut; ?>" id="appel3" style="display: none;">
+<h4 id="sujet3"></h4>
+<p id="corps3"></p>
+</div>
+
+<div class="<?= $classCallOut; ?>" id="appel2" style="display: none;">
+<h4 id="sujet2"></h4>
+<p id="corps2"></p>
+</div>
+
+
+</section>
+<script>
+	
+	function removeSpecialChars(str) {
+  return str.replace(/(?!\w|\s)./g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^(\s*)([\W\w]*)(\b\s*$)/g, '$2');
+}
+
+function beep() {
+  var beep = new Audio();
+  beep.src='<?php __DIR__; ?>/biometry/module/Application/view/backoffice/charming_bell.mp3';
+  beep.play();
+  
+}
+
+function notify(sujet,corps){
+	var n = new Notification('ZENITHE INSURANCE', {
+		body: ''+sujet+'\n'+corps+'\nAppuyer sur f5 pour recharger la page',
+		icon: '<?php __DIR__; ?>/biometry/public/img/favicon.ico'
+	});
+}
+
+		 	
+		 // Affichage des messages
+						var timeout = 2000;
+						var showmsg = function() {
+							$.ajax({
+							  method: 'POST',
+							  url: 'http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/module/Application/view/backoffice/showconsultation.php?typeprofil=<?php echo $typeProfil; ?>&prestataireId=<?php echo $prestataireId; ?>'		  
+							})
+							.done(function(msg){
+								var tab = jQuery.parseJSON(msg);
+								tab.forEach(function(message){
+								
+			                
+			               if (message.nombreValide!=0)
+						   {
+				             if (removeSpecialChars($('#Menu_Consultation').text())=="Consultation")
+				               {
+						         if (parseInt($('#notif_Consultation').text())< parseInt(message.nombreValide))
+								 {
+								   //
+								   /*if(window.Notification){
+		                                  Notification.requestPermission(function (status) {
+		                                	if(status == 'granted'){
+				                                                  notify(message.sujet,message.corps);
+																   
+			                                                       }
+		                                                       });
+	                                                      }*/
+														  													 
+														  var url      = window.location.href; 
+																 
+											                if(url=="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/consultation" || url=="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/consultation#ctneurLiteEltsTab")
+																          {
+																    
+																	//window.location.href ="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/consultation";
+																	location.reload();
+																          }
+								   //
+				                 }
+								 
+						         $('#notif_Consultation').text(message.nombreValide);
+								 $('#nbrConsul').text(message.nombreValide);
+								  $('#notConsul').text(message.nombreValide);
+								   $('#notConsulSu').text(message.nombreValide+"  "+message.corps);
+								   $('#notConsulIt').fadeIn();
+								 $('#libelleConsul').text(message.sujet);
+								 
+                                $('#mnfa_Consultation').fadeIn();
+								
+								 $('#sujet').text(message.sujet);
+								  $('#corps').text(message.nombreValide+"  "+message.corps);
+								  
+								 $('#appel').fadeIn();
+								
+								$('#appel').delay(1000).fadeOut("slow");
+									 
+							   }
+						   }
+						   else
+						   {
+					     $('#notif_Consultation').text(message.nombreValide);
+						 $('#nbrConsul').text(message.nombreValide);
+						  $('#notConsul').text(message.nombreValide);
+						  $('#notConsulSu').text(message.nombreValide+"  "+message.corps);
+						  $('#notConsulIt').hide();
+						$('#libelleConsul').text(message.sujet);
+								 
+						   $('#mnfa_Consultation').fadeOut();
+						   $('#appel').fadeOut();
+						   }
+									
+								});
+							});
+							setTimeout(showmsg, timeout);
+						};
+						
+						var showmsg2 = function() {
+							$.ajax({
+							  method: 'POST',
+							  url: 'http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/module/Application/view/backoffice/showexamen.php?typeprofil=<?php echo $typeProfil; ?>&prestataireId=<?php echo $prestataireId; ?>'		  
+							})
+							.done(function(msg){
+								var tab = jQuery.parseJSON(msg);
+								tab.forEach(function(message){
+								
+			                
+			               if (message.nombreValide!=0)
+						   {
+				             if (removeSpecialChars($('#Menu_Examen').text())=="Examen")
+				               {  
+						         if (parseInt($('#notif_Examen').text())< parseInt(message.nombreValide))
+								{
+								   //
+								   /*if(window.Notification){
+		                                  Notification.requestPermission(function (status) {
+		                                	if(status == 'granted'){
+				                                                  notify(message.sujet,message.corps);
+																   
+			                                                       }
+		                                                       });
+	                                                      }*/
+														 
+																  var url      = window.location.href; 
+																  var matches = url.match(/(\d+)/);
+											                if(url=="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/examen" || url=="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/examen#ctneurLiteEltsTab")
+																          {
+																    //window.location.href ="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/examen";
+																	location.reload();
+																	
+																          }
+																	
+				
+																	
+															if(url.includes("http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/examen/details/")== true && "<?php echo $typeProfil; ?>"=="prestataire")
+																         {
+																	  
+																	  location.reload();
+																   // window.location.href ="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/examen/details/"+matches[0];
+							
+																          }
+															
+			                                                     
+								   //
+				                 }
+								 
+						         $('#notif_Examen').text(message.nombreValide);
+								 $('#nbrExamen').text(message.nombreValide);
+								  $('#notExam').text(message.nombreValide);
+								  $('#notExamSu').text(message.nombreValide+"  "+message.corps);
+								  $('#notExamIt').fadeIn();
+								 $('#libelleExamen').text(message.sujet);
+								 
+								
+                                $('#mnfa_Examen').fadeIn();
+								
+								 $('#sujet2').text(message.sujet);
+								  $('#corps2').text(message.nombreValide+"  "+message.corps);
+								  
+								 $('#appel2').fadeIn();
+								
+								$('#appel2').delay(2000).fadeOut("slow");
+								
+				               }
+						   }
+						   else
+						   {
+					     $('#notif_Examen').text(message.nombreValide);
+						 $('#nbrExamen').text(message.nombreValide);
+						  $('#notExam').text(message.nombreValide);
+						  $('#notExamSu').text(message.nombreValide+"  "+message.corps);
+						  $('#notExamIt').hide();;
+						 $('#libelleExamen').text(message.sujet);
+						 
+						   $('#mnfa_Examen').fadeOut();
+						   $('#appel2').fadeOut();
+						   }
+									
+								});
+							});
+							setTimeout(showmsg2, timeout);
+						};
+						
+						var showmsg3 = function() {
+							$.ajax({
+							  method: 'POST',
+							  url: 'http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/module/Application/view/backoffice/showordonnance.php?typeprofil=<?php echo $typeProfil; ?>&prestataireId=<?php echo $prestataireId; ?>'		  
+							})
+							.done(function(msg){
+								var tab = jQuery.parseJSON(msg);
+								tab.forEach(function(message){
+								
+			                
+			               if (message.nombreValide!=0)
+						   {
+				             if (removeSpecialChars($('#Menu_Ordonnance').text())=="Ordonnance")
+				               {
+								 if (parseInt($('#notif_Ordonnance').text())< parseInt(message.nombreValide)) 
+								  {
+								   //
+								   /*if(window.Notification){
+		                                  Notification.requestPermission(function (status) {
+		                                	if(status == 'granted'){
+				                                                  notify(message.sujet,message.corps);
+																   
+			                                                       }
+		                                                       });
+	                                                      }*/
+														  
+																  var url      = window.location.href; 
+																   var matches = url.match(/(\d+)/);
+																 
+											                if(url=="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/ordonnance" || url=="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/ordonnance#ctneurLiteEltsTab")
+																          {
+																   //window.location.href ="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/ordonnance";
+																   location.reload();
+																          }
+																		  
+														if( url.includes("http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/ordonnance/details/")== true && "<?php echo $typeProfil; ?>"=="prestataire")
+																         {
+																	  location.reload();
+																    //window.location.href ="http://<?php echo $_SERVER['SERVER_NAME'];?>/biometry/public/admin/ordonnance/details/"+matches[0];
+							
+																          }
+				                 }
+								 
+						         $('#notif_Ordonnance').text(message.nombreValide);
+								 $('#nbrOrdonnance').text(message.nombreValide);
+								  $('#notOrdo').text(message.nombreValide);
+								  $('#notOrdoSu').text(message.nombreValide+"  "+message.corps);
+								  $('#notOrdoIt').fadeIn();
+								 $('#libelleOrdonnance').text(message.sujet);
+								 
+								
+                                $('#mnfa_Ordonnance').fadeIn();
+								
+								 $('#sujet3').text(message.sujet);
+								  $('#corps3').text(message.nombreValide+"  "+message.corps);
+								  
+								 $('#appel3').fadeIn();
+								
+								$('#appel3').delay(1500).fadeOut("slow");
+								
+				               }
+						   }
+						   else
+						   {
+					        $('#notif_Ordonnance').text(message.nombreValide);
+							$('#nbrOrdonnance').text(message.nombreValide);
+							$('#notOrdo').text(message.nombreValide);
+							$('#notOrdoSu').text(message.nombreValide+"  "+message.corps);
+							$('#notOrdoIt').hide();;
+							$('#libelleOrdonnance').text(message.sujet);
+								 
+						   $('#mnfa_Ordonnance').fadeOut();
+						   $('#appel3').fadeOut();
+						   }
+									
+								});
+							});
+							setTimeout(showmsg3, timeout);
+						};
+						showmsg();
+						showmsg3();
+						showmsg2();
+						
+</script>

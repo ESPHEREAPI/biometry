@@ -1,0 +1,332 @@
+<?php if(!isset($this->onlyFormElement) || $this->onlyFormElement == false) : ?>
+
+	<?= $this->form()->openTag($form); ?>
+	<div class="box-body" id="jstContenuForm"> <!-- /#jstContenuForm -->
+	
+<?php endif ; ?>
+	
+	<?php
+		
+		$keyEtape = "1";
+		
+		$nomFormHere = "form".$keyEtape;
+		$tabMsgLabelCom = array();
+		$nbreEltsForm = count($form->getElements());
+		$compteurForm = 0;
+		$submitClose = false;
+	?>
+	
+	<?php foreach ($form as $element) : ?>
+		<?php
+			
+			$compteurForm++;
+			
+			$options = $element->getOptions();
+			$attributes = $element->getAttributes();
+			$errorMessages = $element->getMessages();
+			$methode = 'form'.$attributes['type'];
+			$classColoneLabel = "col-md-3";
+			$classColoneInput = "col-md-9";
+			
+			
+			
+			$styleLigne = "";
+			if(isset($attributes['styleLigne']))
+			{
+				$styleLigne = $attributes['styleLigne'];
+			}
+			
+			// Pour les fieldsets
+			if($attributes['type'] == "msbtFieldset")
+			{
+				echo '<div id="ligne_'.$attributes['name'].'" class="form-group" style="'.$styleLigne.'">';
+				echo '	<fieldset id="'.$attributes['id'].'" name="'.$attributes['name'].'"><legend>'.$options['label'].'</legend></fieldset>';
+				echo '</div>';
+				continue;
+			}
+			
+			
+			if($attributes['name'] == "submitClose" && !in_array($attributes['name'], $this->notUsedElt))
+			{
+				$submitClose = true;
+			}
+			
+			
+			if(in_array($attributes['name'], $this->notUsedElt))
+				continue;
+			
+			$classError = "";
+			if(is_array($errorMessages) && count($errorMessages) > 0)
+				$classError = "has-error";
+			
+			$classRequired = "";
+			if(isset($attributes['class']) && substr_count($attributes['class'], "required") > 0)
+				$classRequired = "required";
+			
+			$classEltLiaison = "";
+			$styleEltLiaison = "";
+			if(isset($attributes['classEltLiaison']))
+			{
+				$styleEltLiaison = " display: none;";
+				$classEltLiaison = $attributes['classEltLiaison'];
+			}
+			
+			if(isset($attributes['msgLabelCom']))
+			{
+				$classColoneInput = "col-md-12";
+				
+				if(!in_array($attributes['msgLabelCom'], $tabMsgLabelCom))
+				{
+					$tabMsgLabelCom[] = $attributes['msgLabelCom'];
+					echo '<div class="form-group">';
+					echo '	<div class="col-md-12">';
+					echo '		<label style="text-align: left;">'.$attributes['msgLabelCom'].'</label>';
+					echo '	</div>';
+					echo '</div>';
+				}
+			}
+			
+			$classLigne = "";
+			if(isset($attributes['classLigne']))
+			{
+				$classLigne = $attributes['classLigne'];
+			}
+		?>
+		
+		
+		<?php 
+			
+			if($classEltLiaison != "" && (!isset($oldClassEltLiaison) || $classEltLiaison != $oldClassEltLiaison))
+			{
+				echo '<div class="ctneurEltTogle" id="ctneur_'.$classEltLiaison.'">';
+			}
+			
+			if(isset($oldClassEltLiaison) && $oldClassEltLiaison != "" && ($compteurForm == $nbreEltsForm || $classEltLiaison != $oldClassEltLiaison))
+			{
+				echo '</div>';
+				$classEltLiaison = "";
+				$oldClassEltLiaison = "";
+			}
+			
+		?>
+		
+		
+		<?php if($attributes['type'] == "hidden") : ?>
+			<?php
+                    	try {
+                    		echo  $this->$methode($element);
+                    	} 
+                    	catch (\Exception $e) {
+
+                    	}
+                    ?>
+		<?php elseif($attributes['type'] != "submit" && $attributes['name'] != "cancel") : ?>
+			<div id="ligne_<?= $attributes['name']; ?>" class="form-group <?= $classError." ".$classRequired." ".$classEltLiaison." ".$classLigne; ?>" style="<?= $styleEltLiaison." ".$styleLigne; ?>">
+				<!-- The feedback icon will be placed here -->
+        							<span id="<?= $attributes['name']; ?>Icon"></span>
+				
+				<?php if(!isset($attributes['msgLabelCom'])) : ?>
+					
+						<?php
+		                   	try {
+		                   		echo  $this->formlabel($element);
+		                   	} 
+		                   	catch (\Exception $e) {
+		                   	}
+		                ?>
+	               
+				<?php endif ; ?>
+
+				<div class="<?= $classColoneInput; ?>">
+                    <?php
+                    	if($attributes['type'] == "radio" || $attributes['type'] == "checkbox" || $attributes['type'] == "multi_checkbox")
+                    	{
+                    		$valueOptions = $element->getValueOptions();
+                    		$values = $element->getValue();
+                    		$attributTypeInput = $attributes['type'];
+                    		if($attributTypeInput == "multi_checkbox")
+                    			$attributTypeInput = "checkbox";
+                    		
+                    		foreach ($valueOptions as $option => $elementHiri)
+                    		{
+                    			$checked = "";
+                    			$selected = "";
+                    			$disabled = "";
+                    			$classConteneur = "col-md-6";
+                    			$classSousConteneur = "";
+                    			$nameElt = $attributes['name'];
+                    			$classDataTogle = "";
+                    			$classInput = "";
+                    			$classLabelHere = "";
+                    			
+                    			if(($attributes['type'] == "checkbox" || $attributes['type'] == "multi_checkbox") && $values && in_array($elementHiri['value'], $values))
+                    				$checked = 'checked="checked"';
+                    			if($attributes['type'] == "radio" && $values && $elementHiri['value'] == $values)
+                    				$checked = 'checked="checked"';
+                    			if(isset($elementHiri['selected']))
+                    				$checked = 'checked="checked"';
+                    			if(isset($elementHiri['disabled']))
+                    				$disabled = 'disabled="disabled"';
+                    			if(isset($elementHiri['attributes']['classConteneur']))
+                    				$classConteneur = $elementHiri['attributes']['classConteneur'];
+                    			if(isset($elementHiri['attributes']['data-toggle']))
+                    			{
+                    				$classDataTogle = $elementHiri['attributes']['data-toggle'];
+                    				$classInput = "";
+                    			}
+                    			if($attributes['type'] == "checkbox" || $attributes['type'] == "multi_checkbox")
+                    			{
+                    				$nameElt .= "[]";
+                    				$classSousConteneur .= " checkbox";
+                    			}
+                    			if($attributes['type'] == "radio")
+                    			{
+                    				$classSousConteneur .= " radio";
+                    				$classConteneur .= " ctneurUnIcheck";
+                    				$classLabelHere = "";
+                    			}
+                    			
+                    			try {
+                    				echo '		<div class="ctneurICheck '.$classConteneur.'">';
+									echo '			<div class="'.$classSousConteneur.'">';
+									echo '				<label class="'.$classLabelHere.' label-icheck" '.$disabled.'>';
+									echo '					<input class="'.$classInput.'" type="'.$attributTypeInput.'" name="'.$nameElt.'" value="'.$elementHiri['value'].'" data-toggle="'.$classDataTogle.'" '.$checked.' '.$selected.' '.$disabled.' /> '.$elementHiri['label'];
+									echo '				</label>';
+									echo '			</div>';
+									echo '		</div>';
+                    			}
+                    			catch (\Exception $e) {
+                    			}
+                    			
+                    		}
+                    	}
+                    	else
+                    	{
+                    		try {
+
+								if(isset($options['concatUnite']) && isset($options['concatUnite']['unite']))
+								{
+									$attributTitle = "";
+									if(isset($options['concatUnite']['title']))
+									{
+										$attributTitle = $options['concatUnite']['title'];
+									}
+									
+									echo '<div class="input-group">';
+									echo  	$this->$methode($element);
+									echo '	<div class="input-group-addon" id="unite_'.$attributes['name'].'" title="'.$attributTitle.'">
+                    							'.$options['concatUnite']['unite'].'
+                    					 	</div>
+                    					 </div>';
+								}
+								elseif(isset($options['concatUnite']) && isset($options['concatUnite']['options']))
+								{
+									$attributTitle = "";
+									if(isset($options['concatUnite']['title']))
+									{
+										$attributTitle = $options['concatUnite']['title'];
+									}
+									
+									echo '<div class="input-group">';
+									echo  	$this->$methode($element);
+									echo '	<div class="input-group-addon input-group-select" id="unite_'.$attributes['name'].'" title="'.$attributTitle.'" style="">
+											<select id="selectUnite_'.$attributes['name'].'" name="selectUnite_'.$attributes['name'].'">';
+
+											foreach ($options['concatUnite']['options'] as $uneOption)
+											{
+												echo '<option value="'.$uneOption['value'].'">'.$uneOption['unite'].'</option>';
+											}
+									
+                    				echo '	</select></div>
+                    					  </div>';
+								}
+								else
+								{
+									echo  	$this->$methode($element);
+								}
+								
+                    		}
+                    		catch (\Exception $e) {
+                    		}
+                    	}
+                    	
+                    ?>
+                    
+                    <?php if($this->formPosted === true && $classError != "") : ?>
+                    	<div class="clearBoth"></div>
+                    	<ul class="form-error">
+                    		<?php foreach ($errorMessages as $unErrorMessage) : ?>
+                    			<li>
+                    				<?= $unErrorMessage; ?>
+                    			</li>
+							<?php endforeach ; ?>   
+                    	</ul>
+                    <?php endif ; ?>
+                    
+                    <div class="clearBoth"></div>
+                    <!-- The container to place the error of checkboxes -->
+       				<div id="<?= $attributes['name']; ?>Message"></div>
+	                                     
+	                 </div>
+                 	<div class="clearBoth"></div>
+                 	
+                 	
+                 	<?php 
+                 	
+                 		$oldClassEltLiaison = $classEltLiaison;
+                 	?>
+                 	
+				</div>
+				
+				
+					
+			<?php endif ; ?>
+		
+	<?php endforeach ; ?>
+
+	
+<?php if(!isset($this->onlyFormElement) || $this->onlyFormElement == false) : ?>
+
+	</div> <!-- /#jstContenuForm -->
+	<div class="box-footer">
+		<?php
+		
+			if($submitClose)
+			{
+				echo $this->formrow($form->get("submitClose"));
+			}
+		
+			echo $this->formrow($form->get("submit"));
+			echo '<a href="'.$urlCancel.'">'.$this->formrow($form->get("cancel")).'</a>';
+		?>
+	</div>
+	
+	<?= $this->form()->closeTag($form); ?>
+	
+<?php endif ; ?>	
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	setTimeout(function(){ $("div.radio label").addClass("control-label"); }, 100);
+	setTimeout(function(){ $("div.radio input[type='radio']").removeClass("form-control"); }, 100);
+
+
+	<?php if($this->formPosted && $this->msgSuccess) : ?>
+		mettreSuccesSurDiv("jstContenuForm" , "<?= $this->msgSuccess; ?>", "", false);
+	<?php elseif($this->formPosted && $this->msgError) : ?>
+		mettreErreurSurDiv("jstContenuForm" , "<?= $this->msgError; ?>", "", false);
+	<?php elseif($this->formPosted && $this->msgWarning) : ?>
+		mettreInfoSurDiv("jstContenuForm" , "<?= $this->msgWarning; ?>", "", false);
+	
+	<?php endif ;?>
+	      
+});
+</script>
+
+<style type="text/css">
+	.form-horizontal .checkbox, .form-horizontal .checkbox-inline, .form-horizontal .radio, .form-horizontal .radio-inline {
+	    padding-top: 0;
+	}
+</style>

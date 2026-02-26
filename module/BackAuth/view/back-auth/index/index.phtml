@@ -1,0 +1,201 @@
+<?php
+	use Zend\Session\Container;
+	
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	$recapcha =  new \Application\Core\Recapcha();
+	$appliConfig =  new \Application\Core\AppliConfig();
+
+?>
+
+	
+	<?php 
+		
+		// On se verifie pas le certificat ssl si on est en mode demo
+		if(!$appliConfig->get("mode_demo"))
+		{
+			echo $recapcha->script(); 
+		}
+	?>
+	
+	<div class="login-box" id="content_loginform">
+      <div class="login-logo">
+        <a><b><?= $appliConfig->get("nom_appli"); ?></b></a>
+      </div><!-- /.login-logo -->
+      <div class="login-box-body">
+        <p class="login-box-msg"><?= $this->translate("Veuillez saisir votre login et votre mot de passe", "application"); ?></p>
+        <form role="form" id="loginform">
+          <div class="form-group has-feedback">
+            <input type="text" class="form-control" placeholder="<?= $this->translate("Login", "application"); ?>" name="login" class="form-control" id="login" />
+            <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <input type="password" placeholder="<?= $this->translate("Mot de passe", "application"); ?>" name="motPasse" class="form-control" id="motPasse" />
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          </div>
+          
+          <?php 
+          	
+	          // On se verifie pas le certificat ssl si on est en mode demo
+	          if(!$appliConfig->get("mode_demo"))
+	          {
+	          	 echo '<div class="ctneur-recapcha" style="margin-bottom: 10px;">';
+          	     echo     	$recapcha->html();
+          	     echo '</div>';
+	          }
+          
+          ?>
+          
+          <div class="row">
+            <div class="col-md-8">
+              <div class="checkbox icheck">
+                <label>
+                  <input type="checkbox"> <?= $this->translate("Se souvenir de moi", "application"); ?>
+                </label>
+              </div>
+            </div><!-- /.col -->
+            <div class="col-md-4">
+              <button type="submit" class="btn btn-primary btn-block btn-flat"><?= $this->translate("Connexion", "application"); ?></button>
+            </div><!-- /.col -->
+          </div>
+        </form>
+        
+      </div><!-- /.login-box-body -->
+    </div><!-- /.login-box -->
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+
+		$('input').iCheck({
+          checkboxClass: 'icheckbox_square-blue',
+          radioClass: 'iradio_square-blue',
+          increaseArea: '20%' // optional
+        });
+		
+	    $("#motPasse, #login").blur( function() {
+	
+	        $this = $(this);
+	        idElement = $this.attr("id");
+	        retirerAlert(idElement);
+			
+			if($this.val() == "")
+			{
+				message = "";
+				if($this.attr("name") == "login")
+					message = "Veuillez saisir le login";
+				else if($this.attr("name") == "motPasse")
+					message = "Veuillez saisir le mot de passe";
+	
+				if(message != "")
+				{
+					$this.parent().addClass("has-error");
+					$this.tooltip({title : message,
+								   animation: true,
+								   placement: "right",
+								   trigger: "manual",
+								   container:'body',
+								   // html : true,
+								   template : '<div class="tooltip tooltip_error"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+								   }).tooltip("show");
+				}
+			}
+			else
+			{
+				$this.parent().removeClass("has-error");
+				retirerAlert("loginform");
+				$this.tooltip("destroy");
+			}
+	        
+	    });
+	
+	    $("#loginform").submit( function() {
+
+	    	$("#alert-message_content_loginform").remove();
+	        $login = $("#login");
+	        $motPasse = $("#motPasse");
+
+	        stop = false;
+	        
+	    	if($login.val() == "")
+			{
+	    		if(!$login.parent().hasClass("has-error"))
+	    		{
+	    			$login.parent().addClass("has-error");
+					$login.tooltip({title : "Veuillez saisir le login",
+								   animation: true,
+								   placement: "right",
+								   trigger: "manual",
+								   container:'body',
+								   // html : true,
+								   template : '<div class="tooltip tooltip_error"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+								   }).tooltip("show");
+	    		}
+	    		
+	    		stop = true;
+			}
+			
+	    	if($motPasse.val() == "")
+			{
+	    		if(!$motPasse.parent().hasClass("has-error"))
+	    		{
+	    			$motPasse.parent().addClass("has-error");
+					$motPasse.tooltip({title : "Veuillez saisir le mot de passe",
+								   animation: true,
+								   placement: "right",
+								   trigger: "manual",
+								   container:'body',
+								   // html : true,
+								   template : '<div class="tooltip tooltip_error"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+								   }).tooltip("show");
+	    		}
+	    		
+	    		stop = true;
+			}
+
+			if(stop)
+			{
+				return false;
+			}
+
+			dataString = $("#loginform").serialize();
+            
+            // Launch AJAX request.
+    		$.ajax({
+    			
+                type: "post",
+                
+                url: '<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>'+'/connexion',
+                
+                data: dataString,
+    			
+                beforeSend: function() {
+                   $("#alert-message_content_loginform").remove();
+                   mettreLoaderSurDiv("content_loginform" , "<?= $this->translate("Traitement en cours, veuillez patienter ...", "application");?>", "");
+    			},
+                
+                success: function( html ) {
+                	if(html.error != "")
+                	{
+                		mettreErreurSurDiv("content_loginform", html.error, "");
+                	}
+                	else
+                	{
+                		window.location = '<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>'+"/accueil";
+                	}
+    			},
+                
+    			error: function(){
+    				 mettreErreurSurDiv("content_loginform", "<?= $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>", "");
+				},
+                
+                complete: function(){
+                    retirerLoaderSurDiv("content_loginform");
+				}
+    		});
+
+ 		    return false;
+		});
+	});
+
+</script>

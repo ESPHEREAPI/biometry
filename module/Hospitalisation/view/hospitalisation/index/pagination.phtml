@@ -1,0 +1,164 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+
+$classOrderByDate = "";
+if($postValues['nomColoneTriPagination'] == "date")
+{
+    $classOrderByDate = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+
+
+$varRetour .= '  <form class="form-horizontal fv-form fv-form-bootstrap">';
+$varRetour .= '<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+// $varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+
+if($typeProfil == "admin")
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Prestataire").'</th>';
+}
+
+$varRetour .= '        <th>'.$this->getTranslator("Souscripteur").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Adherent").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Ayant droit").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Nature affection").'</th>';
+$varRetour .= '        <th class="isOrdered sorting '.$classOrderByDate.'" nomColone="date" style="width: 115px;">'.$this->getTranslator("Date").'</th>';
+
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+
+
+$peuxModifierPrestation = $this->prestationManager->verifierSiPeuxModifierHospitalisation($this->tabListeMenu, $this->numeroOrdre);
+$peuxImprimerPrestation = $this->prestationManager->verifierSiPeuxImprimerHospitalisation($this->tabListeMenu, $this->numeroOrdre);
+
+ 
+foreach($tab as $element)
+{
+    $visite = $element->getVisite();
+    $prestataire = $visite->getPrestataire();
+    $adherent = $visite->getCodeAdherent();
+    $ayantDroit = $visite->getCodeAyantDroit();
+    $consultation = $this->getEntityManager()->getRepository('Entity\Consultation')->findOneBy(array('visite' => $visite->getId()));
+    
+    $element->afficheChaine();
+    $prestataire->afficheChaine();
+    $adherent->afficheChaine();
+    
+    $nomAyantDroit = "";
+    if($ayantDroit)
+    {
+        $ayantDroit->afficheChaine();
+        $nomAyantDroit = $ayantDroit->getNom();
+    }
+    
+    $natureAffection = "";
+    if($consultation)
+    {
+        $consultation->afficheChaine();
+        $natureAffection = $consultation->getNatureAffection();
+    }
+    
+    
+    
+    $afficherModifierPrestationButton = $this->prestationManager->vefifierSiHospitalisationModifiable($element) && $peuxModifierPrestation;
+    $afficherImprimerPrestationButton = $this->prestationManager->vefifierSiHospitalisationImprimable($element, $sessionEmploye->offsetGet("id_prestataire")) && $peuxImprimerPrestation;
+    
+    $afficherSupprimerPrestationButton = $this->prestationManager->vefifierSiPrestationSupprimable($element);
+    
+    
+    $nbreLignePrestationEnregistre = $this->prestationManager->getNbreLignePrestationEnregistre($element);
+    $classLigne = "";
+    if($nbreLignePrestationEnregistre >= 12)
+    {
+        $classLigne = "enregistre";
+    }
+    
+    
+    
+    $varRetour .= '    <tr id="ligne_prestation_'.$element->getId().'"
+                           class="'.$classLigne.'"
+                           nomAdherent="'.$adherent->getAssurePrincipal().'"
+                           nomSouscripteur="'.$adherent->getSouscripteur().'"
+                           nomAyantDroit="'.$nomAyantDroit.'"
+
+
+
+                       >';
+	// $varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+
+	if($typeProfil == "admin")
+	{
+	    $varRetour .= '        <td>'.$prestataire->getNom().'</td>';
+	}
+	
+	$varRetour .= '        <td>'.$adherent->getSouscripteur().'</td>';
+	$varRetour .= '        <td>'.$adherent->getAssurePrincipal().'</td>';
+	$varRetour .= '        <td>'.$nomAyantDroit.'</td>';
+	$varRetour .= '        <td>'.$natureAffection.'</td>';
+	
+	
+	$varRetour .= '        <td>'.$element->getDate()->format("d/m/Y H:i").'</td>';
+	
+	
+	$varRetour .= '        <td class="rsv-table-elt-btn">';
+	$varRetour .= '             <div class="btn-group">
+							                      <button class="btn btn-default btn-selectionner-heres" type="button" href="##"><a>'.$this->getTranslator("Selectionner").'</a></button>
+							                      <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+							                        <span class="caret"></span>
+							                        <span class="sr-only">'.$this->getTranslator("Toggle Dropdown").'</span>
+							                      </button>
+							                      <ul role="menu" class="dropdown-menu rsv-btn-group-tab">';
+    
+	
+	$varRetour .= '<li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/'.$this->naturePrestation.'/details/'.$element->getId().'"><i class="fa fa-list"></i> '.$this->getTranslator("Details").'</a></li>';
+	
+	if($afficherModifierPrestationButton)
+	{
+	    $varRetour .= '<li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/'.$this->naturePrestation.'/modifier/'.$element->getId().'"><i class="fa fa-edit"></i> '.$this->getTranslator("Modifier").'</a></li>';
+	}
+	
+	
+	if($afficherImprimerPrestationButton)
+	{
+	    $varRetour .= '<li><a href="##" class="imprimerRecuPrestation" id="imprimerRecuPrestation_'.$element->getId().'" rel="'.$element->getId().'"><i class="fa fa-print"></i> '.$this->getTranslator("Imprimer").'</a></li>';
+	}
+	
+    
+    if($afficherSupprimerPrestationButton)
+    {
+        $varRetour .= '<li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Prestation/'.$element->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>';
+    }
+                                               
+
+                                       
+    $varRetour .=		                      '</ul>
+											</div>';
+	$varRetour .= '        </td>';
+	
+	
+	
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+$varRetour .= '</form>';
+
+
+$varRetour .= '<style type="text/css">
+tr.enregistre {
+    background: #f5e0cf !important;
+}
+</style>';
+
+?>

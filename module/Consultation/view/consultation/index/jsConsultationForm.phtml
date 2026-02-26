@@ -1,0 +1,394 @@
+<?php 
+	use Zend\Session\Container;
+	$sessionEmploye = new Container('employe');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	
+	$typeProfil = $sessionEmploye->offsetGet("type_profil");
+?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+
+		$ligneMontant = $("#ligne_montant");
+		$visite = $("#visite");
+		$uniteVisite = $("#unite_visite");
+		$form = $('#form_ajout');
+		$ligneNatureConsultation = $("#ligne_natureConsultation");
+		
+		
+		$("#content_form_ajout").prepend('<div id="contenuInfosMalade"></div>');
+
+
+		if("<?= $this->origin; ?>" == "ajout" && "<?= $this->codeCourtVisite; ?>" != "")
+		{
+			$visite.val("<?= $this->codeCourtVisite; ?>");
+			
+			setTimeout(function(){ $uniteVisite.click(); }, 100);
+			
+		}
+		
+		
+		if("<?= $typeProfil; ?>" == "admin")
+		{
+			$("#ligne_natureConsultation").find("input[type='radio']").each(function () {
+				$this = $(this);
+				$this.attr('disabled', true);
+			});
+		}
+
+		
+
+		$('#visite').keypress(function(event){
+			
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if(keycode == '13') {
+				$uniteVisite.click();
+				return false;	
+			}
+
+		});
+
+
+
+		
+		
+
+		$form
+
+
+// 		.on('init.field.fv', function(e, data) {
+//             // data.field   --> The field name
+//             // data.element --> The field element
+            
+//         })
+
+		.on('init.field.fv', function(e, data) {
+            // data.field   --> The field name
+            // data.element --> The field element
+            if (data.field === 'natureConsultation') {
+                var $icon = data.element.data('fv.icon');
+                $icon.appendTo('#natureConsultationIcon');
+            }
+        })
+
+		.formValidation({
+	        framework: 'bootstrap',
+	        excluded: [':disabled', ':hidden', ':not(:visible)'],
+	        icon: {
+	            valid: 'fa fa-check',
+	            invalid: 'fa fa-info',
+	            validating: 'fa fa-refresh'
+	        },
+	        locale: '<?= $sessionEmploye->offsetGet("code_langue"); ?>',
+	        fields: {
+	            visite: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    stringLength: {
+	                        min: 2,
+	                        max:255
+	                    },
+	                    regexp: {
+                            regexp: /^[a-z0-9A-Z]+$/i,
+                            message: "<?= $this->translate("Seuls les caracteres alphanumeriques sont acceptes.", "application"); ?>"
+                        },
+	                    blank: {}
+	                }
+	            },
+	            natureConsultation: {
+                    err: '#natureConsultationMessage',
+                    validators: {
+                        notEmpty: {
+                            message: "<?= $this->translate("Veuillez choisir une option", "application"); ?>"
+                        }
+                    }
+                },
+            natureConsultation: {
+ 	            	// trigger: 'blur',
+ 	                validators: {
+ 	                    notEmpty: {
+ 	                    },
+ 	                    regexp: {
+ 	                        regexp: /^[payante|gratuite]+$/i 
+ 	                    },
+ 	                    blank: {}
+ 	                }
+ 	            },
+	            typeConsultation: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    
+	                    blank: {}
+	                }
+	            },
+	            montant: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    integer: {
+		                },
+	                    blank: {}
+	                }
+	            },
+	        }
+	    })
+	    
+	    .on('prevalidate.form.fv', function(e) {
+            // $(e.target) --> The form instance
+            // $(e.target).data('formValidation')
+            //             --> The FormValidation instance
+
+            // Do something ...
+        })
+
+        .on('err.form.fv', function(e) {
+        	traiterErreurFormValidation(e, "jstContenuForm");
+        })
+        
+	    .on('success.form.fv', function(e) {
+
+	    	var tabAutresParametres = [];
+	    	var tabOtherPostValues = [];
+			
+
+			action = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/consultation/enregistrer";
+
+
+			$visite.prop('disabled', false);
+	    	traiterSuccesFormValidation(e, "jstContenuForm", action, tabAutresParametres, tabOtherPostValues);
+	    	$visite.prop('disabled', true);
+        })
+        
+        .find('.ctneurICheck input[type="radio"]')
+            // Init icheck elements
+//             .icheck({
+//                 // The tap option is only available in v2.0
+//                 tap: true,
+//                 checkboxClass: 'icheckbox_square-red',
+//                 radioClass: 'iradio_square-red'
+//             })
+            // Called when the radios/checkboxes are changed
+            .on('ifChanged', function(e) {
+                // Get the field name
+                var field = $(this).attr('name');
+                $form.formValidation('revalidateField', field);
+            })
+            .end()
+            ;
+
+		
+		
+		$("body").on("click", "#unite_visite", function() {
+			
+			$this = $(this);
+			$visite = $("#visite");
+			$visteTouvee = $("#visteTouvee");
+			dataString = "";
+
+			if($visite.val() == "")
+			{
+				$.confirm({
+	        		icon: 'fa fa-exclamation-triangle',
+	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+	        	    content: "<?=  $this->translate("Veullez saisir le code de la visite", "application");?>",
+	        	    type: 'red',
+	        	    typeAnimated: true,
+	        	    buttons: {
+	        	        close: {
+	        	            text: "<?=  $this->translate("OK", "application");?>",
+	        	        }
+	        	    }
+	        	});
+				return false;
+			}
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/consultation/rechercher-visite/"+$visite.val(),
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	$('#content_form_ajout').spinnerQueue({'message' : commonTabLangue["Traitement en cours ..."]}).spinnerQueue('started', 'pageLoad');
+				},
+	            
+	            success: function( html ) {
+
+					if(html.error != "")
+					{
+						$.confirm({
+			        		icon: 'fa fa-exclamation-triangle',
+			        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			        	    content: html.error,
+			        	    type: 'red',
+			        	    typeAnimated: true,
+			        	    buttons: {
+			        	        close: {
+			        	            text: "<?=  $this->translate("OK", "application");?>",
+			        	        }
+			        	    }
+			        	});
+					}
+					else
+					{
+						$visteTouvee.val(html.idVisiteTrouvee);
+						// alert(html.idVisiteTrouvee);
+						
+						// Il faut désactiver l'accès au champ
+						$visite.prop('disabled', true);
+						$this.prop('disabled', true);
+
+						content = '<table class="table dataTable table-striped" style="margin: 0 auto; width: 500px;"><tbody>';
+
+						content += '  <tr class="">';
+						content += '     <td width="30%" style="font-weight: bold; ">Assure principal</td>';
+						content += '     <td width="70%" style="">'+html.varRetour.adherent+'</td>';
+						content += '  </tr>';
+
+						if(html.varRetour.ayantDroit != "")
+						{
+							content += '  <tr class="">';
+							content += '     <td width="30%" style="font-weight: bold; ">Ayant droit</td>';
+							content += '     <td width="70%" style="">'+html.varRetour.ayantDroit+'</td>';
+							content += '  </tr>';
+						}
+
+						content += '  <tr class="">';
+						content += '     <td width="30%" style="font-weight: bold; ">Souscripteur</td>';
+						content += '     <td width="70%" style="">'+html.varRetour.souscripteur+'</td>';
+						content += '  </tr>';
+											
+						content += '</tbody></table>';
+
+
+						$("#contenuInfosMalade").html(content);
+						$("#ligne_typeConsultation, #ligne_natureConsultation,  #submit").slideDown(500);
+
+						if("<?= $typeProfil; ?>" == "prestataire")
+						{
+							$("#ligne_montant").slideDown(500);
+						}
+					}
+				},
+	            
+	            error: function() {
+	                $.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Probleme d'acces au server, veuillez reessayer plus tard", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+				},
+	            
+	            complete: function() {
+	            	$('#content_form_ajout').spinnerQueue('finished', 'pageLoad');
+				}
+			});
+
+			return false;
+        });
+		
+		
+		$("body").on("change", "#typeConsultation", function() {
+			$this = $(this);
+			
+			 valeurItem=$this.val();
+			 //alert(valeurItem);
+			 if(valeurItem=="")
+			 {
+				 
+			 }	 
+			else
+			{ 
+		     
+				
+			// Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/consultation/recuperer-montant/"+valeurItem,
+	            
+	            data: '',
+				
+	            beforeSend: function(){
+			
+		},
+	            
+	            success:function(html) {
+					
+					
+					
+					 
+					 $( "input[name='montant']" ).val( html.varRetour.prix );
+					
+		                          },
+	            
+	            error:function() {
+				},
+	            
+	            complete: function() {
+	            	
+				}
+			});
+     //fin ajax			
+			}
+			 
+		});
+
+
+
+		$("#ligne_natureConsultation").on("ifChecked", "input[type='radio']", function() {		
+			$this = $(this);
+
+			if($this.val() == "gratuite")
+			{
+				$ligneMontant.slideUp(500);
+			}
+			else if($this.val() == "payante")
+			{
+				$ligneMontant.slideDown(500);
+			}
+		});	
+	});
+
+
+
+
+	function callbackSuccesFormValidation(html, tabAutresParametres, varRetour)
+    {
+		$.confirm({
+    		icon: 'fa fa-check',
+    	    title: "<?=  $this->translate("Success", "application");?>",
+    	    content: "<?=  $this->translate("Operation effectuee avec succes", "application");?>",
+    	    type: 'green',
+			autoClose: 'close|2000',
+    	    typeAnimated: true,
+    	    buttons: {
+    	        close: {
+    	            text: "<?=  $this->translate("OK", "application");?>",
+    	            action: function(){
+    	            	window.location = basePathBackoffice+"/consultation";
+	                }
+    	        },
+    	    }
+    	});
+    }
+	
+</script>

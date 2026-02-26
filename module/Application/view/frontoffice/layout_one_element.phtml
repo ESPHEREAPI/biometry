@@ -1,0 +1,294 @@
+<?= $this->doctype(); ?>
+
+<?php
+	use Zend\Session\Container;
+	
+	$sessionInternaute = new Container('internaute');
+	$sessionAgence = new Container('agence');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	$idInternauteHere = $sessionInternaute->offsetGet("id");
+	
+	if(isset($this->titlePage) && !empty($this->titlePage))
+		$titlePage = $this->titlePage;
+	elseif(isset($this->titleHautPage) && !empty($this->titleHautPage))
+		$titlePage = $this->titleHautPage;
+	else 
+		$titlePage = $this->nomPage;	
+?>
+
+<html lang="<?= $sessionInternaute->offsetGet("code_iso_langue"); ?>" class="">
+    <head>
+    	<script src="https://apis.google.com/js/platform.js" async defer></script>
+		<meta name="google-signin-client_id" content="490762090175-5e17eni67sl3l5dgor9g10v0atr04rc4.apps.googleusercontent.com">
+    
+    
+    	<!-- Basic -->
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1' />
+
+		<title><?= $titlePage." - ".$this->translate($appliConfig->get("nom_appli"), "application"); ?></title>	
+
+		<?php if(isset($this->metaMotClePage) && !empty($this->metaMotClePage)) : ?>
+			<meta name="keywords" content="<?= $this->metaMotClePage; ?>" />
+		<?php endif ; ?>
+		
+		<?php if(isset($this->metaDescriptionPage) && !empty($this->metaDescriptionPage)) : ?>
+			<meta name="description" content="<?= $this->metaDescriptionPage; ?>" />
+		<?php endif ; ?>
+		
+		<meta name="author" content="<?= $appliConfig->get("nom_appli"); ?>" />
+		
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="<?= $this->basePath("img/favicon.ico"); ?>" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="<?= $this->basePath("img/apple-touch-icon.png"); ?>" />
+
+		<!-- Mobile Metas -->
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<!-- Web Fonts  -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CShadows+Into+Light" rel="stylesheet" type="text/css" />
+		
+		<!-- Sticky Modal -->
+		<link rel="stylesheet" href="<?= $this->basePath("modal-css3-powered-popups/css/slickModal.min.css"); ?>" media="screen" />
+		<link rel="stylesheet" href="<?= $this->basePath("Hover-master/css/hover-min.css"); ?>" media="screen" />
+
+		<!-- Vendor CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/bootstrap/css/bootstrap.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/bootstrap-social.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/jqueryui/development-bundle/themes/base/jquery.ui.all.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("AdminLTE-2.2.1/plugins/select2/select2.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("AdminLTE-2.2.1/plugins/iCheck/all.css"); ?>" />
+		
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/font-awesome/css/font-awesome.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/simple-line-icons/css/simple-line-icons.min.css"); ?>">
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/owl.carousel/assets/owl.carousel.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/owl.carousel/assets/owl.theme.default.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/magnific-popup/magnific-popup.min.css"); ?>" />
+		
+		<!-- Theme CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-elements.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-blog.css"); ?>" />
+
+		<!-- Skin CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/skins/default.css"); ?>" />		
+
+		<!-- Theme Custom CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/custom.blue.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/intl-tel-input/build/css/intlTelInput.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/animate.css/3.4.0/animate.min.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/jquery-confirm-master-v3-0-1/css/jquery-confirm.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/spinner-on-div/spinnerQueue.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("css/custom.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/style.css"); ?>" />
+		
+		<?php if($appliConfig->get("mode_demo") == "0") : ?>
+			<link rel="stylesheet" href="<?= $this->basePath("css/production.css"); ?>" />
+		<?php endif; ?>
+		
+		<link rel="stylesheet" href="<?= $this->basePath("css/langage/".$sessionInternaute->offsetGet("code_langue").".css"); ?>" />
+		
+		
+		<?= $this->headScript()
+        	->prependFile($this->basePath().'/js/script.js')
+        	->prependFile($this->basePath().'/js/custumPagination.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/language/common_lang_'.$sessionInternaute->offsetGet("code_langue").'.js')
+        	
+        	->prependFile($this->basePath().'/js/spinner-on-div/spinnerQueue.js', 'text/javascript')
+        	
+        	->prependFile($this->basePath().'/vendor/intl-tel-input/build/js/intlTelInput.min.js', 'text/javascript')
+        	
+        	->prependFile($this->basePath().'/js/jquery.maskedinput.js', 'text/javascript')
+        	 
+        	// FormValidation
+        	->prependFile($this->basePath().'/js/formValidation/js/bootstrap.min.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/formValidation/js/formValidation.min.js', 'text/javascript')
+        	
+        	// Vendor
+			->prependFile($this->basePath().'/vendor/magnific-popup/jquery.magnific-popup.min.js', 'text/javascript')
+			
+			->prependFile($this->basePath().'/js/jquery-confirm-master-v3-0-1/js/jquery-confirm.js')
+			
+			
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.full.min.js'))
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/iCheck/icheck.min.js'))
+			
+        	->prependFile($this->basePath().'/vendor/owl.carousel/owl.carousel.min.js')
+            ->prependFile($this->basePath().'/vendor/common/common.min.js')
+            ->prependFile($this->basePath().'/vendor/bootstrap/js/bootstrap.min.js')
+            ->prependFile($this->basePath().'/vendor/jquery-cookie/jquery-cookie.min.js')
+            
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.datepicker.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.widget.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.core.min.js', 'text/javascript')
+            
+            ->prependFile($this->basePath().'/modal-css3-powered-popups/js/slickModal.min.js', 'text/javascript')
+            
+            ->prependFile($this->basePath().'/vendor/jquery/jquery.min.js')
+            ->prependFile($this->basePath().'/vendor/modernizr/modernizr.min.js')
+        ; ?>
+        
+        
+        
+        <?php if(isset($this->descriptionPage) && !empty($this->descriptionPage)) : ?>
+			<meta property="og:description" content="<?= $this->descriptionPage; ?>" />
+		<?php endif ; ?>
+		
+		<?php if(isset($this->imagePage) && !empty($this->imagePage)) : ?>
+			<meta property="og:image" content="<?= $this->imagePage; ?>" />
+		<?php endif ; ?>
+			
+		<?php if(isset($this->videoPage) && !empty($this->videoPage)) : ?>
+			<meta property="og:video" content="<?= $this->videoPage; ?>" />
+			<meta property="og:video:width" content="560" />
+			<meta property="og:video:height" content="340" />
+			<meta property="og:video:type" content="video/mp4" />
+		<?php endif ; ?>
+	</head>
+	
+    <body data-spy="scroll" data-target="#sidebar">
+		
+		<div class="loading-overlay">
+			<div class="loader"></div>
+		</div>
+
+		<div class="body">
+			<header id="header" class="header-narrow" data-plugin-options='{"stickyEnabled": true, "stickyEnableOnBoxed": true, "stickyEnableOnMobile": false, "stickyStartAt": 47, "stickySetTop": "-47px", "stickyChangeLogo": false}'>
+				<?= $this->header; ?>
+			</header>
+
+			<div role="main" class="main">
+
+				<section class="page-header">
+					<div class="container">
+						<!--  
+							<div class="row">
+								<div class="col-md-12">
+									<?php // echo $this->contenuNavigation; ?>
+								</div>
+							</div>
+						-->
+						<div class="row">
+							<div class="col-md-12">
+								<h1><?= $this->nomPage; ?></h1>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<div class="container contenuPage" id="contenuPage">
+
+					<div class="row">
+						
+						<?php if(isset($this->afficherSideBar) && $this->afficherSideBar == "-1") : ?>
+							
+							<div class="col-md-12">
+    							<div class="blog-posts single-post ctneurUnElement">
+    								<?= $this->content; ?>
+    							</div>
+    						</div>
+						
+						<?php else : ?>
+							<div class="col-md-9">
+    							<div class="blog-posts single-post ctneurUnElement cteneurBlockMsbt">
+    								<?= $this->content; ?>
+    							</div>
+    						</div>
+    						
+    						<div class="col-md-3">
+    							<aside class="sidebar" id="sidebar">
+    								<?php 
+    									$articleSideBarCategorieHere = $this->articleSideBarCategorie;
+    									$elementsRecentHere = $this->elementsRecent; 									
+    								?>
+    								<?php if(isset($this->articleSideBarCategorie) && !empty($articleSideBarCategorieHere)) : ?>
+    								
+    									<div class="cteneurBlockMsbt">
+    										<?= $this->articleSideBarCategorie; ?>
+    									</div>
+    
+    								<?php endif; ?>
+    								
+    								
+    								<?php if(isset($this->elementsRecent) && !empty($elementsRecentHere)) : ?>
+    								
+    									<div class="cteneurBlockMsbt">
+    										<?= $this->elementsRecent; ?>
+    									</div>
+    
+    								<?php endif; ?>
+    							</aside>
+    						</div>						
+						<?php endif ; ?>
+
+					</div>
+
+				</div>
+
+			</div>
+
+			<footer id="footer">
+				<?= $this->footer; ?>
+			</footer>
+		</div>
+		
+		<!-- Theme Base, Components and Settings -->
+		<script src="<?= $this->basePath("js/theme.js"); ?>"></script>
+		
+		<script src="<?= $this->basePath("js/theme.init.js"); ?>"></script>
+		
+		
+		<!-- Theme Custom -->
+		<script src="<?= $this->basePath("js/custom.js"); ?>"></script>
+		
+		<!-- Theme Initialization Files -->
+		<script src="<?= $this->basePath("js/theme.customMsbt.init.js"); ?>"></script>
+		
+        <?= $this->inlineScript(); ?>
+        
+        <?php 
+			include_once __DIR__.'/common.phtml';
+        	// include_once __DIR__.'/common/pop-up-annonce.phtml';
+		?>
+        
+        <script type="text/javascript">		         
+			$(document).ready(function() {
+				$('.ctneurICheck input').iCheck({
+			          checkboxClass: 'icheckbox_square-blue',
+			          radioClass: 'iradio_square-blue',
+			          increaseArea: '20%' // optional
+			    });
+			});
+		</script>
+		
+		
+		<?php 
+			include_once __DIR__.'/common/liveChat.phtml';
+		?>
+		
+		
+		<?php 
+			if(empty($idInternauteHere))
+			{
+				include_once __DIR__.'/../../../FrontAuth/view/front-auth/index/ajaxConnexion.phtml';
+			}
+		?>
+		
+		
+		<script type="text/javascript">		         
+			$(document).ready(function() {
+				
+				
+			});
+		</script>
+    </body>
+</html>

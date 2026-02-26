@@ -1,0 +1,49 @@
+<?php 	
+	use Zend\Session\Container;
+
+    $appliConfig =  new \Application\Core\AppliConfig();
+	
+	$sessionEmploye = new Container('employe');
+	
+	$manuelUtilisateur = "";
+	if($sessionEmploye->offsetExists("code_profil"))
+	{
+	    if($sessionEmploye->offsetGet("type_profil") == "admin")
+	    {
+	        $nomCompletFichier = "MANUELS_UTILISATEURS.zip";
+	        $libelleFichier = $this->translate("Telechargez les manuels utilisateurs", "application");
+	    }
+	    else
+	    {
+	        $nomCompletFichier = "MANUEL_".$sessionEmploye->offsetGet("code_profil").".pdf";
+	        $libelleFichier = $this->translate("Telechargez le manuel utilisateur", "application");
+	    }
+	    
+	    
+	    $file = __DIR__.'/../../../../public/docs/manuel-utilisateur/'.$nomCompletFichier;
+        
+	    if(file_exists($file))
+	    {
+	        $manuelUtilisateur = '<a href="'.$this->basePath().'/download/docs_*-*_manuel-utilisateur_*-*_'.$nomCompletFichier.'">'.$libelleFichier.'</a>';
+	    }
+	}
+?>
+
+<div class="pull-right hidden-xs">
+	<b>Version</b> 1.0.0
+</div>
+
+
+<?php if(!empty($manuelUtilisateur)) : ?>
+    <div class="pull-right hidden-xs" style="margin-right: 10px;">
+    	<?= $manuelUtilisateur; ?>
+    </div>
+<?php endif ; ?>
+
+<?php 
+	$dateCopyRight = "2018";
+	if(date('Y') > 2018)
+		$dateCopyRight .= "-".date('Y');
+?>
+
+<strong>Copyright &copy; <?= $dateCopyRight; ?> <a href="https://zenitheinsurance.com" target="_blank"><?= $appliConfig->get("nom_appli"); ?></a>.</strong> <?= $this->translate('All rights reserved', 'application') ?>.

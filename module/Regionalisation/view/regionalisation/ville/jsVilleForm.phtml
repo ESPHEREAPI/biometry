@@ -1,0 +1,51 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+		
+		$( "#langue" ).change(function() {
+
+			$this = $(this);
+
+			dataString = "langue="+$this.val();
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/regionalisation/ville/chargervillesajax/<?= $this->idVilleLangue; ?>",
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', true);
+					$("#langue").after('<span class="loaderAjax-input" id="loaderAjax-input"></span>');
+				},
+	            
+	            success: function( html ) {
+
+	            	$.each(html.varRetour, function( key, value ) {
+
+	            		if (key != "langue" && $("#"+key).length > 0) {
+	            			$("#"+key).val(value);
+	            		}
+	            	});
+				},
+	            
+	            error: function() {
+	                mettreErreurSurDiv("content_form_ajout" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+				},
+	            
+	            complete: function() {
+	            	$("#loaderAjax-input").remove();
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', false);
+				}
+			});
+
+			return false;
+        });
+	});
+</script>

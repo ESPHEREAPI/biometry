@@ -1,0 +1,143 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+
+<div class="box-group" id="accordion">
+<?php foreach($this->tab as $element) : ?>
+	<?php
+		if($element->getProfil()->getStatut() == -1) { $classtatut =  "table_inactive"; $titleStatut =  $this->translate("Activer"); $newStatut = 1; }
+		else { $classtatut =  "table_active"; $titleStatut =  $this->translate("Desactiver"); $newStatut = -1; }
+	?>
+	
+	<div class="panel box box-primary ctneur_toutes_permissions">
+	  <div class="box-header with-border">
+		<h4 class="box-title">
+		  <a data-toggle="collapse" data-parent="#accordion" href="#collapseElt_<?= $element->getProfil()->getId(); ?>" rel="<?= $element->getProfil()->getId(); ?>">
+			<?= $element->getNom(); ?>
+		  </a>
+		</h4>
+	  </div>
+	  <div id="collapseElt_<?= $element->getProfil()->getId(); ?>" class="panel-collapse collapse">
+		<div class="box-body" id="box_body_collapse_<?= $element->getProfil()->getId(); ?>">
+			
+		</div>
+	  </div>
+	</div>
+<?php endforeach; ?>
+</div>
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+	    // $("#accordion ").submit( function() {
+	    $('#accordion .box-header a').on('click', function(e) {
+
+			$("#accordion div.box-body").html("");
+
+			$this = $(this);
+
+		    if(!$this.parents('.panel').children('.panel-collapse').hasClass('in')) {
+			    
+		    	dataString = "";
+	            
+	            // Launch AJAX request.
+	    		$.ajax({
+	    			
+	                type: "post",
+	                
+	                url: '<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>'+'/administration/permission/profil/'+$this.attr("rel"),
+	                
+	                data: dataString,
+	    			
+	                beforeSend: function() {
+	                   $("#alert-message_box_body_collapse_"+$this.attr("rel")).remove();
+	                   mettreLoaderSurDiv("box_body_collapse_"+$this.attr("rel") , "<?= $this->translate("Traitement en cours, veuillez patienter ...", "application");?>", "");
+	    			},
+	                
+	                success: function( html ) {
+	                	if(html.error != "")
+	                	{
+	                		mettreErreurSurDiv("box_body_collapse_"+$this.attr("rel"), html.error, "");
+	                	}
+	                	else
+	                	{
+	                		$("#box_body_collapse_"+$this.attr("rel")).html(html.varRetour);
+
+	                		//iCheck for checkbox and radio inputs
+	                        $("#box_body_collapse_"+$this.attr("rel")+" input[type='checkbox']").iCheck({
+	                          checkboxClass: 'icheckbox_minimal-blue',
+	                          radioClass: 'iradio_minimal-blue'
+	                        });
+	                        
+	                        $('#check_all_list').on('ifChecked', function(event) {
+	                			$("#liteEltsTab input[type='checkbox']").iCheck('check');
+	                		});
+	                		
+	                		$('#check_all_list').on('ifUnchecked', function(event) {
+	                			$("#liteEltsTab input[type='checkbox']").iCheck('uncheck');
+	                		});
+
+	                		$('#submit').on('click', function(e) {
+
+	                			dataString = $("#formLiteEltsTab").serialize();
+
+	                			// Launch AJAX request.
+	            	    		$.ajax({
+	            	    			
+	            	                type: "post",
+	            	                
+	            	                url: '<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>'+'/administration/permission/profil/'+$this.attr("rel")+"/valider",
+	            	                
+	            	                data: dataString,
+	            	    			
+	            	                beforeSend: function() {
+	            	                   $("#alert-message_box_body_collapse_"+$this.attr("rel")).remove();
+	            	                   mettreLoaderSurDiv("box_body_collapse_"+$this.attr("rel") , "<?= $this->translate("Traitement en cours, veuillez patienter ...", "application");?>", "");
+	            	    			},
+	            	                
+	            	                success: function( html ) {
+	            	                	if(html.error != "")
+	            	                	{
+	            	                		mettreErreurSurDiv("box_body_collapse_"+$this.attr("rel"), html.error, "");
+	            	                	}
+	            	                	else
+	            	                	{
+	            	                		mettreSuccesSurDiv("box_body_collapse_"+$this.attr("rel"), "<?= $this->translate("Operation effectuee avec success", "application");?>", "", true);
+	            	                	}
+	            	    			},
+	            	                
+	            	    			error: function(){
+	            	    				 mettreErreurSurDiv("box_body_collapse_"+$this.attr("rel"), "<?= $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>", "");
+	            					},
+	            	                
+	            	                complete: function(){
+	            	                    retirerLoaderSurDiv("box_body_collapse_"+$this.attr("rel"));
+	            					}
+	            	    		});
+		                	});
+	                	}
+	    			},
+	                
+	    			error: function(){
+	    				 mettreErreurSurDiv("box_body_collapse_"+$this.attr("rel"), "<?= $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>", "");
+					},
+	                
+	                complete: function(){
+	                    retirerLoaderSurDiv("box_body_collapse_"+$this.attr("rel"));
+					}
+	    		});
+
+	 		    // return false;
+		    }
+		    else
+		    {
+		    	$("#box_body_collapse_"+$this.attr("rel")).html("");
+		    }
+		});
+	});
+
+</script>
+

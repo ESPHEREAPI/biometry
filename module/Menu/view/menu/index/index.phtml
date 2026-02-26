@@ -1,0 +1,67 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+		$("body").on("click", "a.envoiNewsLetter", function() {
+
+			$("#envoyerNewsletterModale").attr("rel", $(this).attr("rel"));
+			retirerAlert("modalEnvoyerNewsLetterBodyId");
+			
+        });
+		
+		$("body").on("click", "#envoyerNewsletterModale", function() {
+			
+			$this = $(this);
+
+			dataString = "idElement="+$this.attr("rel")+"&type=MenuLangue";
+	        
+	        // Launch AJAX request.
+			$.ajax({
+
+				//Options signifiant a jQuery de ne pas s'occuper du type de donnees
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice')."/envoyernewsletter"; ?>",
+		            
+				data: dataString,
+					
+	            beforeSend: function() {
+	            	retirerAlert("modalEnvoyerNewsLetterBodyId");
+	            	mettreLoaderSurDiv("modalEnvoyerNewsLetterBodyId" , "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>", "");
+				},
+		            
+		       	success: function( html ) {
+			       	
+		       		if (html.error != "")
+		       		{
+		       			mettreErreurSurDiv("modalEnvoyerNewsLetterBodyId" , html.error, "");
+		       		}
+		       		else if (html.info != "")
+		       		{
+		       			mettreInfoSurDiv("modalEnvoyerNewsLetterBodyId" , html.info, "");
+		       		}
+		       		else
+		       		{
+		       			mettreSuccesSurDiv("modalEnvoyerNewsLetterBodyId" , html.varRetour, "", false);
+		       		}
+				},
+	            
+	            error: function() {
+	                mettreErreurSurDiv("modalEnvoyerNewsLetterBodyId" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+				},
+	            
+	            complete: function() {
+	            	retirerLoaderSurDiv("modalEnvoyerNewsLetterBodyId");
+				}
+			});
+
+			return false;
+			
+        });
+	        
+	});
+</script>

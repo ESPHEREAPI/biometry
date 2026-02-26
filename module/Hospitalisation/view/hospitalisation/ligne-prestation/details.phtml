@@ -1,0 +1,758 @@
+<?php
+
+use Zend\Session\Container;
+$sessionAgence = new Container('agence');
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+include_once __DIR__.'/../index/jsImprimerPrestation.phtml';
+
+
+$adherent = $this->prestation->getVisite()->getCodeAdherent();
+$ayantDroit = $this->prestation->getVisite()->getCodeAyantDroit();
+$adherent->afficheChaine();
+
+$nomAyantDroit = "";
+if($ayantDroit)
+{
+    $nomAyantDroit = $ayantDroit->getNom();
+}
+
+
+
+$htmlConfirmAction = '<div><div><table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt">';
+$htmlConfirmAction .= '  <thead>';
+$htmlConfirmAction .= '    <tr>';
+// $htmlConfirmAction .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+
+    
+    if($this->typeProfil == 'admin')
+    {
+		$htmlConfirmAction .= '        <th>'.$this->translate("Type Prestation", "application").'</th>';
+        $htmlConfirmAction .= '        <th>'.$this->translate("Coût Maximun", "application").'</th>';
+    }
+
+
+if($this->typeProfil == 'admin')
+{
+    $htmlConfirmAction .= '        <th>'.$this->translate("Observations", "application").'</th>';
+    $htmlConfirmAction .= '        <th class="rsv-table-title-action">'.$this->translate("Actions", "application").'</th>';
+}
+
+$htmlConfirmAction .= '    </tr>';
+$htmlConfirmAction .= '  </thead>';
+$htmlConfirmAction .= '  <tbody>';
+$htmlConfirmAction .= '  </tbody>';
+$htmlConfirmAction .= '</table></div></div>';
+
+
+?>
+
+
+
+<div 
+	id="ligne_prestation_<?= $this->prestation->getId() ?>"
+	nomAdherent="<?= $adherent->getAssurePrincipal(); ?>"
+	nomSouscripteur="<?= $adherent->getSouscripteur(); ?>"
+	nomAyantDroit="<?= $nomAyantDroit; ?>">
+	</div>
+
+
+<script type="text/javascript">
+
+var 
+
+	montantTemplateValidators = {
+        validators: {
+			integer: {
+	                 },
+            blank: {}
+        }
+    },
+
+    nbreTemplateValidators = {
+            validators: {
+				integer: {
+	                 },
+                blank: {}
+            }
+        },
+
+    tauxTemplateValidators = {
+            validators: {
+				integer: {
+	                 },
+                blank: {}
+            }
+        },
+
+    actePrelevementTemplateValidators = {
+            validators: {
+				integer: {
+	                 },
+                blank: {}
+            }
+        },
+
+    montantModifTemplateValidators = {
+                validators: {
+					integer: {
+	                },
+                    blank: {}
+                }
+            },
+
+
+   nbreModifTemplateValidators = {
+                    validators: {
+						stringLength: {
+            	             min: 2,
+                             max:255
+            },
+                        blank: {}
+                    }
+                },
+    actePrelevementModifTemplateValidators = {
+            validators: {
+				integer: {
+	                 },
+                blank: {}
+            }
+        },
+
+	observationsActePrelevemenTemplateValidators = {
+        validators: {
+            stringLength: {
+            	min: 5,
+                max:255
+            },
+            blank: {}
+        }
+    },
+
+    observationsTemplateValidators = {
+            validators: {
+                stringLength: {
+                	min: 5,
+                    max:255
+                },
+                blank: {}
+            }
+        },
+
+    actionTemplateValidators = {
+            validators: {
+//             	notEmpty: {
+//                 },
+                regexp: {
+                    // regexp: /^[valider|rejeter|encaisser]+$/i
+                	regexp: /^[valide|rejete|encaisse|devalide|derejete]+$/i  
+                },
+                blank: {}
+            }
+        },
+
+    
+    blankValidators = {
+            validators: {
+	            blank: {}
+            }
+    },
+    tabLignePrestation = [];
+
+
+	listeLignePrestationFinal = "";
+
+
+
+
+	function initialiserJsLignePrestation()
+	{
+		afficherInfosMalade("ctneurLiteEltsTab", "<?= $this->infosMalade["nomAssurePrincipal"]; ?>", "<?= $this->infosMalade["nomMalade"]; ?>", "<?= $this->infosMalade["nomSouscripteur"]; ?>", "<?= $this->infosMalade["natureAffection"]; ?>", "<?= $this->infosMalade["groupe"]; ?>", "");
+		
+		$form = $('#form_details_prestation');
+	    
+    	$form
+    
+    
+    	.on('init.field.fv', function(e, data) {
+            // data.field   --> The field name
+            // data.element --> The field element
+            
+        })
+    
+    	.formValidation({
+            framework: 'bootstrap',
+            excluded: [':disabled', ':hidden', ':not(:visible)'],
+            icon: {
+                valid: 'fa fa-check',
+                invalid: 'fa fa-info',
+                validating: 'fa fa-refresh'
+            },
+            locale: '<?= $sessionEmploye->offsetGet("code_langue"); ?>',
+            fields: {
+            	
+            }
+        })
+        
+        .on('prevalidate.form.fv', function(e) {
+            // $(e.target) --> The form instance
+            // $(e.target).data('formValidation')
+            //             --> The FormValidation instance
+    
+            // Do something ...
+        })
+    
+        .on('err.form.fv', function(e) {
+        	traiterErreurFormValidation(e, "ctneurLiteEltsTab");
+
+        	$.confirm({
+        		icon: 'fa fa-exclamation-triangle',
+        	    title: "<?=  $this->translate("Erreur", "application");?>",
+        	    content: "<?=  $this->translate("Verifiez que vous avez selectionne une action pour chaque ligne", "application");?>",
+        	    type: 'red',
+        	    typeAnimated: true,
+        	    buttons: {
+        	        close: {
+        	            text: "<?=  $this->translate("OK", "application");?>",
+        	        }
+        	    }
+        	});
+        })
+        
+        .on('success.form.fv', function(e) {
+
+        	// Prevent submit form
+            e.preventDefault();
+
+            fv    = $form.data('formValidation')
+
+            if (fv.getSubmitButton()) {
+                fv.disableSubmitButtons(false);
+            }
+            
+
+        	$contenuFenetreModale = $('<?= $htmlConfirmAction; ?>');
+			// $contenuFenetre.find('td,th').first().remove();
+			// $contenuFenetre.find('td,th').last().remove();
+			
+			
+			$contenuForm = $("#liteEltsTab").clone();
+			contenuLignes = '';
+			
+			
+			$contenuForm.find("tbody tr").each(function() {
+				$this = $(this);
+
+				contenuLignes += '<tr>';
+
+				contenuLignes += '<td>'+$("#typeExamen_detailsPrestation_"+$this.attr("rel")).html()+'</td>';
+
+
+				 
+				
+				    
+				    if("<?= $this->typeProfil; ?>" == 'admin')
+				    {
+				    	valeurModif = $("#valeurModifLignePretation_"+$this.attr("rel")).val();
+				    	
+						if(typeof valeurModif == "undefined")
+						{
+							valeurModif = $("#valeurModif_detailsPrestation_"+$this.attr("rel")).html();
+						}
+									    
+				    	contenuLignes += '<td>'+valeurModif+'</td>';
+				   
+				    }
+				
+				
+				
+				if("<?= $this->typeProfil; ?>" == 'admin')
+				{
+					observations = $("#observationsLignePretation_"+$this.attr("rel")).val();
+					if(typeof observations == "undefined")
+					{
+						observations = $("#observations_detailsPrestation_"+$this.attr("rel")).html();
+					}
+					
+					contenuLignes += '<td>'+observations+'</td>';
+
+
+					contenuLignes += '<td>'+$("#actionLignePretation_"+$this.attr("rel")).val()+'</td>';
+				}
+
+				contenuLignes += '</tr>';
+			});
+
+			$contenuFenetreModale.find("tbody").html(contenuLignes);
+
+
+
+
+			$.confirm({
+				icon: 'fa fa-info',
+				columnClass: 'xlarge',
+			    title: "<?= $this->translate("Confirmation", "application"); ?>",
+			    content: $contenuFenetreModale.html(),
+			    buttons: {
+			    	confirm: {
+			    		closeIcon: true,
+			            text: "<?= $this->translate("Oui", "application"); ?>",
+			            action: function() {
+
+
+
+
+
+
+			            	fv = $form.data('formValidation');
+			            	continueCode = true;
+
+
+
+			    			// Faire un code javascript 
+			    			if('<?= $this->typeProfil; ?>' == 'admin') // Ca concerne l'action validerRejeter
+			    			{
+			    				
+			    				
+			    					$.each(tabLignePrestation, function( key, uneLignePrestation ) {
+			    						keyValeur = "valeurModifLignePretation_"+uneLignePrestation.id;
+			    						keyNbre = "nbreModifLignePretation_"+uneLignePrestation.id;
+			    						keyAction = "actionLignePretation_"+uneLignePrestation.id;
+			    						
+			    						$valeurModifLignePretation = $("#"+keyValeur);
+			    						$nbreModifLignePretation = $("#"+keyNbre);
+			    						$actionLignePretation = $("#"+keyAction);
+
+			    						if($valeurModifLignePretation.length > 0 && $actionLignePretation.length > 0)
+			    						{
+			    							if($valeurModifLignePretation.val() == "" && $actionLignePretation.val() == "valide")
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyValeur, 'blank', "<?= $this->translate("Veuillez saisir une valeur", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyValeur, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+
+			    							if($actionLignePretation.val() == "valide" && parseInt($valeurModifLignePretation.val()) > parseInt(uneLignePrestation.valeur))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyValeur, 'blank', "<?= $this->translate("Le montant valide doit etre inferieur au montant", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyValeur, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+			    							else if($actionLignePretation.val() == "valide" && (parseInt($valeurModifLignePretation.val()) == 0 || $valeurModifLignePretation.val() == ""))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyValeur, 'blank', "<?= $this->translate("Veuillez saisir un montant superieur a 0", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyValeur, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+
+			    							if($actionLignePretation.val() == "valide" && parseInt($nbreModifLignePretation.val()) > parseInt(uneLignePrestation.nbre))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyNbre, 'blank', "<?= $this->translate("Le nombre valide doit etre inferieur au nombre", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyNbre, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+			    							else if($actionLignePretation.val() == "valide" && (parseInt($nbreModifLignePretation.val()) == 0 || $nbreModifLignePretation.val() == ""))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyNbre, 'blank', "<?= $this->translate("Veuillez saisir un nombre superieur a 0", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyNbre, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+			    						}
+			    					});
+			    				
+			    				
+			    					$.each(tabLignePrestation, function( key, uneLignePrestation ) {
+			    						keyValeur = "valeurModifLignePretation_"+uneLignePrestation.id;
+			    						keyNbre = "nbreModifLignePretation_"+uneLignePrestation.id;
+			    						keyAction = "actionLignePretation_"+uneLignePrestation.id;
+			    						
+			    						$valeurModifLignePretation = $("#"+keyValeur);
+			    						$nbreModifLignePretation = $("#"+keyNbre);
+			    						$actionLignePretation = $("#"+keyAction);
+
+			    						if($valeurModifLignePretation.length > 0 && $actionLignePretation.length > 0)
+			    						{
+			    							if($valeurModifLignePretation.val() == "" && $actionLignePretation.val() == "valide")
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyValeur, 'blank', "<?= $this->translate("Veuillez saisir une valeur", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyValeur, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+
+			    							if($actionLignePretation.val() == "valide" && parseInt($valeurModifLignePretation.val()) > parseInt(uneLignePrestation.valeur))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyValeur, 'blank', "<?= $this->translate("Le montant valide doit etre inferieur au montant", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyValeur, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+			    							else if($actionLignePretation.val() == "valide" && (parseInt($valeurModifLignePretation.val()) == 0 || $valeurModifLignePretation.val() == ""))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyValeur, 'blank', "<?= $this->translate("Veuillez saisir un montant superieur a 0", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyValeur, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+
+			    							if($actionLignePretation.val() == "valide" && parseInt($nbreModifLignePretation.val()) > parseInt(uneLignePrestation.nbre))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyNbre, 'blank', "<?= $this->translate("Le nombre valide doit etre inferieur au nombre", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyNbre, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+			    							else if($actionLignePretation.val() == "valide" && (parseInt($nbreModifLignePretation.val()) == 0 || $nbreModifLignePretation.val() == ""))
+			    							{
+			    								fv
+			    	    		                // Show the custom message
+			    	    		                .updateMessage(keyNbre, 'blank', "<?= $this->translate("Veuillez saisir un nombre superieur a 0", "application");?>")
+			    	    		                // Set the field as invalid
+			    	    		                .updateStatus(keyNbre, 'INVALID', 'blank');
+			    								continueCode = false;
+			    							}
+			    						}
+			    					});
+			    				
+			    			}
+			    			
+
+			                if(!continueCode)
+			                {
+			    				return false;
+			                }
+
+
+			                continueCode = false;
+			                if('<?= $this->typeProfil; ?>' == 'admin') // Ca concerne l'action validerRejeter
+			    			{
+			                	$form.find("select.actionLignePretation").each(function() {
+			                    	$this = $(this);
+			    					if($this.val() != "")
+			    					{
+			    						console.log($this.attr("id"));
+			    						continueCode = true;
+			    						return;
+			    					}
+			                	});
+			    			}
+			                else
+			                {
+			                	continueCode = true;
+			                }
+
+			                if(!continueCode)
+			                {
+			                	$.confirm({
+			    	        		icon: 'fa fa-exclamation-triangle',
+			    	        	    title: "<?=  $this->translate("Info", "application");?>",
+			    	        	    content: "<?=  $this->translate("Veuillez selectionner au moins une action", "application");?>",
+			    	        	    type: 'orange',
+			    	        	    typeAnimated: true,
+			    	        	    buttons: {
+			    	        	        close: {
+			    	        	            text: "<?=  $this->translate("OK", "application");?>",
+			    	        	        }
+			    	        	    }
+			    	        	});
+			    	        	
+			    				return false;
+			                }
+			        
+			            	var tabAutresParametres = [];
+			        
+			            	var tabOtherPostValues = [];
+//			         		listeLignePrestationFinal = "";
+//			         		for (var keyTabOtherPostValues in tabLignePrestation) {
+//			         			if(listeLignePrestationFinal !== "")
+//			         			{
+//			         				listeLignePrestationFinal += ";";
+//			         			}
+//			         			listeLignePrestationFinal += tabLignePrestation[keyTabOtherPostValues];
+//			         		}
+			        
+			        		tabOtherPostValues["listeLignePrestationSent"] = listeLignePrestationFinal;
+			        
+			        		
+			        		
+			        
+			        		if('<?= $this->typeProfil; ?>' == '')
+			        		{
+								action = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/details/<?= $this->prestation->getId(); ?>/mettre-prix";
+			        			
+			        		}
+			        		else if('<?= $this->typeProfil;?>' == 'admin')
+			        		{
+			        			action = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/details/<?= $this->prestation->getId(); ?>/valider-rejeter";
+			        		}
+			        		else
+			        		{
+			        			action = "";
+			        		}
+
+			            	traiterSuccesFormValidation(e, "ctneurLiteEltsTab", action, tabAutresParametres, tabOtherPostValues);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				            
+			            } 
+			    	},
+			    	cancel: {
+			        	text: "<?= $this->translate("Non", "application"); ?>",
+			        }  
+			    }
+			});
+
+
+			return false;
+        })
+        
+        .find('.ctneurICheck input[type="radio"]')
+            // Init icheck elements
+    //         .icheck({
+    //             // The tap option is only available in v2.0
+    //             tap: true,
+    //             checkboxClass: 'icheckbox_square-red',
+    //             radioClass: 'iradio_square-red'
+    //         })
+            // Called when the radios/checkboxes are changed
+            .on('ifChanged', function(e) {
+                // Get the field name
+                var field = $(this).attr('name');
+                $form.formValidation('revalidateField', field);
+            })
+            .end()
+            ;
+
+
+
+
+
+
+    	$form.on("change", "select.actionLignePretation", function() {
+			
+			$this = $(this);
+			
+
+			if($this.val() == "encaisse")
+			{
+		        // Launch AJAX request.
+				$.ajax({
+					
+		            type: "post",
+		            
+		            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/details/<?= $prestation->getId(); ?>/encaisser/"+$this.attr("rel"),
+		            
+		            data: dataString,
+					
+		            beforeSend: function() {
+		            	$('#ctneurLiteEltsTab').spinnerQueue({'message' : commonTabLangue["Traitement en cours ..."]}).spinnerQueue('started', 'pageLoad');
+					},
+		            
+		            success: function( html ) {
+
+						if(html.error != "")
+						{
+							$.confirm({
+				        		icon: 'fa fa-exclamation-triangle',
+				        	    title: "<?=  $this->translate("Erreur", "application");?>",
+				        	    content: html.error,
+				        	    type: 'red',
+				        	    typeAnimated: true,
+				        	    buttons: {
+				        	        close: {
+				        	            text: "<?=  $this->translate("OK", "application");?>",
+				        	        }
+				        	    }
+				        	});
+						}
+						else
+						{
+							$.confirm({
+					    		icon: 'fa fa-check',
+					    	    title: "<?=  $this->translate("Succes", "application");?>",
+					    	    content: "<?=  $this->translate("Operation effectuee avec success", "application");?>",
+					    	    type: 'green',
+								autoClose: 'close|1000',
+					    	    typeAnimated: true,
+					    	    buttons: {
+					    	        close: {
+					    	            text: "<?=  $this->translate("OK", "application");?>",
+					    	            action: function(){
+
+					    	            	location.reload();
+						                }
+					    	        },
+					    	    }
+					    	});
+						}
+					},
+		            
+		            error: function() {
+		                $.confirm({
+			        		icon: 'fa fa-exclamation-triangle',
+			        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			        	    content: "<?=  $this->translate("Probleme d'acces au server, veuillez reessayer plus tard", "application");?>",
+			        	    type: 'red',
+			        	    typeAnimated: true,
+			        	    buttons: {
+			        	        close: {
+			        	            text: "<?=  $this->translate("OK", "application");?>",
+			        	        }
+			        	    }
+			        	});
+					},
+		            
+		            complete: function() {
+		            	$('#ctneurLiteEltsTab').spinnerQueue('finished', 'pageLoad');
+					}
+				});	
+			}
+        });
+
+
+		
+
+		nbreLigneModifiable = 0;
+		$.each(tabLignePrestation, function( key, uneLignePrestation ) {
+			if(uneLignePrestation.afficherMettrePrixLignePrestationButton)
+			{
+				nbreLigneModifiable++;
+				
+				$form
+		    	.formValidation("addField", "valeurLignePretation_"+uneLignePrestation.id, montantTemplateValidators)
+		    	.formValidation("addField", "tauxLignePretation_"+uneLignePrestation.id, tauxTemplateValidators)
+		    	.formValidation("addField", "actionLignePretation_"+uneLignePrestation.id, actionTemplateValidators);
+
+
+				
+					$form
+			    	.formValidation("addField", "nbreLignePretation_"+uneLignePrestation.id, nbreTemplateValidators);
+				
+
+				if(listeLignePrestationFinal !== "")
+     			{
+     				listeLignePrestationFinal += ";";
+     			}
+     			
+     			listeLignePrestationFinal += uneLignePrestation.id;
+			}
+
+			if(uneLignePrestation.afficherValiderLignePrestationButton || uneLignePrestation.afficherRejeterLignePrestationButton ||
+			   //uneLignePrestation.afficherDevaliderLignePrestationButton || 
+			   uneLignePrestation.afficherDerejeterLignePrestationButton)
+			{
+				nbreLigneModifiable++;
+				
+				$form
+		    	.formValidation("addField", "valeurModifLignePretation_"+uneLignePrestation.id, montantModifTemplateValidators)
+		    	.formValidation("addField", "nbreModifLignePretation_"+uneLignePrestation.id, nbreModifTemplateValidators)
+		    	.formValidation("addField", "observationsLignePretation_"+uneLignePrestation.id, observationsTemplateValidators)
+		    	.formValidation("addField", "actionLignePretation_"+uneLignePrestation.id, actionTemplateValidators);
+
+				if(listeLignePrestationFinal !== "")
+     			{
+     				listeLignePrestationFinal += ";";
+     			}
+     			
+     			listeLignePrestationFinal += uneLignePrestation.id;
+			}
+
+
+			if('<?= $this->typeProfil; ?>' == 'prestataire')
+			{
+				$('#soumettre').prop('disabled', true);
+				  
+				if(uneLignePrestation.afficherEncaisserLignePrestationButton)
+				{
+					$('#actionLignePretation_'+uneLignePrestation.id).prop('disabled', false); // On active
+				}
+				else
+				{
+					$('#actionLignePretation_'+uneLignePrestation.id).prop('disabled', true); // On desactive
+				}
+			}
+
+			if('<?= $this->typeProfil; ?>' == 'admin')
+			{
+				if(uneLignePrestation.afficherValiderLignePrestationButton || uneLignePrestation.afficherRejeterLignePrestationButton ||
+				   //uneLignePrestation.afficherDevaliderLignePrestationButton ||
+				   uneLignePrestation.afficherDerejeterLignePrestationButton)
+				{
+					$('#actionLignePretation_'+uneLignePrestation.id).prop('disabled', false); // On active
+				}
+				else
+				{
+					$('#actionLignePretation_'+uneLignePrestation.id).prop('disabled', true); // On desactive
+				}
+			}
+
+		});
+
+		if(nbreLigneModifiable == 0)
+		{
+			$("#soumettre").prop('disabled', true).attr("title", "<?=  $this->translate("Aucune ligne n'est validable ni rejetable", "application");?>");
+		}
+	}
+
+
+	function callbackSuccesFormValidation(html, tabAutresParametres, varRetour)
+    {
+		$.confirm({
+    		icon: 'fa fa-check',
+    	    title: "<?=  $this->translate("Succes", "application");?>",
+    	    content: "<?=  $this->translate("Operation effectuee avec success", "application");?>",
+    	    type: 'green',
+    	    typeAnimated: true,
+    	    buttons: {
+    	        close: {
+    	            text: "<?=  $this->translate("OK", "application");?>",
+    	            action: function(){
+						location.reload();
+	                }
+    	        },
+    	    }
+    	});
+    }
+
+</script>

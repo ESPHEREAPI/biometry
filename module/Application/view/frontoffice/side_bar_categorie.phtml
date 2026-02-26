@@ -1,0 +1,61 @@
+<?php if(isset($this->tabSideBarCategorie) && is_array($this->tabSideBarCategorie) && count($this->tabSideBarCategorie) > 0) : ?>
+	
+	<?php
+	
+		$sessionInternaute = new \Zend\Session\Container('internaute');
+		
+		function construireSousCategorieSiteMap($uneCategorie, $phpRender)
+		{
+			$varRetour = "";
+			
+			$nbreSousCategories = 0;
+			if(isset($uneCategorie['sousCategories']) && is_array($uneCategorie['sousCategories']))
+				$nbreSousCategories = count($uneCategorie['sousCategories']);
+	
+				
+			$varRetour .= '<li>';
+			
+			$varRetour .= '<a href="'.$phpRender->basePath($uneCategorie['url']).'">
+							 '.$uneCategorie['nom'].'
+						   </a>';
+			
+			if($nbreSousCategories > 0)
+			{
+				$varRetour .= '<ul>';
+				
+				$tabSousCategorie = $uneCategorie['sousCategories'];
+				
+				foreach ($tabSousCategorie as $unSousCategorie)
+				{
+					$varRetour .= construireSousCategorieSiteMap($unSousCategorie, $phpRender);
+				}
+				
+				$varRetour .= '</ul>';
+			}
+			
+			$varRetour .= '</li>';
+			
+			return $varRetour;
+		}
+	?>
+	
+	<?php if(isset($this->titreSideBarCategorie) && !empty($titreSideBarCategorie)) : ?>
+		<h4 class="heading-primary"><?= $this->titreSideBarCategorie; ?></h4>
+	<?php endif ; ?>
+	
+	<h4 class="heading-primary"><?= $this->titreSideBarCategorie; ?></h4>
+
+	<div class="row">
+		<div class="col-md-8">
+			<ul class="nav nav-list mb-xl">
+				<?php
+					foreach ($this->tabSideBarCategorie as $uneCategorie)
+					{
+						echo construireSousCategorieSiteMap($uneCategorie, $this);
+					}
+				?>
+			</ul>
+		</div>
+	</div>
+	
+<?php endif; ?>

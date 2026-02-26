@@ -1,0 +1,178 @@
+<?php 
+
+$peuxAjouterHere = true;
+
+if(isset($this->peuxAjouter))
+{
+    $peuxAjouterHere = $this->peuxAjouter;
+}
+
+?>
+
+
+<?php if(is_array($this->buttonOptions)) : ?>
+	
+	<?php if($peuxAjouterHere && isset($this->buttonOptions['btn_ajouter']) && isset($this->buttonOptions['btn_ajouter']['url'])) : ?>
+		<div class="pull-right">
+			<?php 
+			
+			if(substr($this->buttonOptions['btn_ajouter']['url'], 0, 1) == "#")
+				$href = $this->buttonOptions['btn_ajouter']['url'];
+			else
+				$href = $this->basePath($this->buttonOptions['btn_ajouter']['url']);
+			?>
+			
+			<a class="btn btn-app" href="<?= $href; ?>" id="btnAjoutApp">
+				<i class="fa fa-plus"></i> <?= $this->translate("Ajouter", "application"); ?>
+			</a>
+		</div>
+	<?php endif; ?>
+	
+	<?php if(isset($this->buttonOptions['btn_activer']) && $this->buttonOptions['btn_activer'] == true) : ?>
+		<div class="pull-right">
+			<a class="btn btn-app" id="activer_commun">
+				<i class="fa fa-check-square-o"></i> <?= $this->translate("Activer", "application"); ?>
+            </a>
+        </div>
+	<?php endif; ?>
+	
+	<?php if(isset($this->buttonOptions['btn_desactiver']) && $this->buttonOptions['btn_desactiver'] == true) : ?>
+		<div class="pull-right">
+			<a class="btn btn-app" id="desactiver_commun">
+				<i class="fa fa-close"></i> <?= $this->translate("Desactiver", "application"); ?>
+			</a>
+		</div>
+	<?php endif; ?>
+	
+	<?php if(isset($this->buttonOptions['btn_supprimer']) && $this->buttonOptions['btn_supprimer'] == true) : ?>
+		<div class="pull-right">
+			<a class="btn btn-app" id="supprimer_commun">
+				<i class="fa fa-trash-o"></i> <?= $this->translate("Supprimer", "application"); ?>
+			</a>
+		</div>
+	<?php endif; ?>
+	
+	
+	<?php if(isset($this->buttonOptions['btn_imprimer']) && isset($this->buttonOptions['btn_imprimer']['url'])) : ?>
+		<div class="pull-right">
+			<?php 
+			
+			if(substr($this->buttonOptions['btn_imprimer']['url'], 0, 1) == "#")
+				$href = $this->buttonOptions['btn_imprimer']['url'];
+			else
+				$href = $this->basePath($this->buttonOptions['btn_imprimer']['url']);
+			
+				$nomBouton = $this->translate("Exporter", "application");
+				if(isset($this->buttonOptions['btn_imprimer']['nom']))
+				    $nomBouton = $this->buttonOptions['btn_imprimer']['nom'];
+			?>
+			
+			<a class="btn btn-app" href="" id="btnImprimerApp" data-toggle="modal" data-target="#ctneurMdleImprimer" urlAction="<?= $href; ?>">
+				<i class="fa fa-print"></i> <?= $nomBouton; ?>
+			</a>
+		</div>
+		
+		
+		
+		<div class="modal fade" id="ctneurMdleImprimer" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+			    <div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="titleConnexionModale"><?= $this->translate("Choix format de l'export", "application"); ?></h4>
+					</div>
+					<div class="modal-body" id="divBodyFormAjaxImprimer">
+						<form action="" id="formAjaxImprimer" method="post">
+							<button type="button" class="btn btn-primary" id="imprimerPdfBtn" name="imprimerPdfBtn" typeImpression="pdf"><?= $this->translate("PDF", "application"); ?></button>
+							<button type="button" class="btn btn-primary displayNone" id="imprimerCsvBtn" name="imprimerCsvBtn" typeImpression="csv" disabled="disabled"><?= $this->translate("EXCEL", "application"); ?></button>
+						</form>
+					</div>
+				</div><!-- /.modal-content -->
+		    </div>
+		</div>
+		
+		
+		
+	<?php endif; ?>
+	
+	<?php if(isset($this->buttonOptions['btn_imprimer_detaille']) && isset($this->buttonOptions['btn_imprimer_detaille']['url'])) : ?>
+		<div class="pull-right">
+			<?php 
+			
+			if(substr($this->buttonOptions['btn_imprimer_detaille']['url'], 0, 1) == "#")
+				$href = $this->buttonOptions['btn_imprimer_detaille']['url'];
+			else
+				$href = $this->basePath($this->buttonOptions['btn_imprimer_detaille']['url']);
+			
+				$nomBouton = $this->translate("Export detaille", "application");
+				if(isset($this->buttonOptions['btn_imprimer_detaille']['nom']))
+				    $nomBouton = $this->buttonOptions['btn_imprimer_detaille']['nom'];
+			?>
+			
+			<a class="btn btn-app" href="" id="btnImprimerDetailleApp" data-toggle="modal" data-target="#ctneurMdleImprimerDetaille" urlAction="<?= $href; ?>">
+				<i class="fa fa-print"></i> <?= $nomBouton; ?>
+			</a>
+		</div>
+		
+		
+		
+		<div class="modal fade" id="ctneurMdleImprimerDetaille" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+			    <div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="titleConnexionModaleImprimeDetaillle"><?= $this->translate("Choix format de l'export", "application"); ?></h4>
+					</div>
+					<div class="modal-body" id="divBodyFormAjaxImprimerDetaille">
+						<form action="" id="formAjaxImprimerDetaille" method="post">
+							<button type="button" class="btn btn-primary" id="imprimerDetaillePdfBtn" name="imprimerDetaillePdfBtn" typeImpression="pdf"><?= $this->translate("PDF", "application"); ?></button>
+							<button type="button" class="btn btn-primary displayNone" id="imprimerDetailleCsvBtn" name="imprimerDetailleCsvBtn" typeImpression="csv" disabled="disabled"><?= $this->translate("EXCEL", "application"); ?></button>
+						</form>
+					</div>
+				</div><!-- /.modal-content -->
+		    </div>
+		</div>
+		
+		
+		
+	<?php endif; ?>
+	
+	
+	<?php if(isset($this->buttonOptions['autres_boutons']) && is_array($this->buttonOptions['autres_boutons'])) : ?>
+		<?php foreach ($this->buttonOptions['autres_boutons'] as $unBouton) : ?>
+    		
+    		<?php 
+    		    
+    		    $listeAttibut = '';
+    		    $attributClass = "btn btn-app";
+    		    foreach ($unBouton['attributes'] as $keyAttribut => $valueAttribut)
+        		{
+        		    if($keyAttribut == "class")
+        		    {
+        		        // $listeAttibut .= ' '.$keyAttribut.'="'.$attributClass.' '.$valueAttribut.'"';
+        		        $attributClass .= ' '.$valueAttribut;
+        		    }
+        		    else
+        		    {
+        		        $listeAttibut .= ' '.$keyAttribut.'="'.$valueAttribut.'"';
+        		    }
+        		}
+        		
+        		
+        		$listeAttibut .= 'class="'.$attributClass.'"';
+    		
+    		?>
+    		
+    		
+    		
+    		<div class="pull-right">
+    			<a <?= $listeAttibut; ?>>
+    				<i class="fa <?= $unBouton["icone"]; ?>"></i> <?= $unBouton["nom"]; ?>
+                </a>
+            </div>
+        <?php endforeach; ?>
+	<?php endif; ?>
+	
+<?php endif; ?>

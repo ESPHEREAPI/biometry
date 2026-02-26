@@ -1,0 +1,809 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionAgence = new Container('agence');
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+$typeSousProfil = $sessionEmploye->offsetGet("type_sous_profil");
+
+
+$varRetour .= '<form class="form-horizontal fv-form fv-form-bootstrap" id="form_details_prestation">';
+$varRetour .= '<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+// $varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+
+
+if($typeProfil == "admin" || $typeSousProfil == "centre_hospitalier")
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Prestataire").'</th>';
+}
+
+$varRetour .= '        <th>'.$this->getTranslator("Description").'</th>';
+
+$varRetour .= '        <th>'.$this->getTranslator("Dents Concernees").'</th>';
+
+$varRetour .= '        <th>'.$this->getTranslator("Codification").'</th>';
+
+$varRetour .= '        <th>'.$this->getTranslator("Taux").'</th>';
+
+
+
+
+if($this->naturePrestation == "dentisterie")
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Categorie").'</th>';
+}
+
+
+
+if($this->naturePrestation == "dentisterie")
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Prix").'</th>';
+    $varRetour .= '        <th>'.$this->getTranslator("Qte").'</th>';
+    
+    $varRetour .= '        <th>'.$this->getTranslator("Prix valide").'</th>';
+    $varRetour .= '        <th>'.$this->getTranslator("Qte valide").'</th>';
+}
+
+$varRetour .= '        <th>'.$this->getTranslator("Observations").'</th>';
+$varRetour .= '        <th style="width: 140px;">'.$this->getTranslator("Etat").'</th>';
+
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+
+
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+
+
+//
+$montantValide = 0;
+$montantAssurance = 0;
+$montantAssure = 0;
+$tabLignePrestation = array();
+
+$idPrestataireMettrePrix = null;
+
+foreach($tab as $element)
+{
+    $prestation = $element->getPrestation();
+    $visite = $prestation->getVisite();
+    $prestataire = $visite->getPrestataire();
+    $prestataireMettrePrix = $element->getPrestataire();
+    $adherent = $visite->getCodeAdherent();
+    $ayantDroit = $visite->getCodeAyantDroit();
+    
+    $prestation->afficheChaine();
+    $element->afficheChaine();
+    $prestataire->afficheChaine();
+    $adherent->afficheChaine();
+    
+    $nomAyantDroit = "";
+    if($ayantDroit)
+    {
+        $ayantDroit->afficheChaine();
+        $nomAyantDroit = $ayantDroit->getNom();
+    }
+    
+    // Verivier si la ligne doit etre affichee
+    if($typeProfil != "admin")
+    {
+        if($prestataire->getId() != $sessionEmploye->offsetGet("id_prestataire"))
+        {
+            if($prestataireMettrePrix && ($prestataireMettrePrix->getId() != $sessionEmploye->offsetGet("id_prestataire")))
+            {
+                continue;
+            }
+        }
+    }
+    
+    
+    
+    $typePrestation = "";
+    if( $this->naturePrestation == "dentisterie")
+    {
+        if($element->getTypeExamen())
+        {
+            $typePrestation = $element->getTypeExamen()->getId();
+        }
+    }
+    
+    
+    $afficherValiderLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationValidable($element) && $peuxValiderLignePrestation;
+    $afficherRejeterLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationRejetable($element) && $peuxRejeterLignePrestation;
+    $afficherEncaisserLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationEncaissable($element, $sessionEmploye->offsetGet("id_prestataire")) && $peuxEncaisserLignePrestation;
+    $afficherMettrePrixLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationMettrePrix($element) && $peuxMettrePrixLignePrestation;
+    
+    
+    
+    $afficherDevaliderLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationDevalidable($element) && $peuxDevaliderLignePrestation;
+    $afficherDerejeterLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationDerejetable($element) && $peuxDerejeterLignePrestation;
+    
+    
+    $afficherSupprimerLignePrestationButton = $this->lignePrestationManager->vefifierSiLignePrestationSupprimable($element);
+    
+    
+    
+    
+//     $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+//     $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+//     if($objetTauxPrestation)
+//     {
+//         $tauxCouverture = $objetTauxPrestation->getTaux();
+//     }
+//     else
+//     {
+//         $tauxCouverture = 0;
+//     }
+
+
+
+    if($element->getEtat() == "valide" || $element->getEtat() == "encaisse")
+    {
+        $tauxCouverture = $element->getTaux();
+        $montantPropose = $element->getValeurModif();
+    }
+    else
+    {
+        $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+        $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+        if($objetTauxPrestation)
+        {
+            $tauxCouverture = $objetTauxPrestation->getTaux();
+            $plafond = $objetTauxPrestation->getPlafond();
+            
+            if(empty($tauxCouverture))
+            {
+                $tauxCouverture = 0;
+            }
+            
+            if(empty($plafond))
+            {
+                $montantPropose = $element->getValeur();
+            }
+            else
+            {
+                $montantPropose = min(array($plafond, $element->getValeur()));
+            }
+        }
+        else
+        {
+            $tauxCouverture = 0;
+            $plafond = 0;
+        }
+    }
+
+    
+    
+    
+    
+    if(($typeProfil == "admin" || ($prestataireMettrePrix &&
+        $prestataireMettrePrix->getId() == $sessionEmploye->offsetGet("id_prestataire"))) &&
+       
+        
+        
+        ($element->getEtat() == "valide" || $element->getEtat() == "encaisse"))
+    {
+        
+        $montantValideLigne = $element->getValeurModif()*$element->getNbreModif();
+        
+        $montantValide += $montantValideLigne;
+        $montantAssurance += $montantValideLigne*($tauxCouverture/100);
+    }
+    
+    
+    $tabLignePrestation[] = array("id" => $element->getId(),
+        "description" => $element->getDescriptionSoins()->getNom(),
+	    "dentsConcernees" => $element->getDentsConcernees(),
+		"codification" => $element->getCodification(),
+        "prestation" => $element->getPrestation()->getId(),
+        "valeur" => $element->getValeur(),
+        "nbre" => $element->getNbre(),
+        "afficherValiderLignePrestationButton" => $afficherValiderLignePrestationButton,
+        "afficherRejeterLignePrestationButton" => $afficherRejeterLignePrestationButton,
+        "afficherEncaisserLignePrestationButton" => $afficherEncaisserLignePrestationButton,
+        "afficherMettrePrixLignePrestationButton" => $afficherMettrePrixLignePrestationButton,
+        
+        
+        "afficherDevaliderLignePrestationButton" => $afficherDevaliderLignePrestationButton,
+        "afficherDerejeterLignePrestationButton" => $afficherDerejeterLignePrestationButton,
+    );
+    
+    
+    $classLigne = $element->getEtat();
+    
+    switch ($element->getEtat()) {
+        case "enregistre":
+            $clasCssImgEtat = "fa-save";
+            $titleImgEtat = $this->getTranslator("Enregistre");
+            $classCouleur = "text-aqua";
+            ;
+            break;
+        
+        case "attente_validation":
+            $clasCssImgEtat = "fa-hourglass-start";
+            $titleImgEtat = $this->getTranslator("Attente de validation");
+            $classCouleur = "text-orange";
+            ;
+            break;
+            
+        case "rejete":
+            $clasCssImgEtat = "fa-close";
+            $titleImgEtat = $this->getTranslator("Rejete");
+            $classCouleur = "text-red";
+            ;
+            break;
+            
+        case "valide":
+            $clasCssImgEtat = "fa-check";
+            $titleImgEtat = $this->getTranslator("Valide");
+            $classCouleur = "text-green";
+            ;
+            break;
+            
+        case "encaisse":
+            $clasCssImgEtat = "fa-dollar";
+            $titleImgEtat = $this->getTranslator("Encaisse");
+            $classCouleur = "text-navy";
+            ;
+            break;
+            
+        default:
+            $clasCssImgEtat = "";
+            $titleImgEtat = "";
+            break;
+    }
+    
+    
+    
+    
+    $contenuMontant = $element->getValeur();
+    if($afficherMettrePrixLignePrestationButton)
+    {
+        $placeholderHere = "";
+       if( $this->naturePrestation == "dentisterie")
+        {
+			if($element->getTypeExamen())
+			{
+				if($element->getTypeExamen()->getId() == "ECH1" || $element->getTypeExamen()->getId() == "RA1" || $element->getTypeExamen()->getId() == "RA02")
+				{
+					$placeholderHere = $this->getTranslator("Valeur du K");
+				}
+				elseif($element->getTypeExamen()->getId() == "AN01")
+				{
+					$placeholderHere = $this->getTranslator("Valeur du B");
+				}
+				else
+				{
+					$placeholderHere = $this->getTranslator("Montant");
+				}
+			}
+        }
+        
+        $contenuMontant = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="valeurLignePretation_'.$element->getId().'" id="valeurLignePretation_'.$element->getId().'" rel="'.$element->getId().'" type="number" value="'.$element->getValeur().'" /></div>';
+    }
+    
+    $contenuNbre = $element->getNbre();
+    if(( $this->naturePrestation == "dentisterie") && $afficherMettrePrixLignePrestationButton)
+    {
+        $placeholderHere = "";
+       if($this->naturePrestation == "dentisterie")
+        {
+			if($element->getTypeExamen())
+			{
+				if($element->getTypeExamen()->getId() == "ECH1" || $element->getTypeExamen()->getId() == "RA1" || $element->getTypeExamen()->getId() == "RA02")
+				{
+					$placeholderHere = $this->getTranslator("Nombre du K");
+				}
+				elseif($element->getTypeExamen()->getId() == "AN01")
+				{
+					$placeholderHere = $this->getTranslator("Nombre du B");
+				}
+				else
+				{
+					$placeholderHere = $this->getTranslator("Quantite");
+				}
+			}
+        }
+
+        $contenuNbre = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="nbreLignePretation_'.$element->getId().'" id="nbreLignePretation_'.$element->getId().'" rel="'.$element->getId().'" type="number" value="'.$element->getNbre().'" /></div>';
+    }
+    
+    
+    
+    $valeurModif = $element->getValeurModif();
+    if(empty($valeurModif))
+    {
+        $valeurModif = $element->getValeur();
+    }
+    
+    
+    $contenuMontantModif = $valeurModif;
+    $contenuObservations = $element->getObservations();
+    if($afficherValiderLignePrestationButton || $afficherRejeterLignePrestationButton)
+    {
+        $placeholderHere = "";
+       if( $this->naturePrestation == "dentisterie")
+        {
+			if($element->getTypeExamen())
+			{
+				if($element->getTypeExamen()->getId() == "ECH1" || $element->getTypeExamen()->getId() == "RA1" || $element->getTypeExamen()->getId() == "RA02")
+				{
+					$placeholderHere = $this->getTranslator("Valeur du K");
+				}
+				elseif($element->getTypeExamen()->getId() == "AN01")
+				{
+					$placeholderHere = $this->getTranslator("Valeur du B");
+				}
+				else
+				{
+					$placeholderHere = $this->getTranslator("Montant");
+				}
+			}
+            
+        }
+        
+        $contenuMontantModif = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="valeurModifLignePretation_'.$element->getId().'" id="valeurModifLignePretation_'.$element->getId().'" rel="'.$element->getId().'" type="number" value="'.$valeurModif.'" /></div>';
+
+        $contenuObservations = '<div class="form-group"><textarea class="form-control" style="display: inline-block; width: 130px;" name="observationsLignePretation_'.$element->getId().'" id="observationsLignePretation_'.$element->getId().'">'.$element->getObservations().'</textarea></div>';
+    }
+    
+    
+    $nbreModif = $element->getNbreModif();
+    if(empty($nbreModif))
+    {
+        $nbreModif = $element->getNbre();
+    }    
+    
+    $contenuNbreModif = $nbreModif;
+    if($afficherValiderLignePrestationButton || $afficherRejeterLignePrestationButton)
+    {
+        $placeholderHere = "";
+        if($this->naturePrestation == "dentisterie")
+        {
+			if($element->getTypeExamen())
+			{
+				if($element->getTypeExamen()->getId() == "ECH1" || $element->getTypeExamen()->getId() == "RA1" || $element->getTypeExamen()->getId() == "RA02")
+				{
+					$placeholderHere = $this->getTranslator("Nombre du K");
+				}
+				elseif($element->getTypeExamen()->getId() == "AN01")
+				{
+					$placeholderHere = $this->getTranslator("Nombre du B");
+				}
+				else
+				{
+					$placeholderHere = $this->getTranslator("Quantite");
+				}
+			}
+        }
+        
+        $contenuNbreModif = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="nbreModifLignePretation_'.$element->getId().'" id="nbreModifLignePretation_'.$element->getId().'" rel="'.$element->getId().'" type="number" value="'.$nbreModif.'" /></div>';
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    $contenuTauxCouverture = $tauxCouverture;
+    if($afficherValiderLignePrestationButton || $afficherRejeterLignePrestationButton)
+    {
+        $placeholderHere = $placeholderHere = $this->getTranslator("Taux de couverture");
+        
+        $contenuTauxCouverture = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="tauxLignePretation_'.$element->getId().'" id="tauxLignePretation_'.$element->getId().'" rel="'.$element->getId().'" type="number" value="'.$tauxCouverture.'" /></div>';
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    $colonneEtatLignePrestation = '<div class="'.$classCouleur.'"><i class="fa '.$clasCssImgEtat.'"></i>  '.$titleImgEtat.'</div>';
+    
+    
+    
+    
+    
+    
+//     // Début acte de prélèvement
+//     if($this->naturePrestation == "examen" && $typeProfil == "admin")
+//     {
+//         if($idPrestataireMettrePrix && (!$prestataireMettrePrix || $idPrestataireMettrePrix != $prestataireMettrePrix->getId()))
+//         {
+//             // Afficher l'acte de prélèvement dans ce cas
+            
+//             $contenuActePrelevement = $element->getActePrelevement();
+//             $contenuActePrelevementModif = $element->getActePrelevementModif();
+//             if($afficherMettrePrixLignePrestationButton)
+//             {
+//                 $placeholderHere = $this->getTranslator("Acte de prelevement");
+                
+//                 $contenuActePrelevement = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="actePrelevementLignePretation_'.$idPrestataireMettrePrix.'" id="actePrelevementLignePretation_'.$idPrestataireMettrePrix.'" rel="'.$idPrestataireMettrePrix.'" type="number" value="'.$element->getActePrelevement().'" /></div>';
+//             }
+//             elseif($afficherValiderLignePrestationButton)
+//             {
+//                 $placeholderHere = $this->getTranslator("Acte de prelevement valide");
+                
+//                 $contenuActePrelevementModif = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="actePrelevementModifLignePretation_'.$idPrestataireMettrePrix.'" id="actePrelevementModifLignePretation_'.$idPrestataireMettrePrix.'" rel="'.$idPrestataireMettrePrix.'" type="number" value="'.$element->getActePrelevementModif().'" /></div>';
+//             }
+            
+            
+            
+//             $varRetour .= '    <tr id="lignePretationActePrelevement_'.$idPrestataireMettrePrix.'" class="" rel="'.$idPrestataireMettrePrix.'">';
+//             // $varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+            
+//             if($typeProfil == "admin" || $typeSousProfil == "centre_hospitalier")
+//             {
+//                 $varRetour .= '        <td style="border-bottom: solid 2px #333;">'.$nomPrestataireMettrePrix.'</td>';
+//             }
+            
+            
+            
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;">'.$this->getTranslator("Acte de prelevement").'</td>';
+            
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;">100</td>';
+            
+            
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;">'.$this->getTranslator("Acte de prelevement").'</td>'; // Type Examen
+            
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;">'.$contenuActePrelevement.'</td>';
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;"></td>';
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;">'.$contenuActePrelevementModif.'</td>';
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;"></td>';
+            
+            
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;">'.$contenuObservations.'</td>';
+            
+//             $varRetour .= '        <td style="border-bottom: solid 2px #333;"></td>';
+            
+//             $varRetour .= '        <td class="rsv-table-elt-btn" style="border-bottom: solid 2px #333;">';
+//             $varRetour .= '        </td>';
+            
+            
+            
+//             $varRetour .= '    </tr>';
+//         }
+//     }
+//     // Fin acte de prélèvement
+    
+    
+    
+    
+    
+    
+    $varRetour .= '    <tr id="lignePretation_'.$element->getId().'" class="'.$classLigne.'" rel="'.$element->getId().'">';
+	// $varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+	
+	if($typeProfil == "admin" || $typeSousProfil == "centre_hospitalier")
+	{
+	    $nomPrestataire = "";
+	    if($prestataireMettrePrix)
+	    {
+	        $prestataire->afficheChaine();
+	        $nomPrestataire = $prestataireMettrePrix->getNom();
+	    }
+	    
+	    $varRetour .= '        <td class="prestataire_detailsPrestation" id="prestataire_detailsPrestation_'.$element->getId().'">'.$nomPrestataire.'</td>';
+	}
+	
+	
+	
+
+	$varRetour .= '        <td class="description_detailsPrestation" id="description_detailsPrestation_'.$element->getId().'">'.$element->getDescriptionSoins()->getNom().'</td>';
+	
+	$varRetour .= '        <td class="dentsConcernees_detailsPrestation" id="dentsConcernees_detailsPrestation_'.$element->getId().'">'.$element->getDentsConcernees().'</td>';
+	
+	$varRetour .= '        <td class="codification_detailsPrestation" id="codification_detailsPrestation_'.$element->getId().'">'.$element->getCodification().'</td>';
+	
+	
+	$varRetour .= '        <td class="taux_detailsPrestation" id="taux_detailsPrestation_'.$element->getId().'">'.$contenuTauxCouverture.'</td>';
+	
+	
+	
+	if($this->naturePrestation == "dentisterie")
+	{
+		$nomTypeExamen = "";
+		if($element->getTypeExamen())
+		{
+			$nomTypeExamen = $element->getTypeExamen()->getNom();
+		}
+		
+	    $varRetour .= '        <td class="typeExamen_detailsPrestation" id="typeExamen_detailsPrestation_'.$element->getId().'">'.$nomTypeExamen.'</td>';
+	}
+	
+	
+	if( $this->naturePrestation == "dentisterie")
+	{
+	    $varRetour .= '        <td class="valeur_detailsPrestation" id="valeur_detailsPrestation_'.$element->getId().'">'.$contenuMontant.'</td>';
+	    $varRetour .= '        <td class="nbre_detailsPrestation" id="nbre_detailsPrestation_'.$element->getId().'">'.$contenuNbre.'</td>';
+	    
+	    $varRetour .= '        <td class="valeurModif_detailsPrestation" id="valeurModif_detailsPrestation_'.$element->getId().'">'.$contenuMontantModif.'</td>';
+	    $varRetour .= '        <td class="nbreModif_detailsPrestation" id="nbreModif_detailsPrestation_'.$element->getId().'">'.$contenuNbreModif.'</td>';
+	}
+	
+	
+	
+	$varRetour .= '        <td class="observations_detailsPrestation" id="observations_detailsPrestation_'.$element->getId().'">'.$contenuObservations.'</td>';
+	
+	$varRetour .= '        <td class="etat_detailsPrestation" id="etat_detailsPrestation_'.$element->getId().'">'.$colonneEtatLignePrestation.'</td>';	
+	
+	$varRetour .= '        <td class="rsv-table-elt-btn action_detailsPrestation" id="action_detailsPrestation_'.$element->getId().'">';
+	$varRetour .= '             <select name="actionLignePretation_'.$element->getId().'" id="actionLignePretation_'.$element->getId().'" rel="'.$element->getId().'" class="form-control actionLignePretation" style="display: inline-block; width: 130px;">
+							       <option value="">'.$this->getTranslator("Selectionnez").'</option>';
+    
+	
+	if($afficherValiderLignePrestationButton)
+	{
+	    $varRetour .= '<option value="valide" name="actionLignePretation_'.$element->getId().'" id="actionLignePretation_'.$element->getId().'">'.$this->getTranslator("Valider").'</option>';
+	}
+	
+	if($afficherRejeterLignePrestationButton)
+	{
+	    $varRetour .= '<option value="rejete" name="actionLignePretation_'.$element->getId().'" id="actionLignePretation_'.$element->getId().'">'.$this->getTranslator("Rejeter").'</option>';
+	}
+	
+	
+	
+	
+	
+	
+	if($afficherDevaliderLignePrestationButton)
+	{
+	    $varRetour .= '<option value="devalide" name="actionLignePretation_'.$element->getId().'" id="actionLignePretation_'.$element->getId().'">'.$this->getTranslator("Devalider").'</option>';
+	}
+	
+	if($afficherDerejeterLignePrestationButton)
+	{
+	    $varRetour .= '<option value="derejete" name="actionLignePretation_'.$element->getId().'" id="actionLignePretation_'.$element->getId().'">'.$this->getTranslator("Derejeter").'</option>';
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	if($afficherEncaisserLignePrestationButton)
+	{
+	    $varRetour .= '<option value="encaisse" name="actionLignePretation_'.$element->getId().'" id="actionLignePretation_'.$element->getId().'">'.$this->getTranslator("Encaisser").'</option>';
+	}                                                
+	
+    
+	$varRetour .= '             </select>';
+	
+	
+//     if($afficherSupprimerLignePrestationButton)
+//     {
+//         $varRetour .= '<li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Prestation/'.$element->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>';
+//     }
+                                               
+
+	$varRetour .= '        </td>';
+	
+	
+	
+	$varRetour .= '    </tr>';
+	
+	if($prestataireMettrePrix)
+	{
+	    $prestataireMettrePrix->afficheChaine();
+	    
+	    $nomPrestataireMettrePrix = $prestataireMettrePrix->getNom();
+	    $idPrestataireMettrePrix = $prestataireMettrePrix->getId();
+	}
+	else
+	{
+	    $nomPrestataireMettrePrix = "";
+	    $idPrestataireMettrePrix = null;
+	}
+	
+}
+
+
+
+
+// // Début acte de prélèvement
+// if($this->naturePrestation == "examen")
+// {
+//     //     if($idPrestataireMettrePrix && (!$prestataireMettrePrix || $idPrestataireMettrePrix != $prestataireMettrePrix->getId()))
+// //     {
+//         // Afficher l'acte de prélèvement dans ce cas
+        
+//         $contenuActePrelevement = $element->getActePrelevement();
+//         $contenuActePrelevementModif = $element->getActePrelevementModif();
+//         if($afficherMettrePrixLignePrestationButton)
+//         {
+//             $placeholderHere = $this->getTranslator("Acte de prelevement");
+            
+//             $contenuActePrelevement = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="actePrelevementLignePretation_'.$idPrestataireMettrePrix.'" id="actePrelevementLignePretation_'.$idPrestataireMettrePrix.'" rel="'.$idPrestataireMettrePrix.'" type="number" value="'.$element->getActePrelevement().'" /></div>';
+//         }
+//         elseif($afficherValiderLignePrestationButton)
+//         {
+//             $placeholderHere = $this->getTranslator("Acte de prelevement valide");
+            
+//             $contenuActePrelevementModif = '<div class="form-group"><input class="form-control" style="display: inline-block; width: 130px;" placeholder="'.$placeholderHere.'" name="actePrelevementModifLignePretation_'.$idPrestataireMettrePrix.'" id="actePrelevementModifLignePretation_'.$idPrestataireMettrePrix.'" rel="'.$idPrestataireMettrePrix.'" type="number" value="'.$element->getActePrelevementModif().'" /></div>';
+//         }
+        
+        
+        
+//         $varRetour .= '    <tr id="lignePretationActePrelevement_'.$idPrestataireMettrePrix.'" class="" rel="'.$idPrestataireMettrePrix.'">';
+//         // $varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+        
+//         if($typeProfil == "admin" || $typeSousProfil == "centre_hospitalier")
+//         {
+//             $nomPrestataire = "";
+//             if($prestataireMettrePrix)
+//             {
+//                 $prestataireMettrePrix->afficheChaine();
+//                 $nomPrestataire = $prestataireMettrePrix->getNom();
+//             }
+            
+//             $varRetour .= '        <td>'.$nomPrestataire.'</td>';
+//         }
+        
+        
+        
+        
+//         $varRetour .= '        <td>'.$this->getTranslator("Acte de prelevement").'</td>';
+        
+        
+//         $varRetour .= '        <td>100</td>';
+        
+        
+        
+//         $varRetour .= '        <td>'.$this->getTranslator("Acte de prelevement").'</td>'; // Type Examen
+        
+        
+//         $varRetour .= '        <td>'.$contenuActePrelevement.'</td>';
+//         $varRetour .= '        <td></td>';
+        
+//         $varRetour .= '        <td>'.$contenuActePrelevementModif.'</td>';
+//         $varRetour .= '        <td></td>';
+        
+        
+        
+//         $varRetour .= '        <td>'.$contenuObservations.'</td>';
+        
+//         $varRetour .= '        <td></td>';
+        
+//         $varRetour .= '        <td class="rsv-table-elt-btn">';
+//         $varRetour .= '        </td>';
+        
+        
+        
+//         $varRetour .= '    </tr>';
+//     // }
+// }
+// // Fin acte de prélèvement
+
+
+
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+
+
+$jsonTabLignePrestation = json_encode($tabLignePrestation);
+
+
+
+
+$montantAssure = $montantValide - $montantAssurance;
+
+
+
+$varRetour .= '<div class="ctneurTotaux" id="ctneurTotaux">';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Montant total valide").' : </div>';
+$varRetour .= '     <div class="valeurTotal">'.$montantValide.'</div>';
+$varRetour .= ' </div>';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Montant paye par Zenithe").': </div>';
+$varRetour .= '     <div class="valeurTotal">'.$montantAssurance.'</div>';
+$varRetour .= ' </div>';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Part assure").' : </div>';
+$varRetour .= '     <div class="valeurTotal">'.$montantAssure.'</div>';
+$varRetour .= ' </div>';
+
+$varRetour .= '</div>';
+
+
+
+$varRetour .= '<div class="box-footer">';
+$varRetour .= ' <input name="submit" type="submit" id="soumettre" class="btn btn-primary form-control pull-right" style="" value="'.$this->getTranslator("Soumettre").'" />';
+$varRetour .= ' <a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/'.$this->naturePrestation.'"><input name="cancel" type="button" id="cancel" class="btn btn-default form-control pull-right" value="Retour"></a>';
+$varRetour .= '</div>';
+
+$varRetour .= '</form>
+
+
+<style type="text/css">
+
+    .ctneurTotaux {
+        text-align: right;
+        margin-bottom: 50px;
+        font-size: 18px;
+    }
+
+    .titreTotal, .valeurTotal {
+        display: inline-block;
+    }
+
+    .valeurTotal {
+        font-weight: bold;
+    }
+
+    tr.attente_validation {
+        background: #f5e0cf !important;
+    }
+</style>
+
+
+<script type="text/javascript">';
+
+$varRetour .= "   tabLignePrestation = jQuery.parseJSON('".addslashes($jsonTabLignePrestation)."');";
+// $varRetour .= "   listeLignePrestationSent = ".$jsonTabLignePrestation.";";
+    
+$varRetour .= '	initialiserJsLignePrestation();
+
+</script>
+
+';
+
+?>

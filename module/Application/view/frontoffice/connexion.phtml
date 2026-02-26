@@ -1,0 +1,60 @@
+<?= $this->doctype(); ?>
+
+<?php 
+	$appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<html lang="fr">
+    <head>
+    
+		<meta charset="utf-8">
+        <?= $this->headTitle($this->translate('connexion').' - '.$appliConfig->get("nom_appli"))->setSeparator(' - ')->setAutoEscape(false); ?>
+
+        <?= $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+
+        <!-- Le styles -->
+        <?= $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+        				->prependStylesheet($this->basePath('css/style.login.frontoffice.css'))
+                        ->prependStylesheet($this->basePath('css/style.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/iCheck/square/blue.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/dist/css/AdminLTE.min.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/font-awesome.min.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/bootstrap/css/bootstrap.min.css')) ?>
+                        
+                        
+        <!-- Scripts -->
+        <?= $this->headScript()
+			->prependFile($this->basePath('js/script.js'))
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/iCheck/icheck.min.js'))
+            ->prependFile($this->basePath('bootstrap-3.3.5-dist/js/bootstrap.min.js'))
+            ->prependFile($this->basePath('js/jquery.min.js'))
+            ->prependFile($this->basePath('js/respond.min.js'), 'text/javascript', array('conditional' => 'lt IE 9',))
+            ->prependFile($this->basePath('js/html5shiv.min.js'),   'text/javascript', array('conditional' => 'lt IE 9',))
+        ; ?>
+        
+	</head>
+    <body class="login-page">
+		
+		
+			<nav class="navbar navbar-default navbar-fixed-top">
+				<?= $this->header; ?>			      
+		    </nav>
+		
+	    
+        <div class="container">
+            <?= $this->content; ?>
+        </div> <!-- /container -->
+        
+        <hr />
+        
+        <div class="container">
+            <footer class="navbar-fixed-bottom container">
+				<?= $this->footer; ?>
+			</footer>
+        </div> <!-- /container -->
+        <?= $this->inlineScript() ?>
+    </body>
+</html>

@@ -1,0 +1,32 @@
+/* Add here all your CSS customizations */
+
+aside.sidebar ul.conteneurBlock, aside.sidebar div.conteneurBlock, aside.sidebar p.conteneurBlock, aside.sidebar conteneurBlock {
+	/*border: solid 1px #F1E9E9;
+	border-radius : 5px;*/
+}
+
+aside.sidebar p.conteneurBlock {
+	/*padding: 15px;*/
+}
+
+#header .header-body {
+	background: #EDEEF1; /* For browsers that do not support gradients */
+	background: -webkit-linear-gradient(left,#EDEEF1,#f2f2f2); /*Safari 5.1-6*/
+	background: -o-linear-gradient(right,#EDEEF1,#f2f2f2); /*Opera 11.1-12*/
+	background: -moz-linear-gradient(right,#EDEEF1,#f2f2f2); /*Fx 3.6-15*/
+	background: linear-gradient(to right, #EDEEF1, #f2f2f2); /*Standard*/
+	
+	
+	
+	
+	
+	background: #EDEEF1; /* For browsers that do not support gradients */
+	background: -webkit-linear-gradient(#EDEEF1, #f2f2f2, #C7C3C3); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#EDEEF1, #f2f2f2, #C7C3C3); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#EDEEF1, #f2f2f2, #C7C3C3); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#EDEEF1, #f2f2f2, #C7C3C3); /* Standard syntax */
+}
+
+#header .header-body a {
+    
+}

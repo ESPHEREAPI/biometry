@@ -1,0 +1,351 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+
+$classOrderByTypeConsultation = "";
+if($postValues['nomColoneTriPagination'] == "typeConsultation")
+{
+    $classOrderByTypeConsultation = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$classOrderByDate = "";
+if($postValues['nomColoneTriPagination'] == "date")
+{
+    $classOrderByDate = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$classOrderByMontant = "";
+if($postValues['nomColoneTriPagination'] == "montant")
+{
+    $classOrderByMontant = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+
+
+
+$varRetour .= '<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+// $varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+
+if($typeProfil == "admin")
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Prestataire").'</th>';
+}
+
+$varRetour .= '        <th class="isOrdered sorting '.$classOrderByTypeConsultation.'" nomColone="typeConsultation" style="width: 130px;">'.$this->getTranslator("Type consulation").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Malade").'</th>';
+$varRetour .= '        <th class="isOrdered sorting '.$classOrderByDate.'" nomColone="date" style="width: 115px;">'.$this->getTranslator("Date").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Taux couverture").'</th>';
+$varRetour .= '        <th class="isOrdered sorting '.$classOrderByMontant.'" nomColone="montant" style="width: 100px;">'.$this->getTranslator("Montant declare").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Montant valide").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Part Zenithe").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Part assure").'</th>';
+// $varRetour .= '        <th>'.$this->getTranslator("Observations").'</th>';
+$varRetour .= '        <th style="width: 140px;">'.$this->getTranslator("Etat").'</th>';
+
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+
+
+
+
+
+
+$peuxValiderConsultation = $this->consultationManager->verifierSiPeuxValiderConsultation($this->tabListeMenu);
+$peuxRejeterConsultation = $this->consultationManager->verifierSiPeuxRejeterConsultation($this->tabListeMenu);
+$peuxModifierConsultation = $this->consultationManager->verifierSiPeuxModifierConsultation($this->tabListeMenu);
+$peuxEncaisserConsultation = $this->consultationManager->verifierSiPeuxEncaisserConsultation($this->tabListeMenu);
+$peuxImprimerConsultation = $this->consultationManager->verifierSiPeuxImprimerConsultation($this->tabListeMenu);
+
+
+$peuxDevaliderConsultation = $this->consultationManager->verifierSiPeuxDevaliderConsultation($this->tabListeMenu);
+$peuxDerejeterConsultation = $this->consultationManager->verifierSiPeuxDeRejeterConsultation($this->tabListeMenu);
+
+ 
+foreach($tab as $element)
+{
+    $visite = $element->getVisite();
+    $prestataire = $visite->getPrestataire();
+    $adherent = $visite->getCodeAdherent();
+    $ayantDroit = $visite->getCodeAyantDroit();
+    $nomSouscripteur = $adherent->getSouscripteur();
+    
+    
+    $element->afficheChaine();
+    $prestataire->afficheChaine();
+    $adherent->afficheChaine();
+    
+    
+    $nomAdherent = $adherent->getAssurePrincipal();
+    $nomAyantDroit = "";
+    $nomMalade = $nomAdherent;
+    if($ayantDroit)
+    {
+        $ayantDroit->afficheChaine();
+        $nomAyantDroit = $ayantDroit->getNom();
+        $nomMalade = $nomAyantDroit;
+    }
+    
+    
+    $classLigne = $element->getEtatConsultation();
+    
+    
+    if($element->getEtatConsultation() == "valide" || $element->getEtatConsultation() == "encaisse")
+    {
+        $tauxCouverture = $element->getTaux();
+        $montantPropose = $element->getMontantModif();
+    }
+    else
+    {
+        $paramsTauxCouverture = array("typePrestation" => $element->getTypeConsultation(), "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+        $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+        if($objetTauxPrestation)
+        {
+            $tauxCouverture = $objetTauxPrestation->getTaux();
+			
+			//pour antic specifiquement
+			if(($objetTauxPrestation->getPolice()=="1017-2130000085") && ($ayantDroit==""))
+			{
+				$tauxCouverture=100;
+			}
+			
+			//pour camtel specifiquement
+			if(($objetTauxPrestation->getPolice()=="1017-2130000100") && ($ayantDroit!=""))
+			{
+				$tauxCouverture=80;
+			}
+            $plafond = $objetTauxPrestation->getPlafond();
+            
+            if(empty($tauxCouverture))
+            {
+                $tauxCouverture = 0;
+            }
+            
+            if(empty($plafond))
+            {
+                $montantPropose = $element->getMontant();
+            }
+            else
+            {
+                $montantPropose = min(array($plafond, $element->getMontant()));
+            }
+        }
+        else
+        {
+            $tauxCouverture = 0;
+            $plafond = 0;
+            $montantPropose = $element->getMontant();
+        }
+    }
+    
+    
+    
+    $afficherValiderConsultationButton = $this->consultationManager->vefifierSiConsultationValidable($element) && $peuxValiderConsultation;
+    $afficherRejeterConsultationButton = $this->consultationManager->vefifierSiConsultationRejetable($element) && $peuxRejeterConsultation;
+    $afficherEncaisserConsultationButton = $this->consultationManager->vefifierSiConsultationEncaissable($element) && $peuxEncaisserConsultation;
+    $afficherModifierConsultationButton = $this->consultationManager->vefifierSiConsultationModifiable($element) && $peuxModifierConsultation;
+    $afficherSupprimerConsultationButton = $this->consultationManager->vefifierSiConsultationSupprimable($element);
+    $afficherImprimerConsultationButton = $this->consultationManager->vefifierSiConsultationImprimable($element) && $peuxImprimerConsultation;
+    
+    
+    $afficherDevaliderConsultationButton = $this->consultationManager->vefifierSiConsultationDevalidable($element) && $peuxDevaliderConsultation;
+    $afficherDerejeterConsultationButton = $this->consultationManager->vefifierSiConsultationDerejetable($element) && $peuxDerejeterConsultation;
+    
+    
+    switch ($element->getEtatConsultation()) {
+        case "attente_validation": 
+            $clasCssImgEtat = "fa-hourglass-start";
+            $titleImgEtat = $this->getTranslator("Attente de validation");
+            $classCouleur = "text-orange";
+        ;
+        break;
+        
+        case "rejete":
+            $clasCssImgEtat = "fa-close";
+            $titleImgEtat = $this->getTranslator("Rejete");
+            $classCouleur = "text-red";
+        ;
+        break;
+        
+        case "valide":
+            $clasCssImgEtat = "fa-check";
+            $titleImgEtat = $this->getTranslator("Valide");
+            $classCouleur = "text-green";
+        ;
+        break;
+        
+        case "encaisse":
+            $clasCssImgEtat = "fa-dollar";
+            $titleImgEtat = $this->getTranslator("Encaisse");
+            $classCouleur = "text-navy";
+        ;
+        break;
+        
+        default:
+            $clasCssImgEtat = "";
+            $titleImgEtat = "";
+        break;
+    }
+    
+    $montantValide = $element->getMontantModif();
+    $montantPayeZenithe = 0;
+    $partAssure = 0;
+    if($element->getEtatConsultation() == "encaisse" || $this->consultationManager->vefifierSiConsultationEncaissable($element))
+    {
+        $montantPayeZenithe = $montantValide*($tauxCouverture/100);
+        $partAssure = $montantValide - $montantPayeZenithe;
+    }
+    
+    $colonneEtatConsultation = '<div class="'.$classCouleur.'"><i class="fa '.$clasCssImgEtat.'"></i>  '.$titleImgEtat.'</div>';
+    
+    
+    
+    $varRetour .= '    <tr id="ligne_consultation_'.$element->getId().'"
+                           class="'.$classLigne.'"
+                           nomAdherent="'.$nomAdherent.'" nomAyantDroit="'.$nomAyantDroit.'"
+                           nomSouscripteur="'.$nomSouscripteur.'"
+                           montantDeclare="'.number_format($element->getMontant(), 0, ",", " ").'"
+                           montantValide="'.number_format($montantValide, 0, ",", " ").'"
+                           groupe="'.$adherent->getGroupe().'"
+
+
+                           montantPayeZenithe="'.number_format($montantPayeZenithe, 0, ",", " ").'"
+                           partAssure="'.number_format($partAssure, 0, ",", " ").'"
+
+                           typeConsultation="'.$element->getTypeConsultation()->getNom().'"
+                           tauxCouverture="'.$tauxCouverture.'"
+                           montantPropose="'.$montantPropose.'"
+                           natureAffection="'.$element->getNatureAffection().'">';
+    
+    
+	// $varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+
+	if($typeProfil == "admin")
+	{
+	    $varRetour .= '        <td>'.$prestataire->getNom().'</td>';
+	}
+	
+	
+// 	$montantAssure = "";
+// 	if($element->getEtatConsultation() == "valide" || $element->getEtatConsultation() == "encaisse")
+// 	{
+// 	    $montantAssure = $element->getMontant() - $element->getMontantModif();
+// 	    if($montantAssure != 0)
+// 	    {
+// 	        $montantAssure = number_format($montantAssure, 0, ",", " ");
+// 	    }
+// 	    else
+// 	    {
+// 	        $montantAssure = "";
+// 	    }
+// 	}
+	
+	
+	$varRetour .= '        <td>'.$element->getTypeConsultation()->getNom().'</td>';
+	$varRetour .= '        <td>'.$nomMalade.'</td>';
+	$varRetour .= '        <td>'.$element->getDate()->format("d/m/Y H:i").'</td>';
+	
+	
+	$varRetour .= '        <td>'.$tauxCouverture.'</td>';
+	$varRetour .= '        <td id="montant_'.$element->getId().'">'.number_format($element->getMontant(), 0, ",", " ").'</td>';
+	$varRetour .= '        <td id="montantModif_'.$element->getId().'">'.number_format($element->getMontantModif(), 0, ",", " ").'</td>';
+	
+	
+	
+	$varRetour .= '        <td id="montantAssurance_'.$element->getId().'">'.number_format($montantPayeZenithe, 0, ",", " ").'</td>';
+	$varRetour .= '        <td id="montantAssure_'.$element->getId().'">'.number_format($partAssure, 0, ",", " ").'</td>';
+	
+	
+	
+	
+	// $varRetour .= '        <td id="montantModif_'.$element->getId().'">'.$montantAssure.'</td>';
+	// $varRetour .= '        <td id="observations_'.$element->getId().'">'.$element->getObservations().'</td>';
+	$varRetour .= '        <td id="etatConsultation_'.$element->getId().'" title="'.$titleImgEtat.'">'.$colonneEtatConsultation.'</td>';
+	
+	
+	$varRetour .= '        <td class="rsv-table-elt-btn">';
+	$varRetour .= '             <div class="btn-group">
+							                      <button class="btn btn-default btn-selectionner-heres" type="button" href="##"><a>'.$this->getTranslator("Selectionner").'</a></button>
+							                      <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+							                        <span class="caret"></span>
+							                        <span class="sr-only">'.$this->getTranslator("Toggle Dropdown").'</span>
+							                      </button>
+							                      <ul role="menu" class="dropdown-menu rsv-btn-group-tab">';
+    
+	if($afficherModifierConsultationButton)
+	{
+	    $varRetour .= '<li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/consultation/modifier/'.$element->getId().'"><i class="fa fa-edit"></i> '.$this->getTranslator("Modifier").'</a></li>';
+	}
+	
+	if($afficherValiderConsultationButton)
+    {
+        $varRetour .= '<li><a href="##" class="validerConsultation" id="validerConsultation_'.$element->getId().'" rel="'.$element->getId().'" data-toggle="modal" data-target="#modal-valider-consultation"><i class="fa fa-check"></i> '.$this->getTranslator("Valider").'</a></li>';
+    }
+                                                    
+    if($afficherRejeterConsultationButton)
+    {
+        $varRetour .= '<li><a href="##" class="rejeterConsultation" id="rejeterConsultation_'.$element->getId().'" rel="'.$element->getId().'"><i class="fa fa-close"></i> '.$this->getTranslator("Rejeter").'</a></li>';
+    }
+    
+    
+    if($afficherDevaliderConsultationButton)
+    {
+        $varRetour .= '<li><a href="##" class="devaliderConsultation" id="devaliderConsultation_'.$element->getId().'" rel="'.$element->getId().'"><i class="fa fa-check"></i> '.$this->getTranslator("Devalider").'</a></li>';
+    }
+    
+    if($afficherDerejeterConsultationButton)
+    {
+        $varRetour .= '<li><a href="##" class="derejeterConsultation" id="derejeterConsultation_'.$element->getId().'" rel="'.$element->getId().'"><i class="fa fa-close"></i> '.$this->getTranslator("Derejeter").'</a></li>';
+    }
+    
+    
+    
+    
+    if($afficherEncaisserConsultationButton)
+    {
+        $varRetour .= '<li><a href="##" class="encaisserConsultation" id="encaisserConsultation_'.$element->getId().'" rel="'.$element->getId().'"><i class="fa fa-dollar"></i> '.$this->getTranslator("Encaisser").'</a></li>';
+    }
+                                                    
+    if($afficherImprimerConsultationButton)
+    {
+        $varRetour .= '<li><a href="##" class="imprimerRecuConsultation" id="imprimerRecuConsultation_'.$element->getId().'" rel="'.$element->getId().'"><i class="fa fa-print"></i> '.$this->getTranslator("Imprimer").'</a></li>';
+    }
+    
+//     if($afficherSupprimerConsultationButton)
+//     {
+//         $varRetour .= '<li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Consultation/'.$element->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>';
+//     }
+                                               
+
+                                       
+    $varRetour .=		                      '</ul>
+											</div>';
+	$varRetour .= '        </td>';
+	
+	
+	
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+
+
+$varRetour .= '<style type="text/css">
+tr.attente_validation {
+    background: #f5e0cf !important;
+}
+</style>';
+
+
+
+?>

@@ -1,0 +1,392 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-01-08 09:16+0100\n"
+"PO-Revision-Date: 2016-01-08 09:16+0100\n"
+"Last-Translator: EBB Dev <me@email.com>\n"
+"Language-Team: ZF Contibutors <zf-devteam@zend.com>\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Basepath: .\n"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../src/Application/Filter/ArticleInputFilter.php:27
+#: ../src/Application/Filter/CategorieInputFilter.php:28
+msgid "Le code est unique pour une langue et pour une categorie"
+msgstr ""
+
+#: ../src/Application/Filter/CategorieEmploiInputFilter.php:26
+msgid "Ce code est deja utilise"
+msgstr ""
+
+#: ../src/Application/Filter/EmployeInputFilter.php:29
+#: ../src/Application/Filter/InternauteInputFilter.php:32
+msgid "Login deja utilise"
+msgstr ""
+
+#: ../src/Application/Filter/ProduitInputFilter.php:28
+msgid "Le code est unique pour une langue et pour un produit"
+msgstr ""
+
+#: ../src/Application/Filter/ProfilInputFilter.php:24
+msgid "Code deja utilise"
+msgstr ""
+
+#: ../src/Application/Utilitaire/Utilitaire.php:219
+msgid "Auj"
+msgstr ""
+
+#: ../src/Application/Utilitaire/Utilitaire.php:225
+msgid "Hier"
+msgstr ""
+
+#: ../src/Application/Utilitaire/Utilitaire.php:734
+msgid ""
+"Cette notification vous a ete envoyee par e-mail afin de vous informer sur "
+"nos activites"
+msgstr ""
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "Bienvenue dans %sZend Framework 2%s"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid ""
+"Congratulations! You have successfully installed the %sZF2 Skeleton "
+"Application%s. You are currently running Zend Framework version %s. This "
+"skeleton can serve as a simple starting point for you to begin building your "
+"application on ZF2."
+msgstr ""
+"Felicitations ! Vous avez installe %sZF2 Skeleton Application%s avec succes. "
+"Vous utilisez actuellement Zend Framework version %s. Cette structure peut "
+"vous servir comme point de depart simple pour demarrer la construction de "
+"votre application avec ZF2."
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "Faites un Fork de Zend Framework 2 sur GitHub"
+
+#: ../view/application/index/index.phtml:12
+msgid "Follow Development"
+msgstr "Suivre le developpement"
+
+#: ../view/application/index/index.phtml:15
+#, php-format
+msgid ""
+"Zend Framework 2 is under active development. If you are interested in "
+"following the development of ZF2, there is a special ZF2 portal on the "
+"official Zend Framework website which provides links to the ZF2 %swiki%s, "
+"%sdev blog%s, %sissue tracker%s, and much more. This is a great resource for "
+"staying up to date with the latest developments!"
+msgstr ""
+"Zend Framework 2 est en cours de developpement. Si vous etes interesse pour "
+"suivre l'evolution de ZF2, il existe un portail dedie a ZF2 sur le site "
+"officiel Zend Framework qui propose des liens vers le %swiki%s ZF2, le "
+"%sblogue de dev%s, le %ssuivi des problemes%s, et bien plus encore. Il "
+"s'agit d'une excellente ressource pour rester a jour sur les dernieres "
+"evolutions !"
+
+#: ../view/application/index/index.phtml:16
+msgid "ZF2 Development Portal"
+msgstr "Portail sur le developpement de ZF2"
+
+#: ../view/application/index/index.phtml:24
+msgid "Discover Modules"
+msgstr "Decouvrez les modules"
+
+#: ../view/application/index/index.phtml:27
+#, php-format
+msgid ""
+"The community is working on developing a community site to serve as a "
+"repository and gallery for ZF2 modules. The project is available %son GitHub"
+"%s. The site is currently live and currently contains a list of some of the "
+"modules already available for ZF2."
+msgstr ""
+"La communaute travaille sur le developpement d'un site communautaire avec "
+"l'objectif de servir de depôt et de galerie  pour les modules ZF2. Le projet "
+"est disponible %ssur GitHub%s. Le site est deja en ligne, et contient une "
+"liste non exhaustive des modules deja disponibles pour ZF2."
+
+#: ../view/application/index/index.phtml:28
+msgid "Explore ZF2 Modules"
+msgstr "Explorer les modules ZF2"
+
+#: ../view/application/index/index.phtml:36
+msgid "Help &amp; Support"
+msgstr "Aide &amp; support"
+
+#: ../view/application/index/index.phtml:39
+#, php-format
+msgid ""
+"If you need any help or support while developing with ZF2, you may reach us "
+"via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or "
+"feedback you may have regarding the beta releases. Alternatively, you may "
+"subscribe and post questions to the %smailing lists%s."
+msgstr ""
+"Si vous avez besoin d'aide ou de soutient en developpant avec ZF2, vous "
+"pouvez nous joindre sur IRC : %s#zftalk sur Freenode%s. Nous aimerions "
+"connaître vos questions ou les commentaires que vous pourriez avoir au sujet "
+"des versions beta. Sinon, vous pouvez vous abonner, et poser des questions "
+"sur la %sliste de diffusion%s."
+
+#: ../view/application/index/index.phtml:40
+msgid "Ping us on IRC"
+msgstr "Rejoignez-nous sur IRC"
+
+#: ../view/backoffice/actions_list.phtml:14
+#: ../view/frontoffice/actions_list.phtml:15
+msgid "Ajouter"
+msgstr ""
+
+#: ../view/backoffice/actions_list.phtml:22
+#: ../view/frontoffice/actions_list.phtml:23
+msgid "Activer"
+msgstr ""
+
+#: ../view/backoffice/actions_list.phtml:30
+#: ../view/frontoffice/actions_list.phtml:31
+msgid "Desactiver"
+msgstr ""
+
+#: ../view/backoffice/actions_list.phtml:38
+#: ../view/frontoffice/actions_list.phtml:39
+msgid "Supprimer"
+msgstr ""
+
+#: ../view/backoffice/connexion.phtml:7 ../view/frontoffice/connexion.phtml:7
+msgid "connexion"
+msgstr ""
+
+#: ../view/backoffice/footer.phtml:11
+msgid "All rights reserved"
+msgstr ""
+
+#: ../view/backoffice/header.phtml:24
+#: ../view/backoffice/header_not_connect.phtml:4
+#: ../view/frontoffice/header_not_connect.phtml:4
+msgid "Toggle navigation"
+msgstr ""
+
+#: ../view/backoffice/header.phtml:33 ../view/backoffice/header.phtml:39
+msgid "User image"
+msgstr ""
+
+#: ../view/backoffice/header.phtml:42
+msgid "A ce poste depuis"
+msgstr ""
+
+#: ../view/backoffice/header.phtml:48 ../view/frontoffice/header.phtml:178
+msgid "Parametre"
+msgstr ""
+
+#: ../view/backoffice/header.phtml:51 ../view/frontoffice/header.phtml:181
+msgid "Deconnexion"
+msgstr ""
+
+#: ../view/backoffice/header_not_connect.phtml:12
+#: ../view/frontoffice/header_not_connect.phtml:12
+msgid "Language"
+msgstr ""
+
+#: ../view/backoffice/layout_list.phtml:167
+msgid "Vous devez selectionner au moins un element pour effectuer cette action"
+msgstr ""
+
+#: ../view/backoffice/layout_list.phtml:167
+msgid "Avertissement"
+msgstr ""
+
+#: ../view/backoffice/layout_list_commentaire.phtml:90
+msgid "Actifs"
+msgstr ""
+
+#: ../view/backoffice/layout_list_commentaire.phtml:91
+msgid "Inactifs"
+msgstr ""
+
+#: ../view/backoffice/layout_list_commentaire.phtml:92
+msgid "Abus"
+msgstr ""
+
+#: ../view/backoffice/layout_list_commentaire.phtml:93
+#: ../view/backoffice/layout_list_message.phtml:92
+msgid "Tous"
+msgstr ""
+
+#: ../view/backoffice/layout_list_commentaire.phtml:190
+#: ../view/backoffice/layout_list_commentaire.phtml:236
+#: ../view/backoffice/layout_list_message.phtml:189
+#: ../view/backoffice/layout_list_message.phtml:235
+msgid "En cours de traitement, veuillez patienter ..."
+msgstr ""
+
+#: ../view/backoffice/layout_list_message.phtml:90
+msgid "Non traites"
+msgstr ""
+
+#: ../view/backoffice/layout_list_message.phtml:91
+msgid "Traites"
+msgstr ""
+
+#: ../view/backoffice/sidebar.phtml:73 ../view/frontoffice/menu.phtml:76
+msgid "En ligne"
+msgstr ""
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "Une erreur 404 est survenue"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "Le contrôleur demande n'a pas pu acheminer la requete."
+
+#: ../view/error/404.phtml:13
+msgid ""
+"The requested controller could not be mapped to an existing controller class."
+msgstr ""
+"Le contrôleur demande ne correspond pas a une classe contrôleur existante."
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "Le contrôleur demande ne peut etre achemine."
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "L'URL demandee n'a pas pu trouver de route correspondante."
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr ""
+"Nous ne pouvons pas determiner pour le moment pourquoi une 404 a ete generee."
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr "Contrôleur"
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "resout en %s"
+
+#: ../view/error/404.phtml:53 ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "Informations complementaires"
+
+#: ../view/error/404.phtml:56 ../view/error/404.phtml:81
+#: ../view/error/index.phtml:11 ../view/error/index.phtml:36
+msgid "File"
+msgstr "Fichier"
+
+#: ../view/error/404.phtml:60 ../view/error/404.phtml:85
+#: ../view/error/index.phtml:15 ../view/error/index.phtml:40
+msgid "Message"
+msgstr "Message"
+
+#: ../view/error/404.phtml:64 ../view/error/404.phtml:89
+#: ../view/error/index.phtml:19 ../view/error/index.phtml:44
+msgid "Stack trace"
+msgstr "Pile d'execution"
+
+#: ../view/error/404.phtml:75 ../view/error/index.phtml:30
+msgid "Previous exceptions"
+msgstr "Exceptions precedentes"
+
+#: ../view/error/404.phtml:109 ../view/error/index.phtml:64
+msgid "No Exception available"
+msgstr "Aucune exception disponible"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "Une erreur est survenue"
+
+#: ../view/frontoffice/footer.phtml:21
+msgid "Newsletter"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:22
+msgid ""
+"Restez informe sur nos activites. Saisissez votre e-mail et abonnez-vous a "
+"notre newsletter"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:26
+msgid "Adresse email"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:28
+msgid "Ok"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:35
+msgid "Dernieres Publications"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:98 ../view/frontoffice/footer.phtml:124
+msgid "Nous contacter"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:100
+msgid "Addresse"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:101
+msgid "Telephone"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:102
+msgid "Email"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:107
+msgid "Suivez nous"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:118
+msgid "Tous droits reserves"
+msgstr ""
+
+#: ../view/frontoffice/footer.phtml:123
+msgid "Sitemap"
+msgstr ""
+
+#: ../view/frontoffice/header.phtml:80
+msgid "Recherche"
+msgstr ""
+
+#: ../view/frontoffice/header.phtml:118
+msgid "Logo"
+msgstr ""
+
+#: ../view/frontoffice/header.phtml:148 ../view/layout/layout.phtml:7
+msgid "Connexion"
+msgstr ""
+
+#: ../view/frontoffice/header.phtml:152
+msgid "Inscription"
+msgstr ""
+
+#: ../view/frontoffice/layout_list.phtml:119
+#: ../view/frontoffice/layout_one_element.phtml:120
+#: ../view/frontoffice/layout_simple_form.phtml:146
+msgid "A propos de nous"
+msgstr ""
+
+#: ../view/layout/layout.phtml:76
+msgid "All rights reserved."
+msgstr "Tous droits reserves."
+
+#~ msgid "Exception"
+#~ msgstr "Exception"
+
+#~ msgid "Skeleton Application"
+#~ msgstr "Skeleton Application"
+
+#~ msgid "Home"
+#~ msgstr "Accueil"

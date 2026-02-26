@@ -1,0 +1,40 @@
+<?php 
+	use Zend\Session\Container;
+	$sessionEmploye = new Container('employe');
+	
+	$typeProfil = $sessionEmploye->offsetGet("type_profil");
+?>
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+		$ligneMontant = $("#ligne_montant");
+		
+		$("#ligne_natureConsultation, #ligne_typeConsultation, #submit").slideDown(500);
+		if("<?= $typeProfil == "prestataire"; ?>")
+		{
+			$("#ligne_montant").slideDown(500);
+		}
+
+		
+
+		afficherInfosMalade("jstContenuForm", "<?= $this->infosMalade["nomAssurePrincipal"]; ?>", "<?= $this->infosMalade["nomMalade"]; ?>", "<?= $this->infosMalade["nomSouscripteur"]; ?>", "", "", "");
+
+
+
+
+		$("#ligne_natureConsultation").on("ifChecked", "input[type='radio']", function() {		
+			$this = $(this);
+
+			if($this.val() == "gratuite")
+			{
+				$ligneMontant.slideUp(500);
+			}
+			else if($this.val() == "payante")
+			{
+				$ligneMontant.slideDown(500);
+			}
+		});
+	});
+</script>

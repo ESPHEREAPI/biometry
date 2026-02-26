@@ -1,0 +1,462 @@
+<?php 
+
+	use Zend\Session\Container;
+
+	$sessionPopUpAnnonce = new Container('pop_up_annonce');
+	$sessionInternaute = new Container('internaute');
+	
+	
+	$actual_link = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+	
+	if(substr_count($actual_link, "/e-insurance/") > 0 && substr_count($actual_link, "/resultat") > 0)
+	{
+		$afficheModale = "0";
+	}
+	else
+	{
+		$afficheModale = "1";
+	}
+?>
+
+
+
+<?php if(!$sessionPopUpAnnonce->offsetExists("pop_up_annonce_end") || $sessionPopUpAnnonce->offsetExists("pop_up_annonce_end") == false) : ?>
+
+<div class="blankTemplate">	
+	<div id="containerPopupGlob" class="slickModal surveyForm">
+		<div class="slickWindow animate-pulse" id="ctneurJxteModalPopup">
+			<!-- Your popup content -->
+                <div class="title"><?= $this->translate("Nos offres a portee de main", "application"); ?></div>
+
+				<form action="" id="formTelechargerAnnonce" method="post">
+					<div class="row">
+						<div class="form-group">
+							<div class="col-md-12">
+		  						<input style="margin-bottom: 10px;" name="nomAnnonce" id="nomAnnonce" type="text" class="form-control" placeholder="<?= $this->translate("Veuillez saisir votre nom", "application"); ?>" />
+						</div>
+					</div>
+				</div>						
+				<div class="row">
+					<div class="form-group" style="margin-bottom: 0;">
+						<div class="col-md-12">
+	  						<input name="emailAnnonce" id="emailAnnonce" type="text" class="form-control" placeholder="<?= $this->translate("Veuillez saisir votre adresse mail", "application"); ?>" />
+						</div>
+					</div>
+				</div>
+				
+				<div class="row">
+					<button style="" type="button" class="btn btn-primary btn-custom-annonce" id="btnTelechargerAnnonce"><?= $this->translate("Telechargez", "application"); ?></button>
+				</div>					
+			</form>
+			
+			
+			
+			<form action="" id="formNePlusAfficherAnnonce" method="post">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="ctneurICheck" style="margin-top: 20px; text-align: center;">
+							<label for="nePlusAfficherAnnonce" style="cursor: pointer; display: inline-block;">
+								<input type="checkbox" name="nePlusAfficherAnnonce" id="nePlusAfficherAnnonce" /> <?= $this->translate("Ne plus afficher", "application"); ?>
+							</label>
+						</div>
+					</div>
+				</div>
+			</form>
+			
+			
+			<button type="button" class="displayNone" data-dismiss="modal" id="closePopUpAnnonce"><?= $this->translate("Close", "application"); ?></button>
+		</div>
+	</div>
+</div>	
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+
+		if("<?= $afficheModale; ?>" == "1")
+		{
+			setTimeout(function() {
+
+				// Modal 1
+			    $('#containerPopupGlob').slickModals({
+			        // Hide on pages
+			        // hideOnPages: ['/foo/page1/', '/foo/page2/', '/foo/page3/'],
+			        // Popup type
+			        popupType: 'delayed',
+			        delayTime: 0,
+			        scrollTopDistance: 400,
+		            // Auto closing
+		            // autoClose: true,
+		            // autoCloseDelay: 3000,
+		            // Statistics
+		            // enableStats: false,
+		            // fileLocation: 'slickStats/collect.php',
+		            // modalName: 'My awesome modal 1',
+		            // modalSummary: 'Lorem ipsum dolor sit amet',
+		            // callToAction: 'cta',
+			        // Popup cookies
+			        // setCookie: false,
+			        // cookieDays: 30,
+			        // cookieTriggerClass: 'setCookie-1',
+			        // cookieName: 'slickModal-1',
+			        // cookieScope: 'domain',
+			        // Overlay styling
+			        // overlayVisible: true,
+			        // overlayClosesModal: true,
+			        // overlayColor: 'rgba(0,0,0,0.85)',
+			        // overlayAnimationDuration: '0.4',
+		            // overlayAnimationEffect: 'fadeIn',
+			        // Background effects
+		            // pageAnimationDuration: '0.4',
+		            // pageAnimationEffect: 'scale',
+			        // pageBlurRadius: '1px',
+			        // pageScaleValue: '0.9',
+		            // pageMoveDistance: '30%',
+			        // Popup styling
+			        popupWidth: '350px',
+			        popupHeight: '325px',
+			        popupLocation: 'bottomLeft',
+			        popupAnimationDuration: '0.4',
+			        popupAnimationEffect: 'unFold',
+			        popupBoxShadow: '0 0 20px 0 rgba(0,0,0,0.4)',
+			        popupBackground: '#0088CC',
+			        popupRadius: '0',
+			        popupMargin: '30px',
+			        popupPadding: '30px',
+			        // Mobile rules
+		            showOnMobile: true,
+			        responsive: true,
+			        mobileBreakPoint: '480px',
+			        mobileLocation: 'center',
+			        mobileWidth: '100%',
+			        mobileHeight: '230px',
+			        mobileRadius: '0',
+			        mobileMargin: '0',
+			        mobilePadding: '24px',
+			        // Animate content
+			        contentAnimation: true,
+			        contentAnimationEffect: 'zoomIn',
+			        contentAnimationDuration: '0.5',
+			        contentAnimationDelay: '0.5',
+			        // Youtube videos
+			        // videoSupport: true,
+			        // videoAutoPlay: true,
+			        // videoStopOnClose: true,
+			        // Close and reopen button
+			        addCloseButton: true,
+			        buttonStyle: 'icon',
+			        enableESC: true,
+			        reopenClass: 'openSlickModal-1',
+			        // Additional events
+			        onSlickLoad: function() {
+			            // Your code goes here
+			        },
+			        onSlickClose: function() {
+			            // Your code goes here
+			        }
+			    });
+				
+	        }, 3000);
+		}
+		
+		
+
+		nePlusAfficherAnnonce = function() {
+		    
+			dataString = "";
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: '<?= $this->basePath()."/ne-plus-afficher-annonce"; ?>',
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	
+				},
+	            
+	            success: function( html ) {
+					
+				},
+	            
+				error: function(){
+					 
+				},
+	            
+	            complete: function(){
+	                
+				}
+			});
+		};
+
+		$('#btnTelechargerAnnonce').on('click', function() {
+			$nomAnnonce = $("#nomAnnonce");
+			$emailAnnonce = $("#emailAnnonce");
+			
+			retirerAlert("formTelechargerAnnonce");
+			$nomAnnonce.removeClass("error");
+			$emailAnnonce.removeClass("error");
+			
+			if($nomAnnonce.val() == "" || $emailAnnonce.val() == "")
+			{
+				if($nomAnnonce.val() == "")
+				{
+					$nomAnnonce.addClass("error");
+				}
+				
+				if($emailAnnonce.val() == "")
+				{
+					$emailAnnonce.addClass("error");
+				}
+				
+				$.confirm({
+				 	icon: 'fa fa-exclamation-triangle',
+				    title: "<?= $this->translate("Erreur", "application"); ?>",
+				    content: "<?= $this->translate("Veuillez saisir votre nom et votre adresse mail pour telecharger", "application"); ?>",
+				    type: 'red',
+				    typeAnimated: true,
+				    buttons: {
+				    	close: {
+				        	text: "<?= $this->translate("OK", "application"); ?>",
+				        },
+				    }
+				});
+
+				return false;
+			}
+			else if(!isValidEmailAddress($("#emailAnnonce").val()))
+			{
+				$emailAnnonce.addClass("error");
+				$.confirm({
+				 	icon: 'fa fa-exclamation-triangle',
+				    title: "<?= $this->translate("Erreur", "application"); ?>",
+				    content: "<?= $this->translate("Veuillez saisir une adresse mail valide", "application"); ?>",
+				    type: 'red',
+				    typeAnimated: true,
+				    buttons: {
+				    	close: {
+				        	text: "<?= $this->translate("OK", "application"); ?>",
+				        },
+				    }
+				});
+				return false;
+			}
+
+
+			dataString = $("#formTelechargerAnnonce").serialize();
+			
+			// Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: '<?= $this->basePath()."/telecharger-annonce"; ?>',
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	
+				},
+	            
+	            success: function( html ) {
+					// console.log(html);
+				},
+	            
+				error: function() {
+					 
+				},
+	            
+	            complete: function(){
+	                
+				}
+			});
+
+
+			$("#containerPopupGlob div.slickCloseBtn.close.closeModal.icon").click();
+			
+
+			$.confirm({
+        		icon: 'fa fa-exclamation-triangle',
+        	    title: "<?= $this->translate("Success", "application");?>",
+        	    content: "<?= $this->translate("Merci d'avoir telecharge nos offres", "application"); ?>",
+        	    type: 'green',
+        	    typeAnimated: true,
+        	    buttons: {
+        	        close: {
+        	            text: "<?=  $this->translate("OK", "application");?>",
+        	        },
+        	    }
+        	});
+
+			window.location = "https://zenitheinsurance.com/download/docs_*-*_to-download_*-*_Offre de service assurance en ligne - ZENITHE.pdf";
+	    });
+
+
+	    $('#nePlusAfficherAnnonce').on('ifChecked', function () {
+	    	$("#containerPopupGlob div.slickCloseBtn.close.closeModal.icon").click();
+	    });
+	    
+		$('#containerPopupGlob').on('click', 'div.slickCloseBtn.close.closeModal.icon', nePlusAfficherAnnonce);
+
+
+		$("#ctneurJxteModalPopup").mouseenter(function() {
+			$(this).removeClass("animate-pulse");
+		});
+		    
+	});
+</script>
+
+
+<style type="text/css">
+
+	#containerPopupGlob * {
+	    font-family: 'Raleway', sans-serif;
+	}
+	#containerPopupGlob {
+	    text-align: center;
+	    /* bottom: 0;
+	    height: 340px;
+	    left: 0;
+	    margin: auto;
+	    position: fixed;
+	    right: 0;
+	    top: 0;
+	    width: 800px; */
+	}
+	#containerPopupGlob h1,
+	.blankTemplate .slickModal .title {
+	    font-size: 30px;
+	    border-bottom: solid 1px #FFF;
+	    padding-bottom: 24px;
+	    margin-bottom: 24px;
+	    /* color: #333; */
+	    color : #FFF;
+	}
+	#containerPopupGlob p {
+	    font-size: 13px;
+	    line-height: 18px;
+	    padding-bottom: 40px;
+	}
+	#containerPopupGlob h2,
+	#containerPopupGlob p,
+	.blankTemplate .slickModal p {
+	    text-align: center;
+	    font-weight: normal;
+	    margin: 0;
+	}
+	#containerPopupGlob p,
+	.blankTemplate .slickModal p {
+	    font-size: 14px;
+	    line-height: 20px;
+	}
+	.manualLabel,
+	#containerPopupGlob h1,
+	.blankTemplate .slickModal .title {
+	    display: block;
+	    font-size: 20px;
+    	font-weight: 700;
+	    text-align: center
+	}
+	.manualLabel {
+	    margin: 0 10px;
+	    width: 200px;
+	    height: 52px;
+	    line-height: 52px;
+	    font-size: 12px;
+	    color: #fff;
+	    background: #f78f8f;
+	    cursor: pointer;
+	    text-transform: uppercase;
+	    display: inline-block;
+	}
+	.blankTemplate .slickModal .closeModal.cta {
+	    background: #3dc197;
+	    color: #fff;
+	    text-align: center;
+	    padding: 10px 0;
+	    margin-top: 20px;
+	    font-size: 14px;
+	    font-weight: 700;
+	    width: 100px;
+	    margin: 20px auto;
+	}
+	.manualLabel:hover,
+	.blankTemplate .slickModal .closeModal.cta:hover {
+	    opacity: 0.7;
+	}
+	.blankTemplate .slickModal a.docs {
+	    position: absolute;
+	    bottom: -30px;
+	    left: 0;
+	    right: 0;
+	    text-align: center;
+	    display: inline-block;
+	    font-weight: 700;
+	    color: #999;
+	    font-size: 12px;
+	}
+	
+	#containerPopupGlob input {
+	    border: solid 1px #FFF;
+	}
+	
+	#containerPopupGlob div.ctneurICheck .icheckbox_square-blue {
+		border: solid 1px #FFF;
+	}
+	
+	#containerPopupGlob div.ctneurICheck .icheckbox_square-blue:hover {
+		border: solid 1px #F9B447;
+	}
+	
+	#containerPopupGlob .btn-custom-annonce {
+		background: #F9B447;
+		color: #FFF;
+	}
+	
+	#containerPopupGlob .btn-custom-annonce:hover {
+		opacity: 0.7;
+	}
+	
+	#containerPopupGlob form label {
+	    color: #FFF;
+	}
+	
+	#containerPopupGlob form label:hover {
+	    color: #F9B447;
+	    
+	}
+	
+	#containerPopupGlob .form-control {
+    	height: 35px;
+	}
+	
+	/* hvr-pulse-grow:hover, .hvr-pulse-grow:focus, .hvr-pulse-grow:active */
+	
+	#containerPopupGlob .animate-pulse {
+	  -webkit-animation-name: hvr-pulse-grow;
+	  animation-name: hvr-pulse-grow;
+	  -webkit-animation-duration: 0.3s;
+	  animation-duration: 0.3s;
+	  -webkit-animation-timing-function: linear;
+	  animation-timing-function: linear;
+	  -webkit-animation-iteration-count: infinite;
+	  animation-iteration-count: infinite;
+	  -webkit-animation-direction: alternate;
+	  animation-direction: alternate;
+	}
+
+</style>
+
+
+
+<?php if($sessionInternaute->offsetGet("code_langue") != "en_US") : ?>
+	<script src="<?= $this->basePath("js/formValidation/js/language/".$sessionInternaute->offsetGet("code_langue").".js"); ?>"></script>
+<?php endif ; ?>
+
+
+<?php endif ; ?>
+

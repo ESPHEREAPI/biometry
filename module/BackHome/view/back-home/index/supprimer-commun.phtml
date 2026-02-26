@@ -1,0 +1,22 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+    
+	$url = $this->basePath().'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/'.$this->statut.'/'.$this->nomEntite.'/'.$this->idElts;
+?>
+ 
+
+ <div class="box-body">
+ 
+ <p>
+ 	<?= $this->translate("Are you sure that you want to delete", "application"); ?>
+ </p>
+ 
+ <form action="<?= $url; ?>" method="post">
+	 <div>
+	     <input type="submit" name="del" value="<?= $this->translate("Yes", "application"); ?>" />
+	     <input type="submit" name="del" value="<?= $this->translate("No", "application"); ?>" />
+	     <input type="hidden" name="redirectUrl" value="<?= $this->redirectUrl; ?>" />
+	 </div>
+ </form>
+ 
+ </div>

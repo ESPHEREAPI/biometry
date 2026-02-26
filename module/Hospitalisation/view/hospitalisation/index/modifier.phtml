@@ -1,0 +1,7 @@
+<?php  include_once 'jsPrestationForm.phtml'; ?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+		afficherInfosMalade("jstContenuForm", "<?= $this->infosMalade["nomAssurePrincipal"]; ?>", "<?= $this->infosMalade["nomMalade"]; ?>", "<?= $this->infosMalade["nomSouscripteur"]; ?>", "", "", "");
+	});
+</script>

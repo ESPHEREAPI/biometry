@@ -1,0 +1,50 @@
+<?php 
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$varRetour .= '<table class="table table-bordered table-striped" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+$varRetour .= '        <th>'.$this->getTranslator("Nom").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Code").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Type").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Sous type").'</th>';
+$varRetour .= '        <th class="rsv-table-title-status">'.$this->getTranslator("Statut").'</th>';
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+ 
+foreach($tab as $element)
+{
+	if($element->getProfil()->getStatut() == -1) { $classtatut =  "table_inactive"; $titleStatut =  $this->getTranslator("Activer"); $newStatut = 1; }
+	else { $classtatut =  "table_active"; $titleStatut =  $this->getTranslator("Desactiver"); $newStatut = -1; }
+    
+	
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getProfil()->getId().'" /></td>';
+	$varRetour .= '        <td>'.$element->getNom().'</td>';
+	$varRetour .= '        <td>'.$element->getProfil()->getCode().'</td>';
+	$varRetour .= '        <td>'.$element->getProfil()->getTypeProfil().'</td>';
+	$varRetour .= '        <td>'.$element->getProfil()->getTypeSousProfil().'</td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/activer_commun/'.$newStatut.'/Profil/'.$element->getProfil()->getId().'"><span class="'.$classtatut.'" title="'.$titleStatut.'"></span></a></td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn">';
+	$varRetour .= '             <div class="btn-group">
+							                      <button class="btn btn-default btn-modifier-heres" type="button" href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/administration/profil/modifier/'.$element->getProfil()->getId().'"><a><i class="fa fa-edit"></i> '.$this->getTranslator("Modifier").'</a></button>
+							                      <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+							                        <span class="caret"></span>
+							                        <span class="sr-only">'.$this->getTranslator("Toggle Dropdown").'</span>
+							                      </button>
+							                      <ul role="menu" class="dropdown-menu rsv-btn-group-tab">
+							                        <li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Profil/'.$element->getProfil()->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>
+							                      </ul>
+											</div>';
+	$varRetour .= '        </td>';
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+?>

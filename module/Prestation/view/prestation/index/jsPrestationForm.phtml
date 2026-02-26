@@ -1,0 +1,1137 @@
+<?php
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+$typeSousProfil = $sessionEmploye->offsetGet("type_sous_profil");
+
+
+$labelListe = "";
+if($this->naturePrestation == "ordonnance")
+{
+    $labelListe = $this->translate("Liste des medicaments", "application");
+}
+elseif($this->naturePrestation == "examen")
+{
+	if ($typeSousProfil=="laboratoire"){
+		
+		 $labelListe = $this->translate("Liste des examens", "application");
+	}
+	else{
+		 $labelListe = $this->translate("Liste des examens/actes", "application");
+	} 
+}
+elseif($this->naturePrestation == "lunetterie")
+{
+	
+		 $labelListe = $this->translate("Liste des prestations en lunetterie", "application"); 
+}
+
+
+$lignePrestation  = '<div class="ctneurTsLignePrestation" id="ctneurTsLignePrestation" style="margin: 0; padding: 0; display: none">';
+$lignePrestation .= '  <input type="hidden" name="originformAjoutPrestation" id="originformAjoutPrestation" value="'.$this->originformAjoutPrestation.'" />';
+$lignePrestation .= '  <input type="hidden" name="valeurSubmit" id="valeurSubmit" />';
+$lignePrestation .= '  <div class="row">';
+$lignePrestation .= '      <label class="col-md-3 control-label">'.$labelListe.'</label>';
+$lignePrestation .= '      <div class="col-md-9">';
+$lignePrestation .= '          <div class="form-group hide" id="lignePrestation">';
+
+
+
+$classCssNom = "col-md-3";
+if($this->naturePrestation == "ordonnance")
+{
+    $classCssNom = "col-md-3";
+}
+
+
+
+
+
+$lignePrestation .= '	             <div class="'.$classCssNom.'">';
+
+if($this->naturePrestation == "ordonnance")
+{
+	$lignePrestation .= '	             	<select class="form-control noSelect2 selectMedicament" name="nomTemplate" id="nomTemplate">';
+	$lignePrestation .= '	             		<option value="">'.$this->translate("Selectionnez", "application").'</option>';
+	$lignePrestation .= '	             		<option value="pas_trouve">'.$this->translate("MEDICAMENT PAS TROUVE", "application").'</option>';
+	foreach($this->tabMedicament as $unMedicament)
+	{
+		$unMedicament->afficheChaine();
+		$lignePrestation .= '	             	<option value="'.$unMedicament->getId().'">'.addslashes($unMedicament->getNom()).'</option>';
+	}
+
+$lignePrestation .= '	             		 </select>';
+
+$lignePrestation .= '<div id="loader" name="loader" style="display:none;">';
+$lignePrestation .= '  <img src="'.$this->basePath("img/ajax-loader-input.gif").'" width="32px" height="32px">';
+$lignePrestation .= '</div>';
+
+}
+elseif($this->naturePrestation == "examen")
+{
+	$lignePrestation .= '	             	<select class="form-control noSelect2 selectMedicament" name="nomTemplate" id="nomTemplate">';
+	$lignePrestation .= '	             		<option value="">'.$this->translate("Selectionnez", "application").'</option>';
+	$lignePrestation .= '	             		<option value="pas_trouve">'.$this->translate("AJOUTER NOUVEAU EXAMEN", "application").'</option>';
+	foreach($this->tabMedicament as $unMedicament)
+	{
+		$unMedicament->afficheChaine();
+		$lignePrestation .= '	             	<option value="'.$unMedicament->getId().'">'.addslashes($unMedicament->getNom()).'</option>';
+	}
+
+$lignePrestation .= '	             		 </select>';
+
+$lignePrestation .= '<div id="loader" name="loader" style="display:none;">';
+$lignePrestation .= '  <img src="'.$this->basePath("img/ajax-loader-input.gif").'" width="32px" height="32px">';
+$lignePrestation .= '</div>';
+
+}
+else
+{
+	$lignePrestation .= '		            <input type="text" class="form-control" name="nomTemplate" placeholder="'.$this->translate("Nom", "application").'" />';
+}
+
+$lignePrestation .= '	             </div>';
+
+if($this->naturePrestation == "ordonnance")
+{
+    $lignePrestation .= '	             <div class="col-md-3">';
+    $lignePrestation .= '		            <input type="text" class="form-control" name="posologieTemplate" placeholder="'.$this->translate("Posologie", "application").'" />';
+    $lignePrestation .= '	             </div>';
+	
+	 $lignePrestation .= '	             <div class="col-md-2">';
+    $lignePrestation .= '		            <input type="number" class="form-control" name="montantTemplate" placeholder="'.$this->translate("Prix", "application").'" />';
+    $lignePrestation .= '	             </div>';
+	
+	$lignePrestation .= '	             <div class="col-md-2">';
+    $lignePrestation .= '		            <input type="number" class="form-control" name="nbreTemplate" placeholder="'.$this->translate("Quantite", "application").'" />';
+    $lignePrestation .= '	             </div>';
+}
+elseif($this->naturePrestation == "examen" || $this->naturePrestation == "lunetterie")
+{
+    $lignePrestation .= '	             <div class="col-md-3">';
+    $lignePrestation .= '		            <select class="form-control noSelect2" name="typeExamenTemplate">';
+	$lignePrestation .= '		                 <option>'.$this->translate("Selectionnez", "application").'</option>';
+	foreach($listeTypePrestation as $valeur)
+	{
+		$lignePrestation .= '		                 <option value="'.$valeur->getId().'">'.$valeur->getNom().'</option>';
+		
+		}
+   
+    $lignePrestation .= '		            </select>';
+    $lignePrestation .= '	             </div>';
+	
+	 $lignePrestation .= '	             <div class="col-md-2">';
+    $lignePrestation .= '		            <input type="number" class="form-control" name="montantTemplate" placeholder="'.$this->translate("Valeur", "application").'" />';
+    $lignePrestation .= '	             </div>';
+	
+	$lignePrestation .= '	             <div class="col-md-2">';
+    $lignePrestation .= '		            <input type="number" class="form-control" name="nbreTemplate" placeholder="'.$this->translate("Nombre", "application").'" />';
+    $lignePrestation .= '	             </div>';
+	
+}
+
+   
+	
+$lignePrestation .= '	             <div class="col-md-2">';
+$lignePrestation .= '		            <button style="margin-left: 15px;" type="button" idHtmlLigne="" nomCamelCaseColonnePosition="position" nomCamelCaseTable="LignePrestation" class="pull-right btn btn-default removeButton removeLignePrestation" title="'.$this->translate("Retirer").'"><i class="fa fa-minus"></i></button>';
+$lignePrestation .= '		            <button type="button" class="pull-right btn btn-default addButton addLignePrestation" title="'.$this->translate("Ajouter").'"><i class="fa fa-plus"></i></button>';
+$lignePrestation .= '	             </div>';
+$lignePrestation .= '	             <input type="hidden" name="idLignePrestationBD" />';
+$lignePrestation .= '	             <div class="clearBoth"></div>';
+$lignePrestation .= '          </div>';
+$lignePrestation .= '      </div>';
+$lignePrestation .= ' </div>';
+$lignePrestation .= '</div>';
+
+
+$jsonTabLignePrestation = json_encode($this->tabLignePrestation);
+
+?>
+
+
+
+<!-- La fenetre modale pour l'ajout  des médicaments -->
+<div class="container">
+	<!-- Modal -->
+  	<div class="modal fade" id="modal-medicament" role="dialog">
+    	<div class="modal-dialog">
+      		<!-- Modal content-->
+	      	<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<?= $this->translate("Fermer", "application"); ?>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="title-modal-medicament"><?= $this->translate("AJOUT NOUVEAU", "application"); ?></h4>
+				</div>
+				<div class="modal-body" id="modal-medicament-body">
+					<form class="form-horizontal form-horizontal-custom-modal" enctype="multipart/form-data" role="form" id="modal-form-medicament" action="">
+						<div class="box-body" id="body-form-medicament">
+	                    	
+						<div class="form-group required" id="ligne_nomMedicament">
+						  <label for="nomMedicament" class="control-label col-md-3"><?= $this->translate("Nom", "application"); ?></label>
+						  <div class="col-md-9">
+						  	<input type="text" id="nomMedicament" name="nomMedicament" class="form-control" placeholder="<?= $this->translate("Saisissez le nom SVP", "application"); ?>" />
+						  </div>
+						</div>
+							
+							<input type="reset" style="display: none;" id="btn-reset-modal-form-medicament" />
+							
+	                  	</div><!-- /.box-body -->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= $this->translate("Fermer", "application"); ?></button>
+	                <button type="button" class="btn btn-primary" id="btn-medicament"><?= $this->translate("Valider", "application"); ?></button>
+				</div>
+			</div><!-- /.modal-content -->
+    	</div>
+	</div>
+</div><!-- /.container -->
+
+
+<script type="text/javascript">
+
+	
+
+    var nomTemplateValidators = {
+            validators: {
+            	notEmpty: {
+                },
+                stringLength: {
+                	min: 1,
+                    max:255
+                },
+                blank: {}
+            }
+        },
+        posologieTemplateValidators = {
+                validators: {
+                	notEmpty: {
+                    },
+                    stringLength: {
+                    	min: 1,
+                        max:255
+                    },
+                    blank: {}
+                }
+        },
+        nbreTemplateValidators = {
+            validators: {
+            	notEmpty: {
+                },
+//                 stringLength: {
+//                 	min: 2,
+//                     max:255
+//                 },
+                blank: {}
+            }
+        },
+		
+		montantTemplateValidators = {
+            validators: {
+            	notEmpty: {
+                },
+//                 stringLength: {
+//                 	min: 2,
+//                     max:255
+//                 },
+                blank: {}
+            }
+        },
+        typeExamenTemplateValidators = {
+                validators: {
+                	notEmpty: {
+                    },
+                   
+                    blank: {}
+                }
+            },
+        blankValidators = {
+                validators: {
+    //	            	notEmpty: {
+    //	                },
+    	            blank: {}
+                }
+        },
+        lignePrestationIndex = 0,
+        tabLignePrestation = [],
+        btnSubmit = "";
+		idSelectActuel = "";
+
+
+    
+
+
+	$(document).ready(function() {
+		$ligneVisite = $('#ligne_visite');
+		$ligneVisite.after('<?= $lignePrestation; ?>');
+		$formPrestation = $('#form_ajout');
+		$originformAjoutPrestation = $formPrestation.find('#originformAjoutPrestation');	
+		$visite = $("#visite");
+		$prestataire = $("#prestataire");
+		$modalMedicament = $("#modal-medicament");
+		$btnMedicament = $("#btn-medicament");
+		$modalFormMedicament = $("#modal-form-medicament");
+		$nomMedicament = $("#nomMedicament");
+		$ligneNomMedicament = $("#ligne_nomMedicament");
+
+		
+
+
+		tabLignePrestationModif = jQuery.parseJSON('<?= addslashes($jsonTabLignePrestation); ?>');
+		
+		
+		$formPrestation
+
+
+		.on('init.field.fv', function(e, data) {
+            // data.field   --> The field name
+            // data.element --> The field element
+            
+        })
+
+		.formValidation({
+	        framework: 'bootstrap',
+	        excluded: [':disabled', ':hidden', ':not(:visible)'],
+	        icon: {
+	            valid: 'fa fa-check',
+	            invalid: 'fa fa-info',
+	            validating: 'fa fa-refresh'
+	        },
+	        locale: '<?= $sessionEmploye->offsetGet("code_langue"); ?>',
+	        fields: {
+	        	natureAffection: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    stringLength: {
+	                        min: 2,
+	                        max:255
+	                    },
+	                    blank: {}
+	                }
+	            },
+	            visite: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    stringLength: {
+	                        min: 2,
+	                        max:255
+	                    },
+	                    regexp: {
+                            regexp: /^[a-z0-9A-Z]+$/i,
+                            message: "<?= $this->translate("Seuls les caracteres alphanumeriques sont acceptes.", "application"); ?>"
+                        },
+	                    blank: {}
+	                }
+	            },
+	            prestataire: {
+	        		// trigger: 'blur',
+	                validators: {
+	                	notEmpty: {
+		                },
+	                    blank: {}
+	                }
+	            },
+	        }
+	    })
+	    
+	    .on('prevalidate.form.fv', function(e) {
+            // $(e.target) --> The form instance
+            // $(e.target).data('formValidation')
+            //             --> The FormValidation instance
+
+            // Do something ...
+        })
+
+        .on('err.form.fv', function(e) {
+        	traiterErreurFormValidation(e, "jstContenuForm");
+        })
+        
+	    .on('success.form.fv', function(e) {
+
+	    	var tabAutresParametres = [];
+	    	// tabAutresParametres['element'] = "question";
+	    	tabAutresParametres['typeAction'] = $originformAjoutPrestation.val();
+
+	    	var tabOtherPostValues = [];
+			listeLignePrestationFinal = "";
+			for (var keyTabOtherPostValues in tabLignePrestation) {
+				if(listeLignePrestationFinal !== "")
+				{
+					listeLignePrestationFinal += ";";
+				}
+				listeLignePrestationFinal += tabLignePrestation[keyTabOtherPostValues];
+			}
+
+			tabOtherPostValues["listeLignePrestationSent"] = listeLignePrestationFinal;
+
+			
+			
+
+			if($originformAjoutPrestation.val() == "ajout")
+			{
+				action = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/enregistrer/ajout";
+			}
+			else if($originformAjoutPrestation.val() == "modif")
+			{
+				action = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/enregistrer/modif/<?= $this->idPrestation; ?>";
+			}
+
+
+			$visite.prop('disabled', false);
+			$('#ctneurTsLignePrestation .lignePrestation').find('input[type="text"]').prop('disabled', false);
+			$('#ctneurTsLignePrestation .lignePrestation').find('input[type="number"]').prop('disabled', false);
+			$('#ctneurTsLignePrestation .lignePrestation').find('select').prop('disabled', false);
+	    	traiterSuccesFormValidation(e, "jstContenuForm", action, tabAutresParametres, tabOtherPostValues);
+	    	$visite.prop('disabled', true);
+	    	$('#ctneurTsLignePrestation .lignePrestation').find('input[type="text"]').prop('disabled', false);
+	    	$('#ctneurTsLignePrestation .lignePrestation').find('input[type="number"]').prop('disabled', false);
+	    	$('#ctneurTsLignePrestation .lignePrestation').find('select').prop('disabled', false);
+        })
+        
+        .find('.ctneurICheck input[type="radio"]')
+            // Init icheck elements
+//             .icheck({
+//                 // The tap option is only available in v2.0
+//                 tap: true,
+//                 checkboxClass: 'icheckbox_square-red',
+//                 radioClass: 'iradio_square-red'
+//             })
+            // Called when the radios/checkboxes are changed
+            .on('ifChanged', function(e) {
+                // Get the field name
+                var field = $(this).attr('name');
+                $formPrestation.formValidation('revalidateField', field);
+            })
+            .end()
+            ;
+
+
+		$formPrestation.on("click", "#submitClose", function() {
+			btnSubmit = "submitClose";
+			 document.getElementById("valeurSubmit").value = "submitClose";
+			
+		});
+		 nm=0;
+		$formPrestation.on("click", "#submit", function() {
+			btnSubmit = "submit";
+			 document.getElementById("valeurSubmit").value = "submit";
+		});
+
+
+		$formPrestation.on("click", ".lignePrestation button.addButton", function() {
+			ajouterLigneTemplate("");
+		});
+		
+		$formPrestation.on("click", ".lignePrestation button.btn-supprimer-simple", function() {			
+			retirerLigneTemplate($(this), "-1");
+		});
+		
+
+
+
+		$("#content_form_ajout").prepend('<div id="contenuInfosMalade"></div>');
+		
+		
+		////debut ici mbele
+		
+		if($originformAjoutPrestation.val() == "ajout" && "<?= $this->codeCourtVisite; ?>" != "")
+		{
+			$visite.val("<?= $this->codeCourtVisite; ?>");
+			
+			setTimeout(function(){ $("#unite_visite").click(); }, 100);
+			
+		}
+		
+		////fin ici
+
+		$('#visite').keypress(function(event) {
+			
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if(keycode == '13') {
+				$("#unite_visite").click();
+				return false;	
+			}
+
+		});
+		
+
+		$("body").on("click", "#unite_visite", function() {
+			
+			$this = $(this);
+			$visite = $("#visite");
+			$visteTouvee = $("#visteTouvee");
+			$prestataire = $("#prestataire");
+			dataString = $("#form_ajout").serialize();
+
+
+
+			if("<?= $typeProfil; ?>" == "prestataire")
+			{
+				if($visite.val() == "")
+				{
+					$.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Veuillez saisir le code de la visite", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+					return false;
+				}
+			}
+			else if("<?= $typeProfil; ?>" == "admin")
+			{
+				if($visite.val() == "" || $prestataire.val() == "")
+				{
+					$.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Veuillez selectionner le prestataire et saisir le code de la visite", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+					return false;
+				}
+			}
+			else
+			{
+				$.confirm({
+	        		icon: 'fa fa-exclamation-triangle',
+	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+	        	    content: "<?=  $this->translate("Impossible de trouver le profil de l'utilisateur", "application");?>",
+	        	    type: 'red',
+	        	    typeAnimated: true,
+	        	    buttons: {
+	        	        close: {
+	        	            text: "<?=  $this->translate("OK", "application");?>",
+	        	        }
+	        	    }
+	        	});
+				return false;
+			}
+
+			
+			
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/rechercher-visite/"+$visite.val(),
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	$('#content_form_ajout').spinnerQueue({'message' : commonTabLangue["Traitement en cours ..."]}).spinnerQueue('started', 'pageLoad');
+				},
+	            
+	            success: function( html ) {
+
+					if(html.error != "")
+					{
+						$.confirm({
+			        		icon: 'fa fa-exclamation-triangle',
+			        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			        	    content: html.error,
+			        	    type: 'red',
+			        	    typeAnimated: true,
+			        	    buttons: {
+			        	        close: {
+			        	            text: "<?=  $this->translate("OK", "application");?>",
+			        	        }
+			        	    }
+			        	});
+					}
+					else
+					{
+						$visteTouvee.val(html.idVisiteTrouvee);
+						// alert(html.idVisiteTrouvee);
+						
+						$natureAffection = $("#natureAffection");
+						// Il faut désactiver l'accès au champ
+						// $visite.prop('disabled', true);
+						// $this.prop('disabled', true);
+
+						content = '<table class="table dataTable table-striped" style="margin: 0 auto; width: 500px;"><tbody>';
+
+						content += '  <tr class="">';
+						content += '     <td width="30%" style="font-weight: bold; ">Assure principal</td>';
+						content += '     <td width="70%" style="">'+html.varRetour.adherent+'</td>';
+						content += '  </tr>';
+
+						if(html.varRetour.ayantDroit != "")
+						{
+							content += '  <tr class="">';
+							content += '     <td width="30%" style="font-weight: bold; ">Ayant droit</td>';
+							content += '     <td width="70%" style="">'+html.varRetour.ayantDroit+'</td>';
+							content += '  </tr>';
+						}
+
+						content += '  <tr class="">';
+						content += '     <td width="30%" style="font-weight: bold; ">Souscripteur</td>';
+						content += '     <td width="70%" style="">'+html.varRetour.souscripteur+'</td>';
+						content += '  </tr>';
+											
+						content += '</tbody></table>';
+
+
+						if($natureAffection.val() == "")
+						{
+							$natureAffection.val(html.varRetour.natureAffection);
+						}
+						
+						
+						$("#contenuInfosMalade").html(content);
+						$("#ctneurTsLignePrestation, #submit").slideDown(500);
+					}
+				},
+	            
+	            error: function() {
+	                $.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Probleme d'acces au server, veuillez reessayer plus tard", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+				},
+	            
+	            complete: function() {
+	            	$('#content_form_ajout').spinnerQueue('finished', 'pageLoad');
+				}
+			});
+
+			return false;
+        });
+
+		$("body").on("change", "select.selectMedicament", function() {
+			$this = $(this);
+			idSelectActuel = $this.attr("id");
+			tabASepare=$this.attr("id").split('_');
+			idLigne=tabASepare[1];
+			 valeurItem=$this.val();
+			 if(valeurItem=="")
+			 {
+				 
+			 }	 
+			else if(valeurItem == "pas_trouve")
+			{
+				$modalMedicament.modal("show");
+				 montant="montantTemplate_"+idLigne;
+					  quantite="nbreTemplate_"+idLigne;
+					   type="typeExamenTemplate_"+idLigne;
+					   
+				 $( "input[name='"+montant+"']" ).val("");
+				 $( "input[name='"+quantite+"']" ).val("");
+				 $( "select[name='"+type+"']" ).val("");
+			}
+			else
+			{ 
+		     
+				
+			// Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/recuperer-montant/"+valeurItem,
+	            
+	            data: '',
+				
+	            beforeSend: function(){
+					      loader="#loader_"+idLigne;
+                       // Show image container
+					   if("<?= $this->naturePrestation; ?>"=="examen")
+					   {
+                       $(loader).show();
+					   }
+                                     },
+	            
+	            success:function(html) {
+					
+					
+					 montant="montantTemplate_"+idLigne;
+					  quantite="nbreTemplate_"+idLigne;
+					   type="typeExamenTemplate_"+idLigne;
+					   
+					 $( "input[name='"+montant+"']" ).val( html.varRetour.prix );
+					  $( "input[name='"+quantite+"']" ).val( html.varRetour.quantite );
+					  $( "select[name='"+type+"']" ).val( html.varRetour.type );
+					  
+					  
+					  
+					  
+					  
+					  
+					
+		                          },
+	            
+	            error:function() {
+				},
+	            
+	            complete:  function(){
+                        loader="#loader_"+idLigne;
+                       // Hide image container
+					   if("<?= $this->naturePrestation; ?>"=="examen")
+						 {
+                       $(loader).hide();
+					     }
+                                     }
+			});
+     //fin ajax			
+			}
+		});
+
+		$btnMedicament.on("click", function() {
+			$modalFormMedicament.submit();
+		});
+
+		$modalFormMedicament.on("submit", function() {
+
+			if($nomMedicament.val().length < 2)
+			{
+				$ligneNomMedicament.addClass("has-error");
+
+				messageErreur = '<ul class="form-error"><li>';
+				messageErreur += "<?= $this->translate("Veuillez saisir le nom du médicament (au moins 2 caractères)", "application"); ?>";
+				messageErreur += '</li></ul>';
+
+				$nomMedicament.after(messageErreur);
+				return false;
+			}
+
+			dataString = "nomMedicament="+$nomMedicament.val();
+
+			 // Launch AJAX request.
+			 $.ajax({
+
+				type: "post",
+
+				url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/ajouter-medicament-ajax",
+					
+				data: dataString,
+					
+				beforeSend: function() {
+					$modalFormMedicament.find("#error-form").remove();
+					retirerAlert("modal-medicament-body");
+
+					mettreLoaderSurDiv("modal-medicament-body" , "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>", "");
+				},
+					
+				success: function( html ) {
+					if(html.error != "")
+					{
+						mettreErreurSurDiv("modal-medicament-body" , html.error, "");
+					}
+					else if(html.medicamentArray != "")
+					{
+						$nomMedicament.val("");
+						idSelectActuelHere = idSelectActuel;
+
+						$('body').find("select.selectMedicament").each(function (index, value) {
+							$elt = $(this);
+							if($elt.attr("id") != undefined)
+							{
+								var data = {
+									id: html.medicamentArray.id,
+									text: html.medicamentArray.nom
+								};
+                                 
+								 loader="#loader_"+idLigne;
+                       // Hide image container
+					   if("<?= $this->naturePrestation; ?>"=="examen")
+						 {
+                       $(loader).hide();
+					     }
+								console.log($elt.attr("id"));
+
+								if($elt.attr("id") == idSelectActuelHere)
+								{
+									var newOption = new Option(data.text, data.id, true, true);
+								}
+								else
+								{
+									var newOption = new Option(data.text, data.id, false, false);
+								}
+								
+								$elt.append(newOption).trigger('change');						
+							}
+						});
+
+						$modalMedicament.modal('toggle');
+					}
+				},
+
+				error: function() {
+					mettreErreurSurDiv("modal-medicament-body" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+				},
+
+				complete: function() {
+					retirerLoaderSurDiv("modal-medicament-body");
+					
+				}
+			});
+			return false;
+		});
+		
+		if($originformAjoutPrestation.val() == "ajout")
+		{
+			if("<?= $sessionEmploye->offsetGet("type_sous_profil"); ?>" == "centre_hospitalier")
+			{
+				$prestataire.val("<?= $sessionEmploye->offsetGet("id_prestataire"); ?>");
+			}
+			else if (("<?= $sessionEmploye->offsetGet("type_sous_profil"); ?>" == "pharmacie") || ("<?= $sessionEmploye->offsetGet("type_sous_profil"); ?>" == "laboratoire"))
+			{
+				if ("<?= $codeVisite; ?>" != "")
+				{
+				 $prestataire.val("<?= $prestat; ?>");
+				}
+			}
+			
+			ajouterLigneTemplate("");
+		}
+		else if($originformAjoutPrestation.val() == "modif")
+		{
+			$("#ligne_visite, #ligne_prestataire").hide();
+			$("#ctneurTsLignePrestation").show(500);
+			$("#submit").slideDown(500);
+
+
+
+			$.each(tabLignePrestationModif, function( key, value ) {
+				ajouterLigneTemplate(value);
+        	});
+		}	
+		
+		function reinitialiserTemplate()
+	    {
+			
+	    }	    
+	});
+
+	function callbackSuccesFormValidation(html, tabAutresParametres, varRetour)
+    {
+		$.confirm({
+    		icon: 'fa fa-check',
+    	    title: "<?=  $this->translate("Succes", "application");?>",
+    	    content: "<?=  $this->translate("Operation effectuee avec success", "application");?>",
+    	    type: 'green',
+			autoClose: 'close|2000',
+    	    typeAnimated: true,
+    	    buttons: {
+    	        close: {
+    	            text: "<?=  $this->translate("OK", "application");?>",
+    	            action: function(){
+                          
+						 if($originformAjoutPrestation.val() == "ajout")
+						{
+							
+							window.location = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/modifier/"+html.prestationAjoutModifId;
+						}
+						else if($originformAjoutPrestation.val() == "modif" && btnSubmit == "submitClose")
+						{
+							//window.location = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>";
+							window.location = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/details/"+html.prestationAjoutModifId;
+						}
+						else if($originformAjoutPrestation.val() == "modif" && btnSubmit == "submit")
+						{
+							location.reload();
+						}
+	                }
+    	        },
+    	    }
+    	});
+    }
+
+
+	function callbackSuccesSupprimerCommun($this, retirerPremier)
+	{
+		if($this.attr("classLigne") == "lignePrestation")
+		{
+			retirerLigneTemplate($this, retirerPremier);
+		}
+	}
+
+
+	function ajouterLigneTemplate(uneLignePrestation)
+    {
+	    if(uneLignePrestation == "")
+	    {
+	    	lignePrestationIndex = uniqid();
+	    }
+	    else
+	    {
+	    	lignePrestationIndex = uneLignePrestation.id;
+	    }
+	    
+		var $template = $('#lignePrestation'),
+        $clone    = $template
+                        .clone()
+                        .removeClass('hide')
+                        .addClass('lignePrestation')
+                        .removeAttr('id')
+                        .attr('id', 'lignePrestation_'+lignePrestationIndex)
+                        .attr('data-book-index', lignePrestationIndex)
+                        .insertBefore($template);
+
+		if(uneLignePrestation != "")
+        {
+			$clone.attr("idLignePrestation", uneLignePrestation.id);
+        	$clone.attr("idPrestation", uneLignePrestation.idPrestation);
+        	$clone.attr("id", "lignePrestation_"+uneLignePrestation.id);
+
+        	$clone
+            .find('button.removeButton').removeClass("btn-supprimer-simple").addClass("btn-supprimer-commun-ajax");
+
+
+
+        	$clone
+            .find('button.removeButton').attr("nomCamelCaseTable", "LignePrestation");
+
+        	$clone
+            .find('button.removeButton').attr("nomCamelCaseColonnePosition", "");
+		
+        	$clone
+            .find('button.removeButton').attr("otherCulumnsUniqWithPosition", "");
+			
+			$clone
+            .find('button.removeButton').attr("newStatutSupprime", "1");
+
+
+			
+        	$clone
+            .find('button.removeButton').attr("idElts", uneLignePrestation.id);
+
+        	$clone
+            .find('button.removeButton').attr("retirerPremier", "-1");
+        	
+
+        	$clone
+            .find('button.removeButton').attr("callbackSuccesSupprimerCommun", "1");
+
+        	$clone
+            .find('button.removeButton').attr("idHtmlLigne", 'lignePrestation_'+lignePrestationIndex);
+
+			if(!uneLignePrestation.modifiable)
+			{
+				$clone
+        		.find('[name="nomTemplate"]').prop('disabled', true).end()
+	            // .find('[name="nbreTemplate"]').prop('disabled', true).end()
+	            // .find('[name="posologieTemplate"]').prop('disabled', true).end()
+	            .find('button.removeButton').prop('disabled', true).end();
+
+	            if("<?= $this->naturePrestation ?>" == "ordonnance")
+	            {
+	            	$clone
+					.find('[name="montantTemplate"]').prop('disabled', true).end()
+		            .find('[name="nbreTemplate"]').prop('disabled', true).end()
+		            .find('[name="posologieTemplate"]').prop('disabled', true).end();
+	            }
+	            else if("<?= $this->naturePrestation ?>" == "examen" || "<?= $this->naturePrestation ?>" == "lunetterie")
+	            {
+	            	$clone
+		            .find('[name="typeExamenTemplate"]').prop('disabled', true).end()
+					.find('[name="montantTemplate"]').prop('disabled', true).end()
+					.find('[name="nbreTemplate"]').prop('disabled', true).end();
+	            }
+			}
+
+        	
+	            // .find('[name="nbreTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nbre).end();
+	            // .find('[name="posologieTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.posologie).end();
+
+            if("<?= $this->naturePrestation ?>" == "ordonnance")
+            {
+				if(uneLignePrestation.medicament != "" && uneLignePrestation.medicament != null)
+				{
+					$clone
+        			.find('[name="nomTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.medicament).end();
+				}
+				else
+				{
+					$clone
+        			.find('[name="nomTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nom).end();
+				}
+
+            	$clone
+				 .find('[name="montantTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.montant).end()
+	            .find('[name="nbreTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nbre).end()
+	            .find('[name="posologieTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.posologie).end();
+            }
+            else if("<?= $this->naturePrestation ?>" == "examen" )
+            {
+				if(uneLignePrestation.medicament != "" && uneLignePrestation.medicament != null)
+				{
+					$clone
+        			.find('[name="nomTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.medicament).end();
+				}
+				else
+				{
+					$clone
+        			.find('[name="nomTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nom).end();
+				}
+
+            	$clone
+	            .find('[name="typeExamenTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.typeExamen).end();
+				
+				$clone
+				.find('[name="montantTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.montant).end()
+	            .find('[name="nbreTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nbre).end();
+            }
+			else if("<?= $this->naturePrestation ?>" == "lunetterie")
+            {
+				$clone
+        		.find('[name="nomTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nom).end();
+
+            	$clone
+	            .find('[name="typeExamenTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.typeExamen).end();
+				
+				$clone
+				.find('[name="montantTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.montant).end()
+	            .find('[name="nbreTemplate"]').attr('idLignePrestation', uneLignePrestation.id).val(uneLignePrestation.nbre).end();
+            }
+            
+        }
+		else
+		{
+			$clone
+            .find('button.removeButton').removeClass("btn-supprimer-commun-ajax").addClass("btn-supprimer-simple");
+		}
+
+
+		
+
+		// return false;
+
+        // Update the name attributes
+        $clone
+        	.find('[name="nomTemplate"]').attr('name', 'nomTemplate_'+lignePrestationIndex)
+			.attr("id", 'nomTemplate_'+lignePrestationIndex).end()
+			
+			.find('[name="loader"]').attr('name', 'loader_'+lignePrestationIndex)
+			.attr("id", 'loader_'+lignePrestationIndex).end()
+			
+            // .find('[name="nbreTemplate"]').attr('name', 'nbreTemplate_'+lignePrestationIndex).end()
+            // .find('[name="posologieTemplate"]').attr('name', 'posologieTemplate_'+lignePrestationIndex).end()
+            .find('[name="idLignePrestationBD"]').attr('name', 'idLignePrestationBD_'+lignePrestationIndex).val(uneLignePrestation.id).end();
+
+
+        if("<?= $this->naturePrestation ?>" == "ordonnance")
+        {
+        	 $clone
+			 .find('[name="montantTemplate"]').attr('name', 'montantTemplate_'+lignePrestationIndex).end()
+         	.find('[name="nbreTemplate"]').attr('name', 'nbreTemplate_'+lignePrestationIndex).end()
+         	.find('[name="posologieTemplate"]').attr('name', 'posologieTemplate_'+lignePrestationIndex).end();
+        }
+        else if("<?= $this->naturePrestation ?>" == "examen" || "<?= $this->naturePrestation ?>" == "lunetterie")
+        {
+        	
+            
+        	 $clone
+			 .find('[name="montantTemplate"]').attr('name', 'montantTemplate_'+lignePrestationIndex).end()
+         	.find('[name="nbreTemplate"]').attr('name', 'nbreTemplate_'+lignePrestationIndex).end()
+         	.find('[name="typeExamenTemplate"]').attr('name', 'typeExamenTemplate_'+lignePrestationIndex).end();
+        }
+        
+
+        // Add new fields
+        // Note that we also pass the validator rules for new field as the third parameter
+        $formPrestation
+        	.formValidation('addField', 'nomTemplate_'+lignePrestationIndex, nomTemplateValidators);
+            // .formValidation('addField', 'nbreTemplate_'+lignePrestationIndex, nbreTemplateValidators);
+            // .formValidation('addField', 'posologieTemplate_'+lignePrestationIndex, posologieTemplateValidators);
+            
+            
+            
+       	if("<?= $this->naturePrestation ?>" == "ordonnance")
+        {
+       		$formPrestation
+			.formValidation('addField', 'montantTemplate_'+lignePrestationIndex, montantTemplateValidators)
+        	.formValidation('addField', 'nbreTemplate_'+lignePrestationIndex, nbreTemplateValidators)
+        	.formValidation('addField', 'posologieTemplate_'+lignePrestationIndex, posologieTemplateValidators);
+        }
+        else if("<?= $this->naturePrestation ?>" == "examen" || "<?= $this->naturePrestation ?>" == "lunetterie")
+        {
+        	$formPrestation
+			.formValidation('addField', 'montantTemplate_'+lignePrestationIndex, montantTemplateValidators)
+        	.formValidation('addField', 'nbreTemplate_'+lignePrestationIndex, nbreTemplateValidators)
+            .formValidation('addField', 'typeExamenTemplate_'+lignePrestationIndex, typeExamenTemplateValidators);
+        }
+
+
+		if("<?= $this->naturePrestation ?>" == "ordonnance")
+		{
+			$clone
+				.find('[name="nomTemplate_'+lignePrestationIndex+'"]').select2();
+		}
+		
+		if("<?= $this->naturePrestation ?>" == "examen")
+		{
+			$clone
+				.find('[name="nomTemplate_'+lignePrestationIndex+'"]').select2();
+		}
+		
+        tabLignePrestation[lignePrestationIndex] = lignePrestationIndex;
+    }
+
+	function retirerLigneTemplate($this, retirerPremier)
+    {
+		var $row  = $this.parents('.form-group'),
+        index = $row.attr('data-book-index');
+
+		if(retirerPremier == "1" || $formPrestation.find(".lignePrestation").length > 1)
+		{
+			// Remove fields
+	        $formPrestation
+	        	.formValidation('removeField', $row.find('[name="nomTemplate_'+index+'"]'));
+	            // .formValidation('removeField', $row.find('[name="nbreTemplate_'+index+'"]'));
+	            // .formValidation('removeField', $row.find('[name="posologieTemplate_'+index+'"]'));
+
+
+	        if("<?= $this->naturePrestation ?>" == "ordonnance")
+	        {
+	        	$formPrestation
+				.formValidation('removeField', $row.find('[name="montantTemplate_'+index+'"]'))
+	            .formValidation('removeField', $row.find('[name="nbreTemplate_'+index+'"]'))
+	            .formValidation('removeField', $row.find('[name="posologieTemplate_'+index+'"]'));
+	        }
+	        else if("<?= $this->naturePrestation ?>" == "examen" || "<?= $this->naturePrestation ?>" == "lunetterie")
+	        {
+	        	$formPrestation
+				.formValidation('removeField', $row.find('[name="montantTemplate_'+index+'"]'))
+	            .formValidation('removeField', $row.find('[name="nbreTemplate_'+index+'"]'))
+	            .formValidation('removeField', $row.find('[name="typeExamenTemplate_'+index+'"]'));
+	        }
+            
+	
+	        // Remove element containing the fields
+	        $row.remove();
+
+	        delete tabLignePrestation[index];
+		}
+    }
+    
+</script>

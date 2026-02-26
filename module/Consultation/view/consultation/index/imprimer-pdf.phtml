@@ -1,0 +1,530 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+
+$varRetour .= '<div class="" id="cntneurDocExportPdf">';
+
+if ($sessionEmploye->offsetGet("type_profil") == "prestataire")
+{
+    $afficherLogo = false;
+    $logoEntreprise = $sessionEmploye->offsetGet('logo_prestataire');
+    if(!empty($logoEntreprise) && file_exists(__DIR__."/../../../../../public/img/back/prestataire/logo/".$logoEntreprise))
+    {
+        $afficherLogo = true;
+    }
+    
+    
+    $tabParams = array(
+        "afficheLogo" =>  $afficherLogo,
+        "logoEntreprise" =>  $logoEntreprise,
+        "nomEntreprise" =>  $sessionEmploye->offsetGet('nom_prestataire'),
+        "adresseEntreprise" =>  $sessionEmploye->offsetGet('adresse_prestataire'),
+        "telephoneEntreprise" =>  $sessionEmploye->offsetGet('telephone_prestataire'),
+        "registreEntreprise" =>  $sessionEmploye->offsetGet('registre_prestataire'),
+    );
+}
+
+
+$varRetour .=   $this->construireEnteteDocPDF("", $tabParams);
+
+$varRetour .= '<div class="ctneurTitreExport" id="ctneurTitreExport">'.$this->getTranslator("Liste des consultations").'</div>';
+
+
+$varRetour .= '<div class="box box-primary box-primary-adminlte">';
+
+// Mettre les elements selectionnes dans le filtre
+$varRetour .= '<table class="table table-striped">';
+
+
+$tabEltsFiltre = array();
+
+// Traitemepnt des valeurs du filtre
+
+
+if($typeProfil == "admin")
+{
+    if(!empty($postValues['prestataire']))
+    {
+        $nomPrestataire = "";
+        
+        $prestataire = $this->getEntityManager()->find('Entity\Prestataire', $postValues['prestataire']);
+        if($prestataire)
+        {
+            $prestataire->afficheChaine();
+            $nomPrestataire = $prestataire->getNom();
+        }
+        
+        
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Prestataire"),
+                                 "valeur" => $nomPrestataire);
+    }
+}
+else
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Prestataire"),
+                             "valeur" => $sessionEmploye->offsetGet("nom_prestataire"));
+}
+
+
+
+if(!empty($postValues['typeConsultation']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Type de consultation"),
+                             "valeur" => ucfirst($postValues['typeConsultation']));
+}
+
+if(!empty($postValues['etatConsultation']))
+{
+    switch ($postValues['etatConsultation']) {
+        case "attente_validation":
+            $titleImgEtat = $this->getTranslator("Attente de validation");
+            ;
+            break;
+            
+        case "rejete":
+            $titleImgEtat = $this->getTranslator("Rejete");
+            ;
+            break;
+            
+        case "valide":
+            $titleImgEtat = $this->getTranslator("Valide");
+            ;
+            break;
+            
+        case "encaisse":
+            $titleImgEtat = $this->getTranslator("Encaisse");
+            ;
+            break;
+            
+        default:
+            $clasCssImgEtat = "";
+            $titleImgEtat = "";
+            break;
+    }
+    
+    
+    
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Etat de la consultation"),
+                             "valeur" => $titleImgEtat);
+}
+
+if(!empty($postValues['dateMin']))
+{
+    $dateMin = new \DateTime(date($postValues['dateMin']));
+    
+    if($dateMin)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date consultation min"),
+                                 "valeur" => $dateMin->format("d/m/Y"));
+    }
+}
+
+if(!empty($postValues['dateMax']))
+{
+    $dateMax = new \DateTime(date($postValues['dateMax']));
+    
+    if($dateMax)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date consultation max"),
+                                 "valeur" => $dateMax->format("d/m/Y"));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+if(!empty($postValues['nomAdherent']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Nom adherent"),
+                             "valeur" => $postValues['dateMax']);
+}
+
+if(!empty($postValues['nomAyantDroit']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Nom ayant droit"),
+                             "valeur" => $postValues['nomAyantDroit']);
+}
+
+if(isset($postValues['idVisite']) && !empty($postValues['idVisite']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Code visite"),
+                             "valeur" => $postValues['idVisite']);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$compteur = 0;
+foreach ($tabEltsFiltre as $eltFiltre)
+{
+    if($compteur%2 == 0)
+    {
+        $varRetour .= '<tr>';
+    }
+    
+    $varRetour .= '<td style="width: 25%;"><b>'.$eltFiltre['label'].'</b></td>';
+    $varRetour .= '<td style="width: 25%;">'.$eltFiltre['valeur'].'</td>';
+    
+    if($compteur%2 == 1)
+    {
+        $varRetour .= '</tr>';
+    }
+    
+    $compteur++;
+}
+
+if($compteur%2 == 1)
+{
+    $varRetour .= '<td style="width: 25%;"></td>';
+    $varRetour .= '<td style="width: 25%;"></td>';
+    $varRetour .= '</tr>';
+}
+
+
+
+$varRetour .= '</table>';
+
+
+
+
+
+$varRetour .= '</div>';
+
+
+
+
+
+$varRetour .= '<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="liteEltsTab" style="font-size: 10px;">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+if($typeProfil == "admin")
+{
+    $varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Prestataire").'</th>';
+}
+
+$varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Souscripteur").'</th>';
+$varRetour .= '        <th style="width: 130px;">'.$this->getTranslator("Type consulation").'</th>';
+$varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Assure principal").'</th>';
+$varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Malade").'</th>';
+$varRetour .= '        <th style="width: 115px;">'.$this->getTranslator("Date").'</th>';
+$varRetour .= '        <th style="width: 115px;">'.$this->getTranslator("Taux").' (%)</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Montant valide").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Montant paye par Zenithe").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Part assure").'</th>';
+
+
+if(!isset($postValues['etatConsultation']) || $postValues['etatConsultation'] == "")
+{
+    $varRetour .= '        <th style="width: 140px;">'.$this->getTranslator("Etat").'</th>';
+}
+
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+
+
+$totalValide = 0;
+$totalPayeZenithe = 0;
+ 
+foreach($tab as $element)
+{
+    $visite = $element->getVisite();
+    $prestataire = $visite->getPrestataire();
+    $adherent = $visite->getCodeAdherent();
+    $ayantDroit = $visite->getCodeAyantDroit();
+    $nomSouscripteur = $adherent->getSouscripteur();
+    
+    
+    $element->afficheChaine();
+    $prestataire->afficheChaine();
+    $adherent->afficheChaine();
+    
+    
+    $nomAdherent = $adherent->getAssurePrincipal();
+    $nomAyantDroit = "";
+    
+    $nomMalade = $nomAdherent;
+    if($ayantDroit)
+    {
+        $ayantDroit->afficheChaine();
+        $nomAyantDroit = $ayantDroit->getNom();
+        
+        $nomMalade = $nomAyantDroit;
+    }
+    
+    
+    if($element->getEtatConsultation() == "valide" || $element->getEtatConsultation() == "encaisse")
+    {
+        $tauxCouverture = $element->getTaux();
+        $montantPropose = $element->getMontantModif();
+    }
+    else
+    {
+        $paramsTauxCouverture = array("typePrestation" => $element->getTypeConsultation(), "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+        $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+        if($objetTauxPrestation)
+        {
+            $tauxCouverture = $objetTauxPrestation->getTaux();
+            $plafond = $objetTauxPrestation->getPlafond();
+            
+            if(empty($tauxCouverture))
+            {
+                $tauxCouverture = 0;
+            }
+            
+            if(empty($plafond))
+            {
+                $montantPropose = $element->getMontant();
+            }
+            else
+            {
+                $montantPropose = min(array($plafond, $element->getMontant()));
+            }
+        }
+        else
+        {
+            $tauxCouverture = 0;
+            $plafond = 0;
+            $montantPropose = $element->getMontant();
+        }
+    }
+    
+//     $paramsTauxCouverture = array("typePrestation" => $element->getTypeConsultation(), "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+//     $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+//     if($objetTauxPrestation)
+//     {
+//         $tauxCouverture = $objetTauxPrestation->getTaux();
+//     }
+//     else
+//     {
+//         $tauxCouverture = 0;
+//     }
+    
+    
+    
+    switch ($element->getEtatConsultation()) {
+        case "attente_validation": 
+            $titleImgEtat = $this->getTranslator("Attente de validation");
+            $classCouleur = "text-orange";
+        ;
+        break;
+        
+        case "rejete":
+            $titleImgEtat = $this->getTranslator("Rejete");
+            $classCouleur = "text-red";
+        ;
+        break;
+        
+        case "valide":
+            $titleImgEtat = $this->getTranslator("Valide");
+            $classCouleur = "text-green";
+        ;
+        break;
+        
+        case "encaisse":
+            $titleImgEtat = $this->getTranslator("Encaisse");
+            $classCouleur = "text-navy";
+        ;
+        break;
+        
+        default:
+            $clasCssImgEtat = "";
+            $titleImgEtat = "";
+        break;
+    }
+    
+    if($element->getEtatConsultation() == "encaisse")
+    {
+        $totalValide += $element->getMontantModif();
+        
+        $totalPayeZenithe += $element->getMontantModif()*($tauxCouverture/100);
+    }
+    
+    
+    $montantAssure = "";
+    if($element->getEtatConsultation() == "valide" || $element->getEtatConsultation() == "encaisse")
+    {
+        $montantAssure = $element->getMontant() - $element->getMontantModif();
+        if($montantAssure != 0)
+        {
+            $montantAssure = number_format($montantAssure, 0, ",", " ");
+        }
+        else
+        {
+            $montantAssure = "";
+        }
+    }
+    
+    
+    $montantValide = $element->getMontantModif();
+    $montantPayeZenithe = 0;
+    $partAssure = 0;
+    if($element->getEtatConsultation() == "encaisse" || $this->consultationManager->vefifierSiConsultationEncaissable($element))
+    {
+        $montantPayeZenithe = $montantValide*($tauxCouverture/100);
+        $partAssure = $montantValide - $montantPayeZenithe;
+    }
+    
+    
+    
+    // $colonneEtatConsultation = '<i class="fa '.$clasCssImgEtat.'"></i> '.$titleImgEtat;
+    $colonneEtatConsultation = '<div class="'.$classCouleur.'">'.$titleImgEtat.'</div>';
+    
+    
+    
+    $varRetour .= '    <tr id="ligne_consultation_'.$element->getId().'"
+                           nomAdherent="'.$nomAdherent.'" nomAyantDroit="'.$nomAyantDroit.'"
+                           nomSouscripteur="'.$nomSouscripteur.'"
+                           montantDeclare="'.number_format($element->getMontant(), 0, ",", " ").'"
+                           typeConsultation="'.$element->getTypeConsultation()->getNom().'">';
+    
+
+	if($typeProfil == "admin")
+	{
+	    $varRetour .= '        <td>'.$prestataire->getNom().'</td>';
+	}
+	$varRetour .= '        <td>'.$adherent->getSouscripteur().'</td>';
+	
+	$varRetour .= '        <td>'.$element->getTypeConsultation()->getNom().'</td>';
+	$varRetour .= '        <td>'.$nomAdherent.'</td>';
+	$varRetour .= '        <td>'.$nomMalade.'</td>';
+	$varRetour .= '        <td>'.$element->getDate()->format("d/m/Y").'</td>';
+	$varRetour .= '        <td>'.$tauxCouverture.'</td>';
+	$varRetour .= '        <td id="montant_'.$element->getId().'">'.number_format($montantValide, 0, ",", " ").'</td>';
+	$varRetour .= '        <td id="montantModif_'.$element->getId().'">'.number_format($montantPayeZenithe, 0, ",", " ").'</td>';
+	$varRetour .= '        <td id="montantModif_'.$element->getId().'">'.number_format($partAssure, 0, ",", " ").'</td>';
+	
+	
+	if(!isset($postValues['etatConsultation']) || $postValues['etatConsultation'] == "")
+	{
+	    $varRetour .= '        <td id="etatConsultation_'.$element->getId().'" title="'.$titleImgEtat.'">'.$colonneEtatConsultation.'</td>';
+	}
+	
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+
+
+
+
+
+
+
+
+
+
+
+$varRetour .= '<div class="ctneurTotaux" id="ctneurTotaux">';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Montant total valide").' : </div>';
+$varRetour .= '     <div class="valeurTotal">'.$totalValide.'</div>';
+$varRetour .= ' </div>';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Montant paye par Zenithe").': </div>';
+$varRetour .= '     <div class="valeurTotal">'.$totalPayeZenithe.'</div>';
+$varRetour .= ' </div>';
+
+
+
+$varRetour .= ' <div class="uneLigneTotal" style="margin-top: 30px;">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Le prestataire").'</div>';
+$varRetour .= ' </div>';
+
+
+
+$varRetour .= '</div>';
+
+$varRetour .= '
+<style type="text/css">
+    
+    .ctneurTotaux {
+        text-align: right;
+        margin-bottom: 50px;
+        font-size: 18px;
+    }
+    
+    .titreTotal, .valeurTotal {
+        display: inline-block;
+    }
+    
+    .valeurTotal {
+        font-weight: bold;
+    }
+</style>';
+
+
+
+
+
+
+
+
+
+
+
+
+
+$varRetour .= '  </div>';
+
+?>

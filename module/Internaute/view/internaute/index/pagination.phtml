@@ -1,0 +1,84 @@
+<?php 
+$appliConfig =  new \Application\Core\AppliConfig();
+
+
+
+$classOrderByNom = "";
+if($postValues['nomColoneTriPagination'] == "nom")
+{
+	$classOrderByNom = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$classOrderByPrenom = "";
+if($postValues['nomColoneTriPagination'] == "prenom")
+{
+	$classOrderByPrenom = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$classOrderByGenre = "";
+if($postValues['nomColoneTriPagination'] == "genre")
+{
+	$classOrderByGenre = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$classOrderByDateCreation = "";
+if($postValues['nomColoneTriPagination'] == "dateCreation")
+{
+	$classOrderByDateCreation = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$classOrderByStatut = "";
+if($postValues['nomColoneTriPagination'] == "statut")
+{
+	$classOrderByStatut = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+
+$varRetour .= '<table class="table dataTable table-bordered table-striped table-hover tableSortinMsbt" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+$varRetour .= '        <th class="isOrdered '.$classOrderByNom.'" nomColone="nom">'.$this->getTranslator("Nom").'</th>';
+$varRetour .= '        <th class="isOrdered '.$classOrderByPrenom.'" nomColone="prenom">'.$this->getTranslator("Prenom").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Email").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Login").'</th>';
+$varRetour .= '        <th class="isOrdered '.$classOrderByGenre.'" nomColone="genre">'.$this->getTranslator("Genre").'</th>';
+$varRetour .= '        <th class="isOrdered '.$classOrderByDateCreation.'" nomColone="dateCreation">'.$this->getTranslator("Date creation").'</th>';
+$varRetour .= '        <th class="rsv-table-title-status isOrdered '.$classOrderByStatut.'" nomColone="statut">'.$this->getTranslator("Statut").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+ 
+foreach($tab as $element)
+{
+	$genre = "";
+	$dateCreation = "";
+	
+	if($element->getUtilisateur()->getStatut() == -1) { $classtatut =  "table_inactive"; $titleStatut =  $this->getTranslator("Activer"); $newStatut = 1; }
+	else { $classtatut =  "table_active"; $titleStatut =  $this->getTranslator("Desactiver"); $newStatut = -1; }
+	
+	if($element->getUtilisateur()->getGenre() == "M") { $genre =  $this->getTranslator("Maxculin"); }
+	else if($element->getUtilisateur()->getGenre() == "F") { $genre =  $this->getTranslator("Feminin"); }
+
+	
+	if($element->getUtilisateur()->getDateCreation())
+	{
+		$dateCreation = $element->getUtilisateur()->getDateCreation()->format("d/m/Y");
+	}
+	
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getUtilisateur()->getId().'" /></td>';
+	$varRetour .= '        <td>'.$element->getUtilisateur()->getNom().'</td>';
+	$varRetour .= '        <td>'.$element->getUtilisateur()->getPrenom().'</td>';
+	$varRetour .= '        <td>'.$element->getUtilisateur()->getEmail().'</td>';
+	$varRetour .= '        <td>'.$element->getUtilisateur()->getLogin().'</td>';
+	$varRetour .= '        <td>'.$genre.'</td>';
+	$varRetour .= '        <td>'.$dateCreation.'</td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/activer_commun/'.$newStatut.'/Utilisateur/'.$element->getUtilisateur()->getId().'"><span class="'.$classtatut.'" title="'.$titleStatut.'"></span></a></td>';
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+?>

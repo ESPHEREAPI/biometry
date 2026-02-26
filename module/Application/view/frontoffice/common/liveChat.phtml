@@ -1,0 +1,46 @@
+<?php if($appliConfig->get("mode_demo") == "0") : ?>
+		
+	<!-- Smartsupp Live Chat script -->
+	<script type="text/javascript">
+		var _smartsupp = _smartsupp || {};
+		_smartsupp.key = '<?= $appliConfig->get("smartsupp_key"); ?>';
+
+		_smartsupp.requireLogin = true;
+		// disable email
+		_smartsupp.loginEmailControl = false;
+		_smartsupp.loginNameControl = false;
+		// append checkbox control to confirm something
+		_smartsupp.loginControls = [
+		{
+			xtype: 'textinput',
+			name: 'name',
+			label: 'Name',
+			required: false
+		},
+		{
+			xtype: 'textinput',
+			name: 'email',
+			label: 'Email',
+			required: false
+		},
+		{
+			xtype: 'textinput',
+			name: 'number',
+			label: 'Phone',
+			required: false
+		}];
+
+
+		
+		window.smartsupp||(function(d) {
+			var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+			s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+			c.type='text/javascript';c.charset='utf-8';c.async=true;
+			c.src='//www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+	
+	
+			smartsupp('language', '<?= $sessionInternaute->offsetGet("code_iso_langue")?>'); // set your language
+		})(document);
+	</script>
+
+<?php endif ; ?>

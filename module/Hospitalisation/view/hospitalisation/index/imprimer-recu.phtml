@@ -1,0 +1,234 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+$typeSousProfil = $sessionEmploye->offsetGet("type_sous_profil");
+$visite = $prestation->getVisite();
+$adherent = $visite->getCodeAdherent();
+$ayantDroit = $visite->getCodeAyantDroit();
+
+$adherent->afficheChaine();
+
+$malade = $adherent->getAssurePrincipal();
+
+$nomAyantDroit = "";
+if($ayantDroit)
+{
+    $ayantDroit->afficheChaine();
+    $nomAyantDroit = $ayantDroit->getNom();
+}
+
+
+
+$numeroPrestation = "";
+
+
+	$numeroPrestation= "H";
+
+$numeroPrestation .= $visite->getCodeCourt();
+
+
+
+
+
+$tabLigne = array();
+
+// $tabLigne[] = array("label" => $this->getTranslator("Prestataire"), "valeur" => $sessionEmploye->offsetGet("nom_prestataire"));
+$tabLigne[] = array("label" => $this->getTranslator("Prestation n°"), "valeur" => $numeroPrestation);
+$tabLigne[] = array("label" => $this->getTranslator("Assure"), "valeur" => $adherent->getAssurePrincipal());
+
+
+if($ayantDroit)
+{
+    $malade = $nomAyantDroit;
+}
+
+$tabLigne[] = array("label" => $this->getTranslator("Malade"), "valeur" => $malade);
+
+$tabLigne[] = array("label" => $this->getTranslator("Souscripteur"), "valeur" => $adherent->getSouscripteur());
+
+
+$varRetour .= '<div class="" id="cntneurDocExportPdf" class="cntneurDocExportPdf">';
+$varRetour .=   $this->construireEnteteDocPDF();
+
+
+
+$titreHere = "";
+
+	$titreHere = $this->getTranslator("BON DE PRISE EN CHARGE HOSPITALISATION");
+
+
+// $varRetour .= ' <div class="ctneurTitreExport" id="ctneurTitreExport"><h4>'.$titreHere.'</h4></div>';
+$varRetour .= ' <div class="ctneurTitreExport" id="ctneurTitreExport"><h4 style="margin-bottom: 20px; margin-top: 20px; text-align: center; font-size: 25px; font-weight: bold;">'.$titreHere.'</h4></div>';
+
+
+
+
+$dateEncaisse = "";
+if($lignePrestationAudit)
+{
+    $dateEncaisse = $lignePrestationAudit->getDate()->format("d/m/Y H:i");
+}
+
+
+
+$varRetour .= '<div style="margin-bottom: 20px;"><table class="table dataTable table-striped"><tbody>';
+
+$varRetour .= '  <tr style="border: solid 1px #ddd !important;">';
+
+$varRetour .= '  <td style="width: 70%; font-weight: bold; border-top: solid 1px #ddd !important;">'.$sessionEmploye->offsetGet("nom_prestataire").'</td>';
+$varRetour .= '  <td style="width: 30%; border-top: solid 1px #ddd !important;">'.$this->getTranslator("Date heure")." ".$dateEncaisse.'</td>';
+
+$varRetour .= '  </tr>';
+
+
+
+$varRetour .= '  </tbody></table></div>';
+
+
+
+
+
+$varRetour .= '<table class="table dataTable table-striped"><tbody>';
+
+
+
+foreach ($tabLigne as $uneLigne)
+{
+    $varRetour .= '  <tr>';
+    
+    $varRetour .= '  <td style="width: 30%; font-weight: bold;">'.$uneLigne['label'].'</td>';
+    $varRetour .= '  <td style="width: 70%">'.$uneLigne['valeur'].'</td>';
+    
+    $varRetour .= '  </tr>';
+}
+
+
+
+$varRetour .= '  </tbody></table>';
+
+
+
+// Construction des lignes prestations
+
+$titreListeMedicaments = "";
+
+    $titreListeMedicaments = $this->getTranslator("Liste des prestations en hospitalisation");
+
+
+
+$params = array("prestation" => $prestation->getId(), "prestataire" => $sessionEmploye->offsetGet("id_prestataire"), "etat" => "valide", "supprime" => "-1");
+$tabLignePrestation = $this->lignePrestationManager->getListeLignePrestationTabParams($params); 
+
+
+
+$varRetour .= '<div style="margin-bottom: 30px; margin-top: 30px;">';
+
+
+$varRetour .= '  <h4>'.$titreListeMedicaments.'</h4>';
+
+$varRetour .= '<table class="table dataTable table-bordered">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th style="width: 30%">'.$this->getTranslator("PRESTATION").'</th>';
+
+
+
+		$varRetour .= '        <th style="width: 30%">'.$this->getTranslator("VALEUR").'</th>';
+
+
+
+    $varRetour .= '        <th style="width: 30%">'.$this->getTranslator("OBSERVATIONS").'</th>';
+   
+
+
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+
+
+
+
+
+$varRetour .= '  <tbody>';
+
+foreach ($tabLignePrestation as $uneLignePrestation)
+{
+    $typePrestation = "";
+    
+        if($uneLignePrestation->getTypeExamen())
+        {
+            $typePrestation = $uneLignePrestation->getTypeExamen()->getId();
+        }
+   
+    
+    
+    
+//     $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+//     $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+//     if($objetTauxPrestation)
+//     {
+//         $tauxCouverture = $objetTauxPrestation->getTaux();
+//     }
+//     else
+//     {
+//         $tauxCouverture = 0;
+//     }
+
+
+
+
+    if($uneLignePrestation->getEtat() == "valide")
+    {
+        $montantPropose = $uneLignePrestation->getPosologie();
+		$observations=$uneLignePrestation->getObservations();
+    }    
+    
+    
+    
+    
+    $uneLignePrestation->afficheChaine();    
+    
+    $varRetour .= '  <tr>';
+    
+   
+    
+    
+		$nomTypeExamen = "";
+		if($uneLignePrestation->getTypeExamen())
+		{
+			$nomTypeExamen = $uneLignePrestation->getTypeExamen()->getNom();
+		}
+		
+        $varRetour .= '        <td>'.$nomTypeExamen.'</td>';
+	
+	 $varRetour .= '        <td>'.$montantPropose.'</td>';
+   
+    
+    
+    $varRetour .= '        <td>'.$observations.'</td>';
+     
+    
+    $varRetour .= '  </tr>';
+}
+
+$varRetour .= '   </tbody>';
+$varRetour .= '  </table></div>';
+
+
+
+
+
+$varRetour .= '<table class="table"  style="margin-top: 50px; border: 0;"><tbody>';
+$varRetour .= '  <tr style="border: 0;">';
+$varRetour .= '     <td style="width: 50%; border: 0;">'.$this->getTranslator("L'assure").'</td>';
+$varRetour .= '     <td style="width: 50%; border: 0; text-align: right">'.$this->getTranslator("Le prestataire").'</td>';
+$varRetour .= '  </tr>';
+$varRetour .= '  </tbody></table>';
+
+
+
+$varRetour .= '</div>';
+
+?>

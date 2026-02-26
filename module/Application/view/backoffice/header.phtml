@@ -1,0 +1,98 @@
+<?php
+	
+	use Zend\Session\Container;
+	
+	$sessionEmploye = new Container('employe');
+	$sessionAgence = new Container('agence');
+
+	$appliConfig =  new \Application\Core\AppliConfig();
+	
+	$nomCompletEmploye = $sessionEmploye->offsetGet("prenom")." ".$sessionEmploye->offsetGet("nom");
+?>
+
+
+<!-- Logo -->
+<a href="<?= $this->basePath($appliConfig->get('lienBackoffice')); ?>" class="logo">
+  <!-- mini logo for sidebar mini 50x50 pixels -->
+  <span class="logo-mini"><b>A</b>LT</span>
+  <!-- logo for regular state and mobile devices -->
+  <span class="logo-lg"><?= $sessionAgence->offsetGet("nom"); ?></span>
+</a>
+
+<!-- Header Navbar: style can be found in header.less -->
+<nav class="navbar navbar-static-top" role="navigation">
+  <!-- Sidebar toggle button-->
+  <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+	<span class="sr-only"><?= $this->translate("Toggle navigation", "application"); ?></span>
+  </a>
+  <!-- Navbar Right Menu -->
+  <div class="navbar-custom-menu">
+	<ul class="nav navbar-nav">
+	
+	<li class="dropdown messages-menu" id="notConsulIt" style="display:none;">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <i class="ion ion-ios-pulse-strong"></i>
+                  <span class="label label-info" id="notConsul"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="header" id="notConsulSu"></li>
+                  
+                </ul>
+    </li>
+	
+	
+	<li class="dropdown messages-menu" id="notOrdoIt" style="display:none;">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <i class="ion ion-document-text"></i>
+                  <span class="label label-success"  id="notOrdo"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="header" id="notOrdoSu"></li>
+                  
+                </ul>
+    </li>
+	
+	<li class="dropdown messages-menu" id="notExamIt" style="display:none;">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <i class="ion ion-beaker"></i>
+                  <span class="label label-warning"  id="notExam"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="header" id="notExamSu"></li>
+                  
+                </ul>
+    </li>
+	  <!-- User Account: style can be found in dropdown.less -->
+	  <li class="dropdown user user-menu">
+		
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		  <img src="<?= $this->basePath('AdminLTE-2.2.1/dist/img/user2-160x160.png')?>" class="user-image" alt="<?= $this->translate("User image", "application")?>">
+		  <span class="hidden-xs"><?= $nomCompletEmploye; ?> <i class="caret"></i></span>
+		</a>
+		<ul class="dropdown-menu">
+		  <!-- User image -->
+		  <li class="user-header">
+			<img src="<?= $this->basePath('AdminLTE-2.2.1/dist/img/user2-160x160.png')?>" class="img-circle" alt="<?= $this->translate("User image", "application")?>">
+			<p>
+			  <?= $nomCompletEmploye." - ".$sessionEmploye->offsetGet("nom_profil"); ?>
+			  <small><?= $this->translate("A ce poste depuis", "application")." ".$sessionEmploye->offsetGet("date_poste"); ?></small>
+			</p>
+		  </li>
+		  <!-- Menu Footer-->
+		  <li class="user-footer">
+			<div class="pull-left">
+			  <a href="<?= $this->basePath($appliConfig->get('lienBackoffice')."/parametre"); ?>" class="btn btn-default btn-flat"><?= $this->translate("Parametre", "application")?></a>
+			</div>
+			<div class="pull-right">
+			  <a href="<?= $this->basePath($appliConfig->get('lienBackoffice')."/deconnexion"); ?>" class="btn btn-default btn-flat"><?= $this->translate("Deconnexion", "application")?></a>
+			</div>
+		  </li>
+		</ul>
+	  </li>
+	  <li>
+      	<a href="<?= $this->basePath($appliConfig->get('lienBackoffice')."/parametre"); ?>"><i class="fa fa-gears"></i></a>
+      </li>
+	</ul>
+  </div>
+
+</nav>

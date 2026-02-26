@@ -1,0 +1,84 @@
+<?php $prependElementHere = $this->prependElement; ?>
+
+<?php if(isset($this->prependElement) && !empty($prependElementHere) && is_string($this->prependElement)) : ?>
+	<?= $this->prependElement ; ?>
+<?php endif ; ?>
+
+<?= $this->form()->openTag($form); ?>
+
+<div class="box-body">
+	<?php foreach ($form as $element) : ?>
+		<?php
+			$attributes = $element->getAttributes();
+			$errorMessages = $element->getMessages();
+			$methode = 'form'.$attributes['type'];
+			
+			if(in_array($attributes['name'], $this->notUsedElt))
+				continue;
+			
+			$classError = "";
+			if(is_array($errorMessages) && count($errorMessages) > 0)
+				$classError = "has-error";
+			
+			$classRequired = "";
+			if(isset($attributes['class']) && substr_count($attributes['class'], "required") > 0)
+				$classRequired = "required";
+		?>
+		
+		
+		<?php if($attributes['type'] == "hidden") : ?>
+			<?php
+                try {
+                   echo  $this->$methode($element);
+                } 
+                catch (\Exception $e) {
+
+               	}
+			?>
+		<?php elseif($attributes['type'] != "submit" && $attributes['name'] != "cancel") : ?>
+			<div class="form-group <?= $classError." ".$classRequired; ?>">
+				
+				
+				<div class="col-md-3">
+					<?php
+	                   	try {
+	                   		echo  $this->formlabel($element);
+	                   	} 
+	                   	catch (\Exception $e) {
+	                   	}
+	                ?>
+                </div>
+				<div class="col-md-9">
+                    <?php
+                    	try {
+                    		echo  $this->$methode($element);
+                    	} 
+                    	catch (\Exception $e) {
+                    	}
+                    ?>
+                    
+                    <?php if($formPosted === true && $classError != "") : ?>
+                    	<ul class="form-error">
+                    		<?php foreach ($errorMessages as $unErrorMessage) : ?>
+                    			<li>
+                    				<?= $unErrorMessage; ?>
+                    			</li>
+							<?php endforeach ; ?>   
+                    	</ul>
+                    <?php endif ; ?>                 
+                 </div>
+                 <div class="clearBoth"></div>
+			</div>	
+		<?php endif ; ?>
+		
+	<?php endforeach ; ?>
+</div>
+<div class="box-footer">
+	<?php
+		echo $this->formrow($form->get("submit"));
+		echo '<a href="'.$this->basePath("").'">'.$this->formrow($form->get("cancel")).'</a>';
+	?>
+</div>
+<div class="clearBoth"></div>
+
+<?= $this->form()->closeTag($form); ?>

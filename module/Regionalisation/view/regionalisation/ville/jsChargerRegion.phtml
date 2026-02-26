@@ -1,0 +1,83 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+		if($("#pays").val() != "")
+		{
+			chargerRegionsPays($("#pays"), "<?= $this->idRegion; ?>");
+		}
+
+		
+		$("body").on("change", "#pays", function() {
+			$this = $(this);
+			chargerRegionsPays($this, "");
+        });
+
+
+		function chargerRegionsPays($element, idRegion)
+		{
+			$('#region').val("");
+			$("#region").html("<option><?= $this->translate("Selectionnez la region", "application")?></option>");
+			$("#select2-region-container").html("<?= $this->translate("Selectionnez la region", "application")?>");
+			$("#select2-region-container").attr("title", "<?= $this->translate("Selectionnez la region", "application")?>");
+			
+			if($element.val() == "")
+			{
+				return false;
+			}
+			
+			dataString = "";
+			urlPost = "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice')."/charger_regions_pays"; ?>/"+$element.val();
+			if(idRegion != "")
+			{
+				urlPost += "/"+idRegion;
+			}
+			
+	        // Launch AJAX request.
+			$.ajax({
+
+				//Options signifiant a jQuery de ne pas s'occuper du type de donnees
+				
+	            type: "post",
+	            
+	            url: urlPost,
+		            
+				data: dataString,
+					
+	            beforeSend: function() {
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', true);
+					$("#pays").after('<span class="loaderAjax-input" id="loaderAjax-input"></span>');
+				},
+		            
+		       	success: function( html ) {
+			       	if(html.error != "")
+			       	{
+			       		mettreErreurSurDiv("form_ajout" , html.error, "");
+			       	}
+			       	else
+			       	{
+			       		$("#region").html(html.varRetour);
+			       		if(idRegion != "")
+			       		{
+			       			$('#region').val(idRegion);
+			       			$("#select2-region-container").html(html.nomRegion);
+			       			$("#select2-region-container").attr("title", html.nomRegion);
+			       		}
+			       	}
+				},
+	            
+	            error: function() {
+	                mettreErreurSurDiv("form_ajout" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+				},
+	            
+	            complete: function() {
+	            	$("#loaderAjax-input").remove();
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', false);
+				}
+			});
+			return false;
+		}
+	});
+</script>

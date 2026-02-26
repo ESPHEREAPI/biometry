@@ -1,0 +1,17 @@
+<?php 
+
+	use Zend\Session\Container;
+	$sessionAgence = new Container('agence');
+	include_once 'jsChargerRegion.phtml';
+
+?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+		typeTriColonePagination = "ASC";
+		nomColoneTriPagination = "nom";
+		
+		otherElementsToPost = "&nomColoneTriPagination="+nomColoneTriPagination+"&typeTriColonePagination="+typeTriColonePagination+"&nbreMaxLigneTableau="+nbreMaxLigneTableau;
+	});
+</script>

@@ -1,0 +1,50 @@
+<?php 
+	use Application\Core\Utilitaire; 
+	use Zend\Session\Container;
+	
+	$utilitaire = new Utilitaire();
+	$sessionInternaute = new Container('internaute');
+	
+	$titreArticleSideBarCategorieHere = $this->titreArticleSideBarCategorie;
+?>
+<?php if(isset($this->tabArticleSideBarCategorie) && is_array($this->tabArticleSideBarCategorie) && count($this->tabArticleSideBarCategorie) > 0) : ?>
+
+	<?php if(isset($this->titreArticleSideBarCategorie) && !empty($titreArticleSideBarCategorieHere)) : ?>
+		<h4 class="heading-primary"><?= $this->titreArticleSideBarCategorie; ?></h4>
+	<?php endif ; ?>
+	
+	<ul class="nav nav-list nav-list-arti-categ" style="text-align: left;">
+		<?php foreach ($this->tabArticleSideBarCategorie as $element) : ?>
+			<?php 
+				$classMenu = "";
+				if(substr_count($_SERVER['REQUEST_URI'], $element['url']) > 0)
+					$classMenu = 'active';
+			?>
+			<li class="<?= $classMenu; ?>">
+				<a href="<?= $element['url']; ?>"><?= $element['titre'] ?></a>
+				
+				<?php if(isset($element['fils']) && is_array($element['fils']) && count($element['fils']) > 0) : ?>
+					<ul>
+						<?php foreach ($element['fils'] as $elementFils) : ?>
+						
+							<?php 
+								$classMenuFils = "";
+								if(substr_count($_SERVER['REQUEST_URI'], $elementFils['url']) > 0)
+									$classMenuFils = 'active';
+							?>
+						
+						
+							<li class="<?= $classMenuFils; ?>"><a href="<?= $elementFils['url']; ?>"><?= $elementFils['titre'] ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif ; ?>
+			</li>
+			
+			
+			
+			
+			
+		<?php endforeach; ?>
+	</ul>
+	
+<?php endif; ?>

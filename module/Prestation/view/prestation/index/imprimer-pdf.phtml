@@ -1,0 +1,463 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+$typeSousProfil = $sessionEmploye->offsetGet("type_sous_profil");
+
+$varRetour .= '<div class="" id="cntneurDocExportPdf">';
+
+
+
+if($this->naturePrestation == "ordonnance")
+{
+    $titre = $this->getTranslator("Liste des ordonnances");
+}
+elseif($this->naturePrestation == "examen")
+{
+	if($typeSousProfil=="laboratoire")
+	{
+    $titre = $this->getTranslator("Liste des examens");
+	}
+	else
+	{
+	$titre = $this->getTranslator("Liste des examens/actes");
+	}
+}
+
+elseif( $this->naturePrestation == "lunetterie")
+{
+	$titre = $this->getTranslator("Liste des prestations en lunetterie");
+}
+
+
+
+if ($sessionEmploye->offsetGet("type_profil") == "prestataire")
+{
+    $afficherLogo = false;
+    $logoEntreprise = $sessionEmploye->offsetGet('logo_prestataire');
+    if(!empty($logoEntreprise) && file_exists(__DIR__."/../../../../../public/img/back/prestataire/logo/".$logoEntreprise))
+    {
+        $afficherLogo = true;
+    }
+    
+    
+    $tabParams = array(
+        "afficheLogo" =>  $afficherLogo,
+        "logoEntreprise" =>  $logoEntreprise,
+        "nomEntreprise" =>  $sessionEmploye->offsetGet('nom_prestataire'),
+        "adresseEntreprise" =>  $sessionEmploye->offsetGet('adresse_prestataire'),
+        "telephoneEntreprise" =>  $sessionEmploye->offsetGet('telephone_prestataire'),
+        "registreEntreprise" =>  $sessionEmploye->offsetGet('registre_prestataire'),
+    );
+}
+
+
+$varRetour .=   $this->construireEnteteDocPDF("", $tabParams);
+
+$varRetour .= '<div class="ctneurTitreExport" id="ctneurTitreExport">'.$titre.'</div>';
+
+
+$varRetour .= '<div class="box box-primary box-primary-adminlte">';
+
+// Mettre les elements selectionnes dans le filtre
+$varRetour .= '<table class="table table-striped">';
+
+
+$tabEltsFiltre = array();
+
+// Traitemepnt des valeurs du filtre
+
+
+if($typeProfil == "admin")
+{
+    if(!empty($postValues['prestataire']))
+    {
+        $nomPrestataire = "";
+        
+        $prestataire = $this->getEntityManager()->find('Entity\Prestataire', $postValues['prestataire']);
+        if($prestataire)
+        {
+            $prestataire->afficheChaine();
+            $nomPrestataire = $prestataire->getNom();
+        }
+        
+        
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Prestataire"),
+                                 "valeur" => $nomPrestataire);
+    }
+}
+else
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Prestataire"),
+                             "valeur" => $sessionEmploye->offsetGet("nom_prestataire"));
+}
+
+if(!empty($postValues['dateMin']))
+{
+    $dateMin = new \DateTime(date($postValues['dateMin']));
+    
+    if($dateMin)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date prestation min"),
+                                 "valeur" => $dateMin->format("d/m/Y"));
+    }
+}
+
+if(!empty($postValues['dateMax']))
+{
+    $dateMax = new \DateTime(date($postValues['dateMax']));
+    
+    if($dateMax)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date prestation max"),
+                                 "valeur" => $dateMax->format("d/m/Y"));
+    }
+}
+
+
+if(!empty($postValues['dateEncaisseMin']))
+{
+    $dateEncaisseMin = new \DateTime(date($postValues['dateEncaisseMin']));
+    
+    if($dateEncaisseMin)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date encaisse min"),
+            "valeur" => $dateEncaisseMin->format("d/m/Y"));
+    }
+}
+
+if(!empty($postValues['dateEncaisseMax']))
+{
+    $dateEncaisseMax = new \DateTime(date($postValues['dateEncaisseMax']));
+    
+    if($dateEncaisseMax)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date encaisse max"),
+            "valeur" => $dateEncaisseMax->format("d/m/Y"));
+    }
+}
+
+
+
+if(!empty($postValues['nomAdherent']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Nom adherent"),
+                             "valeur" => $postValues['dateMax']);
+}
+
+if(!empty($postValues['nomAyantDroit']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Nom ayant droit"),
+                             "valeur" => $postValues['nomAyantDroit']);
+}
+
+if(isset($postValues['idVisite']) && !empty($postValues['idVisite']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Code visite"),
+                             "valeur" => $postValues['idVisite']);
+}
+
+
+$compteur = 0;
+foreach ($tabEltsFiltre as $eltFiltre)
+{
+    if($compteur%2 == 0)
+    {
+        $varRetour .= '<tr>';
+    }
+    
+    $varRetour .= '<td style="width: 25%;"><b>'.$eltFiltre['label'].'</b></td>';
+    $varRetour .= '<td style="width: 25%;">'.$eltFiltre['valeur'].'</td>';
+    
+    if($compteur%2 == 1)
+    {
+        $varRetour .= '</tr>';
+    }
+    
+    $compteur++;
+}
+
+if($compteur%2 == 1)
+{
+    $varRetour .= '<td style="width: 25%;"></td>';
+    $varRetour .= '<td style="width: 25%;"></td>';
+    $varRetour .= '</tr>';
+}
+
+
+
+$varRetour .= '</table>';
+
+
+
+
+
+$varRetour .= '</div>';
+
+
+
+
+
+$varRetour .= '<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="liteEltsTab" style="font-size: 10px;">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+if($typeProfil == "admin")
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Prestataire").'</th>';
+}
+
+$varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Souscripteur").'</th>';
+$varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Assure principal").'</th>';
+$varRetour .= '        <th style="width: 275px;">'.$this->getTranslator("Malade").'</th>';
+$varRetour .= '        <th style="width: 115px;">'.$this->getTranslator("Date").'</th>';
+
+
+if($this->naturePrestation == "ordonnance")
+{
+    $varRetour .= '        <th style="width: 115px;">'.$this->getTranslator("Taux").' (%)</th>';
+}
+
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Montant valide").'</th>';
+$varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Montant paye par Zenithe").'</th>';
+// $varRetour .= '        <th style="width: 100px;">'.$this->getTranslator("Part assure").'</th>';
+
+
+
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+
+
+$totalValide = 0;
+$totalPayeZenithe = 0;
+ 
+foreach($tab as $element)
+{
+    $visite = $element->getVisite();
+    $prestataire = $element->getPrestataire();
+    $adherent = $visite->getCodeAdherent();
+    $ayantDroit = $visite->getCodeAyantDroit();
+    $nomSouscripteur = $adherent->getSouscripteur();
+    $tauxCouverture = 0;
+    
+    
+    $element->afficheChaine();
+    $prestataire->afficheChaine();
+    $adherent->afficheChaine();
+    
+    
+    $nomAdherent = $adherent->getAssurePrincipal();
+    $nomAyantDroit = "";
+    
+    $nomMalade = $nomAdherent;
+    if($ayantDroit)
+    {
+        $ayantDroit->afficheChaine();
+        $nomAyantDroit = $ayantDroit->getNom();
+        
+        $nomMalade = $nomAyantDroit;
+    }
+    
+    
+    
+    $typeProfil = $sessionEmploye->offsetGet("type_profil");
+    $prestataireId = trim($postValues['prestataire']);
+    if($typeProfil == "prestataire")
+    {
+        $prestataireId = $sessionEmploye->offsetGet("id_prestataire");
+    }
+    
+    
+    $tabParamsLignePrestation = array("naturePrestation" => $this->naturePrestation,
+                                      "prestataire" => $prestataireId,
+                                      "prestation" => $element->getId(),
+                                      "etat" => "encaisse",
+                                      "supprime" => "-1",
+                                     );
+    
+    $tabLignePrestation = $this->lignePrestationManager->getListeLignePrestationTabParams($tabParamsLignePrestation);
+    if(!is_array($tabLignePrestation) || count($tabLignePrestation) <= 0)
+    {
+        continue;
+    }
+    
+    
+    $montantValide = 0;
+    $montantAssurance = 0;
+    $montantAssure = 0;
+    foreach ($tabLignePrestation as $uneLignePrestation)
+    {
+        $typePrestation = "";
+        if($this->naturePrestation == "ordonnance")
+        {
+            $typePrestation = 'PH02';
+        }
+       elseif($this->naturePrestation == "examen" || $this->naturePrestation == "lunetterie")
+        {
+            if($uneLignePrestation->getTypeExamen())
+            {
+                $typePrestation = $uneLignePrestation->getTypeExamen()->getId();
+            }
+        }
+        
+//         $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+//         $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+//         if($objetTauxPrestation)
+//         {
+//             $tauxCouverture = $objetTauxPrestation->getTaux();
+//         }
+//         else
+//         {
+//             $tauxCouverture = 0;
+//         }
+
+
+        if($uneLignePrestation->getEtat() == "valide" || $uneLignePrestation->getEtat() == "encaisse")
+        {
+            $tauxCouverture = $uneLignePrestation->getTaux();
+            $montantPropose = $uneLignePrestation->getValeurModif();
+        }
+        else
+        {
+            $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+            $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+            if($objetTauxPrestation)
+            {
+                $tauxCouverture = $objetTauxPrestation->getTaux();
+                $plafond = $objetTauxPrestation->getPlafond();
+                
+                if(empty($tauxCouverture))
+                {
+                    $tauxCouverture = 0;
+                }
+                
+                if(empty($plafond))
+                {
+                    $montantPropose = $uneLignePrestation->getValeur();
+                }
+                else
+                {
+                    $montantPropose = min(array($plafond, $uneLignePrestation->getValeur()));
+                }
+            }
+            else
+            {
+                $tauxCouverture = 0;
+                $plafond = 0;
+            }
+        }
+
+
+
+
+        
+        
+        $montantValideLigne = $uneLignePrestation->getValeurModif()*$uneLignePrestation->getNbreModif();
+        
+        $montantValide += $montantValideLigne;
+        $montantAssurance += $montantValideLigne*($tauxCouverture/100);
+    }
+    
+    
+    $totalValide += $montantValide;
+    $totalPayeZenithe += $montantAssurance;
+    
+    
+    
+    
+    
+    $varRetour .= '    <tr>';
+    
+
+	if($typeProfil == "admin")
+	{
+	    $varRetour .= '        <td>'.$prestataire->getNom().'</td>';
+	}
+	
+	$varRetour .= '        <td>'.$adherent->getSouscripteur().'</td>';
+	$varRetour .= '        <td>'.$nomAdherent.'</td>';
+	$varRetour .= '        <td>'.$nomMalade.'</td>';
+	$varRetour .= '        <td>'.$element->getDate()->format("d/m/Y").'</td>';
+	if($this->naturePrestation == "ordonnance")
+	{
+	    $varRetour .= '        <td>'.$tauxCouverture.'</td>';
+	}
+	$varRetour .= '        <td id="montant_'.$element->getId().'">'.number_format($montantValide, 0, ",", " ").'</td>';
+	$varRetour .= '        <td id="montantModif_'.$element->getId().'">'.number_format($montantAssurance, 0, ",", " ").'</td>';
+	// $varRetour .= '        <td id="montantModif_'.$element->getId().'">'.number_format($partAssure, 0, ",", " ").'</td>';
+	
+	
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+
+
+
+
+
+
+
+
+
+
+
+$varRetour .= '<div class="ctneurTotaux" id="ctneurTotaux">';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Montant total valide").' : </div>';
+$varRetour .= '     <div class="valeurTotal">'.$totalValide.'</div>';
+$varRetour .= ' </div>';
+
+$varRetour .= ' <div class="uneLigneTotal">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Montant paye par Zenithe").': </div>';
+$varRetour .= '     <div class="valeurTotal">'.$totalPayeZenithe.'</div>';
+$varRetour .= ' </div>';
+
+
+
+$varRetour .= ' <div class="uneLigneTotal" style="margin-top: 30px;">';
+$varRetour .= '     <div class="titreTotal">'.$this->getTranslator("Le prestataire").'</div>';
+$varRetour .= ' </div>';
+
+
+
+$varRetour .= '</div>';
+
+$varRetour .= '
+<style type="text/css">
+    
+    .ctneurTotaux {
+        text-align: right;
+        margin-bottom: 50px;
+        font-size: 18px;
+    }
+    
+    .titreTotal, .valeurTotal {
+        display: inline-block;
+    }
+    
+    .valeurTotal {
+        font-weight: bold;
+    }
+</style>';
+
+
+
+
+
+
+
+
+
+
+
+
+
+$varRetour .= '  </div>';
+
+?>

@@ -1,0 +1,17 @@
+/* CSS pour la langue Anglaise */
+.header-devise {
+    margin-left: -135px;
+}
+
+@media only screen and (max-width: 1190px) {
+  .header-devise {
+    margin-left: -111px;
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .header-devise {
+    margin-left: 4px;
+    margin-top: 48px;
+  }
+}

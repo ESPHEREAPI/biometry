@@ -1,0 +1,344 @@
+<?php 
+	use Zend\Session\Container;
+	$sessionDetailSinistre = new Container('detail_sinistre');	
+?>
+
+
+<div class="modal fade in" id="ctneurFormDetailSinistre" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="titleFormDetailSinistre"><?= $this->translate("Details de votre sinistre", "application"); ?></h4>
+			</div>
+			<div class="modal-body" id="bodyFormDetailSinistre">
+				<form action="" id="formDetailSinistre" method="post">
+					<div class="row">
+						<div class="form-group">
+							<div class="col-md-12">
+								<label for="numeroSinistre"><?= $this->translate("Numero du sinistre", "application"); ?></label>
+		  						<input name="numeroSinistre" type="text" class="form-control" autocomplete="off" placeholder="<?= $this->translate("Veuillez saisir le numero de votre sinistre", "application"); ?>" />
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer" id="footerFormDetailSinistre">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="closeModalFormDetailSinistre"><?= $this->translate("Annuler", "application"); ?></button>
+				<button type="button" class="btn btn-primary" id="submitFormDetailSinistre"><?= $this->translate("Valider", "application"); ?></button>
+			</div>
+		</div><!-- /.modal-content -->
+    </div>
+</div>
+
+
+
+
+<div class="modal fade in" id="ctneurFormNumeroTelephoneSinistre" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="titleFormNumeroTelephoneSinistre"><?= $this->translate("Details de votre sinistre", "application"); ?></h4>
+			</div>
+			<div class="modal-body" id="bodyFormNumeroTelephoneSinistre">
+				<form action="" id="formNumeroTelephoneSinistre" method="post">
+					<div class="row">
+						<div class="form-group">
+							<div class="col-md-12">
+								<p>
+									<?= $this->translate("Bonjour cher", "application", "application"); ?> <b><span id="nomClientDetailSinistre"></span></b>.<br />
+									<?= $this->translate("Veuillez saisir le code de verification envoye a votre numero", "application"); ?> : <b><span id="numeroTelephoneClientDetailSinistre"></span></b>.<br />
+									<?= $this->translate("Si ce n'est pas votre numero de telephone, veuillez contacter notre service client pour correction.", "application"); ?><br />
+									<?= $this->translate("Si c'est votre numero de telephone, mais que vous n'avez pas recu de sms, veuillez cliquer sur le lien ci-dessous pour renvoyer le sms.", "application"); ?><br />
+									<a href="##" id="renvoyezSmsSinistre"><?= $this->translate("Renvoyez le sms.", "application", "application"); ?></a>
+								</p>
+							
+								<label for="codeVerificationSinistre"><?= $this->translate("Code de verification", "application"); ?></label>
+		  						<input name="codeVerificationSinistre" type="text" class="form-control" autocomplete="off" placeholder="<?= $this->translate("Veuillez saisir le code de verification", "application"); ?>" />
+		  						<input name="numeroSinistre" type="hidden" />
+		  						
+		  						<a href="##" data-toggle="modal" data-target="#ctneurFormNumeroTelephoneSinistre" class="hide" id="openModalFormNumeroTelephoneSinistre"></a>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer" id="footerFormNumeroTelephoneSinistre">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="closeModalFormNumeroTelephoneSinistre"><?= $this->translate("Annuler", "application"); ?></button>
+				<button type="button" class="btn btn-primary" id="submitFormNumeroTelephoneSinistre"><?= $this->translate("Valider", "application"); ?></button>
+			</div>
+		</div><!-- /.modal-content -->
+    </div>
+</div>
+
+
+
+
+
+<div class="modal fade in" id="ctneurDetailSinistre" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="titleDetailSinistre"><?= $this->translate("Details de votre sinistre", "application"); ?></h4>
+			</div>
+			<div class="modal-body" id="bodyDetailSinistre">
+				<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="tableDetailSinistre">
+					<thead>
+						<tr>
+							<th><?= $this->translate("Date", "application"); ?></th>
+							<th><?= $this->translate("Evenement", "application"); ?></th>
+							<th><?= $this->translate("Observations", "application"); ?></th>
+						</tr>
+					</thead>
+					<tbody id="bodyTableDetailSinistre">
+						
+					</tbody>
+				</table>
+				<a href="##" data-toggle="modal" data-target="#ctneurDetailSinistre" class="hide" id="openModalDetailSinistre"></a>
+			</div>
+		</div><!-- /.modal-content -->
+    </div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+    	$formDetailSinistre = $("#formDetailSinistre");
+    	$formNumeroTelephoneSinistre = $("#formNumeroTelephoneSinistre");
+    	$openModalFormDetailSinistre = $("#openModalFormDetailSinistre");
+    	$openModalFormNumeroTelephoneSinistre = $("#openModalFormNumeroTelephoneSinistre");
+    	$openModalDetailSinistre = $("#openModalDetailSinistre");
+    	$bodyTableDetailSinistre = $("#bodyTableDetailSinistre");
+
+
+
+
+
+    	$formDetailSinistre.find("[name='numeroSinistre']").maskMsbt('9999-9999-999999', {placeholder:'_'});
+    
+    	cliquerRenvoyer = false;
+    
+    	$formDetailSinistre.submit(function() {
+        	
+        	$this = $(this);
+        	dataString = $this.serialize()+"&cliquerRenvoyer="+(cliquerRenvoyer ? "1": "-1");
+			
+			
+			
+			
+
+
+//         	var pattern = /^[0-9]{4}-[0-9]{4}[0-9]{6}$/i;
+//             return pattern.test(value);
+
+
+
+        	
+            
+            // Launch AJAX request.
+        	$.ajax({
+        
+        		//Options signifiant a jQuery de ne pas s'occuper du type de donnees
+        		
+                type: "post",
+                
+                url: "<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/detail-sinistre/verifier-existence-sinistre",
+                    
+        		data: dataString,
+        			
+                beforeSend: function() {
+                    retirerAlert("bodyFormDetailSinistre");
+                	$('#bodyFormDetailSinistre').spinnerQueue({'message' : "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>"}).spinnerQueue('started', 'pageLoad');
+        		},
+                    
+               	success: function( html ) {
+        
+               		if(html.error != "")
+               		{
+               			mettreErreurSurDiv("bodyFormDetailSinistre" , html.error, "");
+               		}
+               		else if(html.smsVerifie == true)
+               		{
+               			$("#closeModalFormDetailSinistre").click();
+    					afficherDetailsSinistre(html.numeroSinistre);
+               		}
+               		else // Verifiez par sms
+               		{
+    					var nomAssure = html.detailSinistre[0].ASSURE;
+    					var numeroTelephoneAssure = html.detailSinistre[0].TELEPHONE;
+    
+    					nomAssure.trim();
+    					numeroTelephoneAssure.trim();
+                   		
+                   		$("#nomClientDetailSinistre").html(nomAssure);
+                   		$("#numeroTelephoneClientDetailSinistre").html(numeroTelephoneAssure);
+               			$("#formNumeroTelephoneSinistre").find("[name='numeroSinistre']").val(html.numeroSinistre);
+               			$("#closeModalFormDetailSinistre").click();
+               			$("#openModalFormNumeroTelephoneSinistre").click();
+               		}
+        		},
+                
+                error: function() {
+                    mettreErreurSurDiv("bodyFormDetailSinistre" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+        		},
+                
+                complete: function() {
+                	$('#bodyFormDetailSinistre').spinnerQueue('finished', 'pageLoad');
+        		}
+        	});
+        
+        	return false;
+        	
+        });
+    
+    
+        $formNumeroTelephoneSinistre.submit(function() {
+        	
+    		$this = $(this);
+        	dataString = $this.serialize();
+    
+            // Launch AJAX request.
+            $.ajax({
+            
+                //Options signifiant a jQuery de ne pas s'occuper du type de donnees
+                
+                type: "post",
+                
+                url: "<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/detail-sinistre/confirmer-par-sms",
+                    
+                data: dataString,
+                	
+                beforeSend: function() {
+                    retirerAlert("bodyFormNumeroTelephoneSinistre");
+                	$('#bodyFormNumeroTelephoneSinistre').spinnerQueue({'message' : "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>"}).spinnerQueue('started', 'pageLoad');
+                },
+                    
+                	success: function( html ) {
+                
+                		if(html.error != "")
+                		{
+                			mettreErreurSurDiv("bodyFormNumeroTelephoneSinistre" , html.error, "");
+                		}
+                		else if(html.numeroVerifie == true)
+                		{
+                			// $('#ctneurFormNumeroTelephoneSinistre').modal('hide');
+                			$("#closeModalFormNumeroTelephoneSinistre").click();
+                			afficherDetailsSinistre(html.numeroSinistre);
+                		}
+                },
+                
+                error: function() {
+                    mettreErreurSurDiv("bodyFormNumeroTelephoneSinistre" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+                },
+                
+                complete: function() {
+                	$('#bodyFormNumeroTelephoneSinistre').spinnerQueue('finished', 'pageLoad');
+                }
+            });
+        
+        	return false;
+        	
+        });
+    
+    
+                	
+    	$openModalFormDetailSinistre.click(function() {
+    		if(!cliquerRenvoyer)
+        		$formDetailSinistre.find("[name='numeroSinistre']").val("");
+        });
+                                
+        $("body").on("click", "#submitFormDetailSinistre", function() {
+        	$formDetailSinistre.submit();
+        });
+    
+    
+    
+        $openModalFormNumeroTelephoneSinistre.click(function() {
+        	$formNumeroTelephoneSinistre.find("[name='codeVerificationSinistre']").val("");
+        });
+    
+        $("body").on("click", "#submitFormNumeroTelephoneSinistre", function() {
+        	$formNumeroTelephoneSinistre.submit();
+        });
+    
+        $("body").on("click", "#renvoyezSmsSinistre", function() {
+        	cliquerRenvoyer = true;
+        	$("#closeModalFormNumeroTelephoneSinistre").click();
+        	$openModalFormDetailSinistre.click();
+        	$formDetailSinistre.submit();
+        	cliquerRenvoyer = false;
+        });
+    
+    	function afficherDetailsSinistre(numeroSinistre)
+    	{
+    		$openModalDetailSinistre.click();
+        	dataString = "numeroSinistre="+numeroSinistre;
+    
+            // Launch AJAX request.
+            $.ajax({
+            
+                //Options signifiant a jQuery de ne pas s'occuper du type de donnees
+                
+                type: "post",
+                
+                url: "<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/detail-sinistre/find-details-one-sinistre",
+                    
+                data: dataString,
+                	
+                beforeSend: function() {
+                    retirerAlert("bodyDetailSinistre");
+                	$('#bodyDetailSinistre').spinnerQueue({'message' : "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>"}).spinnerQueue('started', 'pageLoad');
+                },
+                    
+                success: function( html ) {
+                
+            		if(html.error != "")
+            		{
+            			mettreErreurSurDiv("bodyDetailSinistre" , html.error, "");
+            		}
+            		else
+            		{
+                		contenuTableau = "";
+            			$.each(html.detailSinistre, function (key, value){
+
+							observation = value.OBSERVATION;
+            				if(!observation || 0 === observation.length)
+            				{
+            					observation = "";
+            				}
+                			
+            				contenuTableau += '<tr>';
+            				contenuTableau += 		'<td>'+value.DATEEVEN+'</td>';
+            				contenuTableau += 		'<td>'+value.EVENEMENT+'</td>';
+            				contenuTableau += 		'<td>'+observation+'</td>';
+            				contenuTableau += '</tr>';
+            			});
+
+
+            			$bodyTableDetailSinistre.html(contenuTableau);
+            		}
+                },
+                
+                error: function() {
+                    mettreErreurSurDiv("bodyDetailSinistre" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+                },
+                
+                complete: function() {
+                	$('#bodyDetailSinistre').spinnerQueue('finished', 'pageLoad');
+                }
+            });
+        
+        	return false;
+    	}
+	});
+    
+</script>

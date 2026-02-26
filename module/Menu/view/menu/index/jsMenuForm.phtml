@@ -1,0 +1,120 @@
+<?php 
+	use Zend\Session\Container;
+	$sessionEmploye = new Container('employe');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+		
+		$( "#langue" ).change(function() {
+
+			$this = $(this);
+
+			dataString = "langue="+$this.val();
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/menu/chargerunmenuajax/<?= $this->idMenuLangue; ?>",
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', true);
+					$("#langue").after('<span class="loaderAjax-input" id="loaderAjax-input"></span>');
+				},
+	            
+	            success: function( html ) {
+
+					if(html.error == "")
+					{
+						if(html.varRetour != "")
+						{
+							$.each(html.varRetour, function( key, value ) {
+
+			            		if (key != "langue" && $("#"+key).length > 0) {
+			            			$("#"+key).val(value);
+			            		}
+			            	});
+						}
+					}
+					else
+					{
+						mettreErreurSurDiv("content_form_ajout" , html.error, "");
+					}
+				},
+	            
+	            error: function() {
+	                mettreErreurSurDiv("content_form_ajout" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+				},
+	            
+	            complete: function() {
+	            	$("#loaderAjax-input").remove();
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', false);
+				}
+			});
+
+			return false;
+        });
+
+
+		$("#langue, #type").change(function() {
+			$langue = $("#langue");
+			$type = $("#type");
+
+			if($type.val() == "" || ($langue.length > 0 && $langue.val() == ""))
+			{
+				$("#pere").html('<option value=""><?= $this->translate("Selectionnez le menu parent")?></option>');
+				return false;
+			}
+
+			dataString = "type="+$type.val();
+			if($langue.length > 0)
+				dataString += "&langue="+$langue.val();
+			else
+				dataString += "&langue="+"<?= $sessionEmploye->offsetGet("id_langue"); ?>";
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/menu/chargermenuajax",
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', true);
+					$("#langue").after('<span class="loaderAjax-input" id="loaderAjax-input"></span>');
+				},
+	            
+	            success: function( html ) {
+
+					if(html.error != "")
+					{
+						mettreErreurSurDiv("content_form_ajout" , html.error, "");
+					}
+					else
+					{
+						$("#pere").html(html.varRetour);
+					}
+				},
+	            
+	            error: function() {
+	                mettreErreurSurDiv("content_form_ajout" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+				},
+	            
+	            complete: function() {
+	            	$("#loaderAjax-input").remove();
+	            	$("#form_ajout input, #form_ajout select, #form_ajout textarea").prop('disabled', false);
+				}
+			});
+
+			return false;
+        });
+	});
+</script>

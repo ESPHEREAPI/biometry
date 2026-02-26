@@ -1,0 +1,285 @@
+<?= $this->doctype(); ?>
+
+<?php
+	use Zend\Session\Container;
+	
+	$sessionEmploye = new Container('employe');
+	$sessionAgence = new Container('agence');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<html lang="<?= $sessionEmploye->offsetGet("lang"); ?>">
+    <head>
+		<meta charset="utf-8" />
+		
+		<!-- Pour empecher l'indexation des pages du backoffice -->
+		<meta name="robots" content="noindex,nofollow" />
+		
+		<?= $this->headTitle($this->nomPage." - ".$sessionAgence->offsetGet("nom"))->setSeparator(' - ')->setAutoEscape(false) ?>
+		
+		<!-- Tell the browser to be responsive to screen width -->
+		<?= $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+        
+        <!-- Le styles -->
+        <?= $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+        				->prependStylesheet($this->basePath('css/style.css'))
+        				->prependStylesheet ($this->basePath().'/css/jquery.alerts.css')
+        				->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/iCheck/all.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/dist/css/skins/_all-skins.min.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/dist/css/AdminLTE.min.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.min.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/ionicons.min.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/font-awesome.min.css'))
+        
+				        ->prependStylesheet($this->basePath('js/jqueryui/development-bundle/themes/base/jquery.ui.all.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/bootstrap/css/bootstrap.min.css')) ?>
+        
+        
+        
+        <!-- Scripts -->
+        <?= $this->headScript()
+        	->prependFile($this->basePath('js/script.js'))
+        	->prependFile($this->basePath().'/js/custumPagination.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/language/common_lang_'.$sessionEmploye->offsetGet("code_langue").'.js')
+        	->prependFile($this->basePath().'/js/jquery.jqprint-0.3.js', 'text/javascript')
+        	->prependFile($this->basePath().'/AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.numeric.extensions.js', 'text/javascript')
+        	->prependFile($this->basePath().'/AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.extensions.js', 'text/javascript')
+        	->prependFile($this->basePath().'/AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/jquery.alerts.js')
+        	->prependFile($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.full.min.js'))
+        	->prependFile($this->basePath('AdminLTE-2.2.1/plugins/iCheck/icheck.min.js'))
+            
+            
+            ->prependFile($this->basePath('AdminLTE-2.2.1/dist/js/app.min.js'))
+            ->prependFile($this->basePath('AdminLTE-2.2.1/bootstrap/js/bootstrap.min.js'))
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.datepicker.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.widget.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.core.min.js', 'text/javascript')
+            ->prependFile($this->basePath('AdminLTE-2.2.1/plugins/jQuery/jQuery-2.1.4.min.js'))
+        ; ?>
+	</head>
+	
+    <body class="skin-blue sidebar-mini wysihtml5-supported">
+		
+    
+	    <div class="wrapper">
+	
+	      <header class="main-header">
+			<?= $this->header; ?>
+	      </header>
+	      <!-- Left side column. contains the logo and sidebar -->
+	      <aside class="main-sidebar left-side">
+	        <?= $this->sidebar; ?>
+	      </aside>
+	
+	      <!-- Content Wrapper. Contains page content -->
+	      <div class="content-wrapper right-side">
+	        <!-- Content Header (Page header) -->
+	        <section class="content-header">
+	          <h1>
+	            <?= $this->nomPage; ?>
+	          </h1>
+	          
+	          <?= $this->navigation; ?>
+	        </section>
+	
+	        <!-- Main content -->
+	        <section class="content">
+          <div class="row">
+            <div class="col-md-3" id="drteMsg">
+              <div class="box box-solid">
+                <div class="box-body no-padding">
+                  	<ul class="nav nav-pills nav-stacked">
+	                    <li rel="-1" class="active"><a href="#drteMsg"><i class="fa fa-inbox"></i> <?= $this->translate("Non traites", "application"); ?> <span class="label label-warning pull-right" id="nbreMsgNonTraite"></span></a></li>
+	                    <li rel="1"><a href="#drteMsg"><i class="fa fa-filter"></i> <?= $this->translate("Traites", "application"); ?> <span class="label label-success pull-right" id="nbreMsgTraite"></span></a></li>
+	                    <li rel=""><a href="#drteMsg"><i class="fa fa-filter"></i> <?= $this->translate("Tous", "application"); ?> <span class="label label-primary pull-right"  id="nbreMsgAll"></span></a></li>
+                  	</ul>
+                </div><!-- /.box-body -->
+              </div><!-- /. box -->
+            </div><!-- /.col -->
+            <div class="col-md-9">
+              <div class="box box-primary">
+                <div class="box-body">
+				  
+				  <!-- general form elements -->
+				  <form role="form" id="formFiltreListeElt">
+						<div class="box-body no-padding">
+			                <?= $this->filtre; ?>  
+						</div><!-- /.box-body -->
+					</form>
+				  
+				  <?php if(isset($this->optionsOnglets) && is_array($this->optionsOnglets) && count($this->optionsOnglets) > 0) : ?>
+
+					<div class="box box-primary">
+						<?= $this->onglet; ?>
+					</div><!-- /.box -->
+					
+				  <?php endif ; ?>
+
+				  <div class="ctneurLiteEltsTab table-responsive" id="ctneurLiteEltsTab" idMsbt="contenuPage"></div>
+                </div><!-- /.box-body -->
+              </div><!-- /. box -->
+            </div><!-- /.col -->
+          </div><!-- /.row -->
+        </section>
+	      </div><!-- /.content-wrapper -->
+			
+		  
+	      <footer class="main-footer">
+	        <?= $this->footer; ?>
+	      </footer>
+	
+	    </div><!-- ./wrapper -->
+    
+        <?= $this->inlineScript() ?>
+        
+        
+        <script type="text/javascript">		         
+			$(document).ready(function() {
+				
+				basePathBackoffice = "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>";
+				
+				$("#formFiltreListeElt").prepend('<input type="hidden" name="statut" id="statut" value="-1" />');
+				
+		        $("#formFiltreListeElt").on("change", "select", function() {
+					choisirPage(1);
+		        });
+
+		        $("#formFiltreListeElt").on("click", "div.input-group .input-group-addon", function() {
+		        	choisirPage(1);
+		        });
+
+		        $("#formFiltreListeElt").on("keyup keypress", "div.input-group input[type='text']", function(e) {
+					var code = e.keyCode || e.which;
+					
+					if (code === 13) { 
+					    e.preventDefault();
+					    choisirPage(1);
+					    return false; // Pour ne pas soumettre le formulaire
+					}
+			    });
+		        
+		
+		        $("body").on("click", ".btn-modifier-heres", function() {
+					$this = $(this);
+					// window.location = $this.attr("href");
+		        });
+		
+		        $("#drteMsg").on("click", "li", function() {
+					$this = $(this);
+					$("#statut").val($this.attr("rel"));
+					$("#drteMsg li").removeClass("active");
+					$this.addClass("active");
+					
+					choisirPage(1);
+		        });
+		
+		        $( "input[type='text'].date" ).datepicker({
+		            changeYear: true,
+		            changeMonth: true,
+		            numberOfMonths: 1,
+		            dateFormat: "yy-mm-dd"
+		        });
+		
+		
+		
+		
+		        $("#ctneurLiteEltsTab").on("click", "tbody tr", function() {    
+				    
+				    $this = $(this);
+		
+				    dataString = "";
+				        
+			        // Launch AJAX request.
+					$.ajax({
+		
+						//Options signifiant a jQuery de ne pas s'occuper du type de donnees
+						
+			            type: "post",
+			            
+			            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/message/chargermessagesajax/"+$this.attr("rel"),
+				            
+						data: dataString,
+							
+			            beforeSend: function() {
+			            	$("#error-form").remove();
+			            	retirerAlert("myModalBodyId");
+			            	mettreLoaderSurDiv("myModalBodyId" , "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>", "");
+						},
+				            
+				       	success: function( html ) {
+				       		if(html.error != "")
+				       		{
+				       			mettreErreurSurDiv("myModalBodyId" , html.error, "");
+				       		}
+				       		else
+				       		{
+								$("#myModalBodyId").html(html.varRetour);
+				       		}
+						},
+			            
+			            error: function() {
+			                mettreErreurSurDiv("myModalBodyId" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+						},
+			            
+			            complete: function() {
+			            	retirerLoaderSurDiv("myModalBodyId");
+						}
+					});
+				    
+				    // return false; 
+				});
+		
+		        $("#ctneurLiteEltsTab").on("submit", "#formTraiterMessage", function() {    
+				    
+				    $this = $(this);
+		
+				    dataString = $this.serialize();
+				        
+			        // Launch AJAX request.
+					$.ajax({
+		
+						//Options signifiant a jQuery de ne pas s'occuper du type de donnees
+						
+			            type: "post",
+			            
+			            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/message/traitermessageajax/"+$this.attr("rel"),
+				            
+						data: dataString,
+							
+			            beforeSend: function() {
+			            	$("#error-form").remove();
+			            	retirerAlert("myModalBodyId");
+			            	mettreLoaderSurDiv("myModalBodyId" , "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>", "");
+						},
+				            
+				       	success: function( html ) {
+				       		window.location = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/message";
+						},
+			            
+			            error: function() {
+			                mettreErreurSurDiv("myModalBodyId" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+						},
+			            
+			            complete: function() {
+			            	retirerLoaderSurDiv("myModalBodyId");
+						}
+					});
+				    
+				    return false; 
+				});
+		
+		        cheminControlleurPaginHere = '<?= $this->cheminPagination; ?>';
+		        idDivConteneurPaginHere = 'ctneurLiteEltsTab';
+		        idFormPaginHere = "formFiltreListeElt";        
+		        
+		        choisirPage(1);
+		        
+			});
+		</script>
+    </body>
+</html>

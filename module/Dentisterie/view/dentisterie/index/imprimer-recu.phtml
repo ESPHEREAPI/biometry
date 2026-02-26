@@ -1,0 +1,341 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+$typeSousProfil = $sessionEmploye->offsetGet("type_sous_profil");
+$visite = $prestation->getVisite();
+$adherent = $visite->getCodeAdherent();
+$ayantDroit = $visite->getCodeAyantDroit();
+
+$adherent->afficheChaine();
+
+$malade = $adherent->getAssurePrincipal();
+
+$nomAyantDroit = "";
+if($ayantDroit)
+{
+    $ayantDroit->afficheChaine();
+    $nomAyantDroit = $ayantDroit->getNom();
+}
+
+
+$montantValide = 0;
+$montantAssurance = 0;
+$montantAssure = 0;
+
+
+
+
+
+
+//$numeroPrestation = "";
+//if($this->naturePrestation == "dentisterie")
+//{
+	//$numeroPrestation= "D";
+//}
+$numeroPrestation = $visite->getCodeCourt();
+
+
+
+
+
+$tabLigne = array();
+
+// $tabLigne[] = array("label" => $this->getTranslator("Prestataire"), "valeur" => $sessionEmploye->offsetGet("nom_prestataire"));
+$tabLigne[] = array("label" => $this->getTranslator("Code n°"), "valeur" => $numeroPrestation);
+$tabLigne[] = array("label" => $this->getTranslator("Assure"), "valeur" => $adherent->getAssurePrincipal());
+
+
+if($ayantDroit)
+{
+    $malade = $nomAyantDroit;
+}
+
+$tabLigne[] = array("label" => $this->getTranslator("Malade"), "valeur" => $malade);
+
+$tabLigne[] = array("label" => $this->getTranslator("Souscripteur"), "valeur" => $adherent->getSouscripteur());
+
+
+$varRetour .= '<div class="" id="cntneurDocExportPdf" class="cntneurDocExportPdf">';
+$varRetour .=   $this->construireEnteteDocPDF();
+
+
+
+$titreHere = "";
+if($this->naturePrestation == "dentisterie")
+{
+	$titreHere = $this->getTranslator("BON DE PRISE EN CHARGE DENTISTERIE");
+}
+
+
+// $varRetour .= ' <div class="ctneurTitreExport" id="ctneurTitreExport"><h4>'.$titreHere.'</h4></div>';
+$varRetour .= ' <div class="ctneurTitreExport" id="ctneurTitreExport"><h4 style="margin-bottom: 20px; margin-top: 20px; text-align: center; font-size: 25px; font-weight: bold;">'.$titreHere.'</h4></div>';
+
+
+
+
+$dateEncaisse = "";
+if($lignePrestationAudit)
+{
+    $dateEncaisse = $lignePrestationAudit->getDate()->format("d/m/Y H:i");
+}
+
+
+
+$varRetour .= '<div style="margin-bottom: 20px;"><table class="table dataTable table-striped"><tbody>';
+
+$varRetour .= '  <tr style="border: solid 1px #ddd !important;">';
+
+$varRetour .= '  <td style="width: 70%; font-weight: bold; border-top: solid 1px #ddd !important;">'.$sessionEmploye->offsetGet("nom_prestataire").'</td>';
+$varRetour .= '  <td style="width: 30%; border-top: solid 1px #ddd !important;">'.$this->getTranslator("Date heure")." ".$dateEncaisse.'</td>';
+
+$varRetour .= '  </tr>';
+
+
+
+$varRetour .= '  </tbody></table></div>';
+
+
+
+
+
+$varRetour .= '<table class="table dataTable table-striped"><tbody>';
+
+
+
+foreach ($tabLigne as $uneLigne)
+{
+    $varRetour .= '  <tr>';
+    
+    $varRetour .= '  <td style="width: 30%; font-weight: bold;">'.$uneLigne['label'].'</td>';
+    $varRetour .= '  <td style="width: 70%">'.$uneLigne['valeur'].'</td>';
+    
+    $varRetour .= '  </tr>';
+}
+
+
+
+$varRetour .= '  </tbody></table>';
+
+
+
+// Construction des lignes prestations
+
+$titreListeMedicaments = "";
+if($this->naturePrestation == "dentisterie") 
+{
+    $titreListeMedicaments = $this->getTranslator("Liste de prestations en dentisterie");
+}
+
+
+$params = array("prestation" => $prestation->getId(), "prestataire" => $sessionEmploye->offsetGet("id_prestataire"), "etat" => "encaisse", "supprime" => "-1");
+$tabLignePrestation = $this->lignePrestationManager->getListeLignePrestationTabParams($params); 
+
+
+
+$varRetour .= '<div style="margin-bottom: 30px; margin-top: 30px;">';
+
+
+$varRetour .= '  <h4>'.$titreListeMedicaments.'</h4>';
+
+$varRetour .= '<table class="table dataTable table-bordered">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th>'.$this->getTranslator("Description des Soins").'</th>';
+
+$varRetour .= '        <th>'.$this->getTranslator("Dents Concernees").'</th>';
+
+$varRetour .= '        <th>'.$this->getTranslator("Codification").'</th>';
+
+
+if($this->naturePrestation == "dentisterie") 
+{
+		$varRetour .= '        <th>'.$this->getTranslator("Categorie").'</th>';
+}
+
+
+$varRetour .= '        <th>'.$this->getTranslator("Taux de couverture").'</th>';
+
+if($this->naturePrestation == "dentisterie") 
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Montant valide").'</th>';
+    $varRetour .= '        <th>'.$this->getTranslator("Quantite valide").'</th>';
+}
+
+
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+
+
+
+
+
+$varRetour .= '  <tbody>';
+
+foreach ($tabLignePrestation as $uneLignePrestation)
+{
+    
+  
+
+
+    $typePrestation = "";
+    if( $this->naturePrestation == "dentisterie") 
+    {
+        if($uneLignePrestation->getTypeExamen())
+        {
+            $typePrestation = $uneLignePrestation->getTypeExamen()->getId();
+        }
+    }
+    
+    
+    
+//     $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+//     $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+//     if($objetTauxPrestation)
+//     {
+//         $tauxCouverture = $objetTauxPrestation->getTaux();
+//     }
+//     else
+//     {
+//         $tauxCouverture = 0;
+//     }
+
+
+
+
+    if($uneLignePrestation->getEtat() == "valide" || $uneLignePrestation->getEtat() == "encaisse")
+    {
+        $tauxCouverture = $uneLignePrestation->getTaux();
+        $montantPropose = $uneLignePrestation->getValeurModif();
+    }
+    else
+    {
+        $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+        $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+        if($objetTauxPrestation)
+        {
+            $tauxCouverture = $objetTauxPrestation->getTaux();
+            $plafond = $objetTauxPrestation->getPlafond();
+            
+            if(empty($tauxCouverture))
+            {
+                $tauxCouverture = 0;
+            }
+            
+            if(empty($plafond))
+            {
+                $montantPropose = $uneLignePrestation->getValeur();
+            }
+            else
+            {
+                $montantPropose = min(array($plafond, $uneLignePrestation->getValeur()));
+            }
+        }
+        else
+        {
+            $tauxCouverture = 0;
+            $plafond = 0;
+        }
+    }
+
+
+    
+    
+    $montantValideLigne = $uneLignePrestation->getValeurModif()*$uneLignePrestation->getNbreModif();
+    
+    $montantValide += $montantValideLigne;
+    $montantAssurance += $montantValideLigne*($tauxCouverture/100);
+    
+    
+    
+    
+    
+    
+    
+    $uneLignePrestation->afficheChaine();    
+    
+    $varRetour .= '  <tr>';
+    
+    $descriptionSoins = "";
+    
+        if($uneLignePrestation->getDescriptionSoins())
+        {
+            $descriptionSoins = $uneLignePrestation->getDescriptionSoins()->getNom();
+        }
+    
+    $varRetour .= '        <td>'.$descriptionSoins.'</td>';
+	
+	
+	$varRetour .= '        <td>'.$uneLignePrestation->getDentsConcernees().'</td>';
+    
+    $varRetour .= '        <td>'.$uneLignePrestation->getCodification().'</td>';
+    
+    if( $this->naturePrestation == "dentisterie") 
+    {
+		$nomTypeExamen = "";
+		if($uneLignePrestation->getTypeExamen())
+		{
+			$nomTypeExamen = $uneLignePrestation->getTypeExamen()->getNom();
+		}
+		
+        $varRetour .= '        <td>'.$nomTypeExamen.'</td>';
+    }
+    
+	
+	 $varRetour .= '        <td>'.$tauxCouverture.'</td>';
+	
+    
+    $varRetour .= '        <td>'.$uneLignePrestation->getValeurModif().'</td>';
+    $varRetour .= '        <td>'.$uneLignePrestation->getNbreModif().'</td>';
+    
+    
+    
+    $varRetour .= '  </tr>';
+}
+
+$varRetour .= '   </tbody>';
+$varRetour .= '  </table></div>';
+
+
+$montantAssure = $montantValide - $montantAssurance;
+
+
+
+
+
+
+$tabLigne = array();
+
+$tabLigne[] = array("label" => $this->getTranslator("Montant total valide"), "valeur" => number_format($montantValide, 0, ",", " ")." ".$this->getTranslator("FCFA"));
+$tabLigne[] = array("label" => $this->getTranslator("Part ZENITHE"), "valeur" => number_format($montantAssurance, 0, ",", " ")." ".$this->getTranslator("FCFA"));
+$tabLigne[] = array("label" => $this->getTranslator("Part assure"), "valeur" => number_format($montantAssure, 0, ",", " ")." ".$this->getTranslator("FCFA"));
+
+$varRetour .= '<div style="margin-top: 40px;"><table class="table dataTable table-striped"><tbody>';
+foreach ($tabLigne as $uneLigne)
+{
+    $varRetour .= '  <tr style="border: 0">';
+    
+    $varRetour .= '  <td style="width: 80%; font-weight: bold; text-align: right; border: 0;">'.$uneLigne['label'].'</td>';
+    $varRetour .= '  <td style="width: 20%; text-align: right; border: 0;">'.$uneLigne['valeur'].'</td>';
+    
+    $varRetour .= '  </tr>';
+}
+$varRetour .= '  </tbody></table></div>';
+
+
+
+
+$varRetour .= '<table class="table"  style="margin-top: 50px; border: 0;"><tbody>';
+$varRetour .= '  <tr style="border: 0;">';
+$varRetour .= '     <td style="width: 50%; border: 0;">'.$this->getTranslator("L'assure").'</td>';
+$varRetour .= '     <td style="width: 50%; border: 0; text-align: right">'.$this->getTranslator("Le prestataire").'</td>';
+$varRetour .= '  </tr>';
+$varRetour .= '  </tbody></table>';
+
+
+
+$varRetour .= '</div>';
+
+?>

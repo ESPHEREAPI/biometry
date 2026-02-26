@@ -1,0 +1,269 @@
+<?php 
+
+	use Zend\Session\Container;
+
+	$sessionApplication = new Container('application');
+	$sessionInternaute = new Container('internaute');
+	
+	$lienArticleCaution = "#";
+	if($sessionInternaute->offsetGet("code_iso_langue") == "fr")
+	{
+		$lienArticleCaution = $this->basePath($sessionInternaute->offsetGet("code_iso_langue")."/produit/39_assurance-caution");
+	}
+	elseif ($sessionInternaute->offsetGet("code_iso_langue") == "en")
+	{
+		$lienArticleCaution = $this->basePath($sessionInternaute->offsetGet("code_iso_langue")."/produit/40_insurance-surety-bond");
+	}
+	
+	
+	$sessionApplication->offsetSet("pop_up_caution_end", false); // Pour ne pas afficher le popup
+	
+?>
+
+
+
+<?php if(!$sessionApplication->offsetExists("pop_up_caution_end") || $sessionApplication->offsetExists("pop_up_caution_end") == false) : ?>
+
+	<div class="modal fade modal-popup-caution" id="ctneurPopUpCaution" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+		    <div class="modal-content">
+				<div class="modal-body" id="divBodyPopUpCaution">
+					<img alt="<?= $this->translate("La Caution, nous la faisons mieux", "application"); ?>" src="<?= $this->basePath()."/img/zenithe-anim.gif"?>" />
+					<form action="" id="formNePlusAfficher" method="post">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="ctneurICheck" style="margin-top: 10px;">
+									<label for="nePlusAfficher" style="cursor: pointer;" class="">
+										<input type="checkbox" name="nePlusAfficher" id="nePlusAfficher" /> <?= $this->translate("Ne plus afficher", "application"); ?>
+									</label>
+									<button style="display: inline-block; margin-left: 15px;" type="button" class="btn btn-default" data-dismiss="modal" id="closePopUpCaution"><?= $this->translate("Close", "application"); ?></button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div><!-- /.modal-content -->
+	    </div>
+	</div>
+	
+	<input type="hidden" id="ouvrirPopUpCaution" data-toggle="modal" data-target="#ctneurPopUpCaution" />
+
+<?php endif ; ?>
+
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+		<?php if(!$sessionApplication->offsetExists("pop_up_caution_end") || $sessionApplication->offsetExists("pop_up_caution_end") == false) : ?>
+
+			setTimeout(function() {
+				$("#ouvrirPopUpCaution").click();
+	        }, 1000);
+
+
+			$('#nePlusAfficher').on('ifChecked', function(event) {
+				
+		    	dataString = "";
+		        
+		        // Launch AJAX request.
+				$.ajax({
+					
+		            type: "post",
+		            
+		            url: '<?= $this->basePath()."/ne-plus-afficher-caution"; ?>',
+		            
+		            data: dataString,
+					
+		            beforeSend: function() {
+		            	
+					},
+		            
+		            success: function( html ) {
+						
+					},
+		            
+					error: function(){
+						 
+					},
+		            
+		            complete: function(){
+		                
+					}
+				});
+		    });
+		    
+    	<?php endif ; ?>
+	});
+</script>
+
+
+<style type="text/css">
+
+.modal-popup-caution .modal-header, .modal-popup-caution h4, .modal-popup-caution .close {
+      background-color: #0088CC;
+      color:white !important;
+      text-align: center;
+      font-size: 30px;
+}
+.modal-popup-caution .modal-footer {
+      background-color: #f9f9f9;
+}
+
+.ctneurImgCaution img {
+	width: 100%;
+	height: auto;
+}
+
+.ctneurTxtCaution {
+	position: absolute;
+	color: #fff;
+    font-size: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 12px 20px;
+    width: 95%;
+    min-height: 200px;
+}
+
+.modal-backdrop.in {
+    filter: alpha(opacity=90);
+    opacity: 0.9;
+}
+
+.modal-popup-caution.modal.fade .modal-dialog {
+    -webkit-transform: scale(0.1);
+    -moz-transform: scale(0.1);
+    -ms-transform: scale(0.1);
+    transform: scale(0.1);
+    top: 300px;
+    opacity: 0;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+.modal-popup-caution.modal.fade.in .modal-dialog {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+    -webkit-transform: translate3d(0, -300px, 0);
+    transform: translate3d(0, -300px, 0);
+    opacity: 1;
+}
+
+.modal-popup-caution.modal .modal-dialog img {
+    width: 868px; /* New width for default modal */
+    height: 400px;
+}
+
+.modal-popup-caution.modal .modal-dialog {
+    width: 900px; /* New width for default modal */
+}
+
+.modal-popup-caution.modal .modal-body {
+    /* max-height: calc(100vh - 210px); */
+    overflow-y: auto;
+    max-height: inherit !important;
+}
+
+.modal-popup-caution.modal .ctneurICheck {
+	text-align: center;
+}
+
+</style>
+
+
+
+
+
+
+
+
+<?php if($sessionInternaute->offsetGet("code_langue") != "en_US") : ?>
+	<script src="<?= $this->basePath("js/formValidation/js/language/".$sessionInternaute->offsetGet("code_langue").".js"); ?>"></script>
+<?php endif ; ?>
+
+
+
+
+<?php 
+
+	// Recuperation des messages d'alert (s'ils existent)
+	$modalMsgHere = @$sessionInternaute->offsetGet('modal_msg');
+	$modalTitleHere = @$sessionInternaute->offsetGet('modal_title');
+	$modalTypeAlertHere = @$sessionInternaute->offsetGet('modal_type_alert');
+
+?>
+
+
+
+<!-- Pour afficher les messages apres activation -->
+
+<?php if(!empty($modalMsgHere) && 
+		 !empty($modalTitleHere) && 
+		 !empty($modalTypeAlertHere)) : ?>
+		
+		
+	<div class="modal fade" id="ctneurModaleAlert" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+		    <div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="titleModaleAlert"><?= $modalTitleHere; ?></h4>
+				</div>
+				<div class="modal-body" id="divBodyFormAjaxModaleAlert">
+					<p>
+						<div class="alert alert-<?= $modalTypeAlertHere; ?>" id="alert-message_<?= time(); ?>">
+					    	<a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+					    	<div class="msg"><?= $modalMsgHere; ?></div>
+				        </div>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="closeModaleAlert"><?= $this->translate("OK", "application"); ?></button>
+				</div>
+			</div><!-- /.modal-content -->
+	    </div>
+	</div>
+	
+	<input type="hidden" id="ouvrirModaleAlert" data-toggle="modal" data-target="#ctneurModaleAlert" pull-right />
+	
+	
+	<script type="text/javascript">		         
+		$(document).ready(function() {
+			$("#ouvrirModaleAlert").click();
+		});
+	</script>
+		
+		
+		
+	<?php 
+	
+		$sessionInternaute->offsetSet('modal_title', '');
+		$sessionInternaute->offsetSet('modal_msg', '');
+		$sessionInternaute->offsetSet('modal_type_alert', '');
+	
+	?>
+		
+<?php endif; ?>
+
+
+<?php include_once 'common/detail-sinistre.phtml'; ?>
+
+
+<?php if(isset($appliConfig) && $appliConfig->get("mode_demo") == "0") : ?>
+
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	
+	  ga('create', 'UA-100555777-1', 'auto');
+	  ga('send', 'pageview');
+	
+	</script> 
+	
+<?php endif ; ?>

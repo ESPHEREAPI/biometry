@@ -1,0 +1,77 @@
+<?php 
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$classOrderByNom = "";
+if($postValues['nomColoneTriPagination'] == "nom")
+{
+	$classOrderByNom = 'sorting_'.strtolower($postValues['typeTriColonePagination']);
+}
+
+$varRetour .= '<table class="table dataTable table-hover table-bordered table-striped tableSortinMsbt" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+$varRetour .= '        <th class="isOrdered '.$classOrderByNom.'" nomColone="nom">'.$this->getTranslator("Nom").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Code").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Pays").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Region").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Zone").'</th>';
+$varRetour .= '        <th class="rsv-table-title-status">'.$this->getTranslator("Statut").'</th>';
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+ 
+foreach($tab as $element)
+{
+	$element->afficheChaine();
+	
+	$nomPays = "";
+	$nomRegion = "";
+	if($element->getVille()->getStatut() == -1) { $classtatut =  "table_inactive"; $titleStatut =  $this->getTranslator("Activer"); $newStatut = 1; }
+	else { $classtatut =  "table_active"; $titleStatut =  $this->getTranslator("Desactiver"); $newStatut = -1; }
+	
+	$paysLangue = $this->getEntityManager()->getRepository('Entity\PaysLangue')->findOneBy(
+							array('pays' => $element->getVille()->getRegion()->getPays()->getId(), 'langue' => $sessionEmploye->offsetGet("id_langue")));
+	if($paysLangue)
+	{
+			$paysLangue->afficheChaine();
+			$nomPays = $paysLangue->getNom();
+	}
+	
+	$regionLangue = $this->getEntityManager()->getRepository('Entity\RegionLangue')->findOneBy(
+						array('region' => $element->getVille()->getRegion()->getId(), 'langue' => $sessionEmploye->offsetGet("id_langue")));
+	if($regionLangue)
+	{
+		$regionLangue->afficheChaine();
+		$nomRegion = $regionLangue->getNom();
+	}
+	
+	
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getId().'" /></td>';
+	$varRetour .= '        <td>'.$element->getNom().'</td>';
+	$varRetour .= '        <td>'.$element->getVille()->getCode().'</td>';
+	$varRetour .= '        <td>'.$nomPays.'</td>';
+	$varRetour .= '        <td>'.$nomRegion.'</td>';
+	$varRetour .= '        <td>'.$element->getVille()->getCodeZone().'</td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/activer_commun/'.$newStatut.'/Ville/'.$element->getVille()->getId().'"><span class="'.$classtatut.'" title="'.$titleStatut.'"></span></a></td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn">';
+	$varRetour .= '             <div class="btn-group">
+							                      <button class="btn btn-default btn-modifier-heres" type="button" href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/regionalisation/ville/modifier/'.$element->getId().'"><a><i class="fa fa-edit"></i> '.$this->getTranslator("Modifier").'</a></button>
+							                      <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+							                        <span class="caret"></span>
+							                        <span class="sr-only">'.$this->getTranslator("Toggle Dropdown").'</span>
+							                      </button>
+							                      <ul role="menu" class="dropdown-menu rsv-btn-group-tab">
+							                        <li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Ville/'.$element->getVille()->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>
+							                      </ul>
+											</div>';
+	$varRetour .= '        </td>';
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+?>

@@ -1,0 +1,71 @@
+form.form-horizontal .ctneurICheck label {
+	font-weight: normal;
+	color: #777;
+	width: auto;
+	display: inline;
+	line-height: 200%;
+}
+form.form-horizontal .ctneurICheck.radio.cstmBtnChoix label.btn {
+    padding: 7px 12px;
+    padding-left: 9px;
+    color: #fff;
+    border-color: #0088CC #0088CC #006699;
+}
+
+form.form-horizontal .has-error .ctneurICheck.radio.cstmBtnChoix label.btn {
+    border-color: #a94442;;
+}
+
+
+form.form-horizontal .ctneurICheck.radio.cstmBtnChoix label.btn-borders {
+	padding: 5px 12px;
+    padding-left: 9px;
+	color: #0088CC;
+}
+
+.cstmBtnChoix .iradio_square-blue {
+    visibility: hidden;
+    width: 0;
+}
+
+form.form-horizontal .has-error .ctneurICheck.radio.cstmBtnChoix label.btn-borders {
+	color: #a94442;
+}
+
+
+form.form-horizontal .has-error .ctneurICheck.radio.spleRadio label, form.form-horizontal .has-error .ctneurICheck.checkbox label {
+	color: #a94442;
+}
+
+form.form-horizontal .ctneurICheck.radio.cstmBtnChoix label.btn-borders:hover,  form.form-horizontal .has-error .ctneurICheck.radio.cstmBtnChoix label.btn-borders:hover{
+	color: #fff;
+}
+
+form.form-horizontal .ctneurICheck.radio.cstmBtnChoix label.active {
+	color: #fff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #0088CC;
+    border-color: #0088CC #0088CC #006699;
+}
+
+.col-md-2.ctneurUnIcheck {
+	padding: 0;
+	width: auto;
+	margin-left: 2px
+}
+
+
+form.form-horizontal .ctneurICheck.radio.cstmBtnChoix label:parent {
+	background: #333;
+}
+
+.ctneurICheck label {
+	padding: 0;
+	margin: 0;
+}
+
+@media only screen and (max-width: 768px) {
+	div.ctneurUnIcheck {
+	    display: inline-block;
+	}
+}

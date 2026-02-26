@@ -1,0 +1,116 @@
+<?php 
+
+    $varRetourControls = "";
+    $optionsAffichageNbreLigne = array(10 => 10, 
+    								   25 => 25, 
+    								   50 => 50, 
+    								   100 => 100, 
+									   "9999999999999999999" => $this->getTranslator("Tous")
+    								  );
+    
+    if(isset($nroPage)  && is_numeric($nroPage) && isset($nbrePages)  && is_numeric($nbrePages) && isset($nbreResults) 
+         && is_numeric($nbreResults)  && isset($nbreMaxResultsParPage)  && is_numeric($nbreMaxResultsParPage)
+         && isset($parametres)  && is_string($parametres))
+    {
+        $quotient = $nroPage/$nbrePages;
+        if(is_int($quotient))
+        {
+            $premierePage = $nroPage - $nbrePages + 1;
+        }
+        else
+        {
+            $premierePage = ((int) $quotient)*$nbrePages + 1;
+        }
+
+        if($premierePage == 0) $premierePage = 1;
+        $dernierePage = $premierePage + $nbrePages -1;
+        $nroMaxDernierePage = $nbreResults/$nbreMaxResultsParPage;
+        if(!is_int($nroMaxDernierePage)) $nroMaxDernierePage = (int) $nroMaxDernierePage + 1;
+        if($dernierePage > $nroMaxDernierePage) $dernierePage = $nroMaxDernierePage;
+        
+        
+        $numPremierElt = $nbreMaxResultsParPage*($nroPage -1) + 1;
+        $numDernierElt = $nbreResults;
+        if($nroPage < $nroMaxDernierePage)
+        	$numDernierElt = $nbreMaxResultsParPage*$nroPage;
+        
+        
+        
+        $headPagination = "<div class='box-header clearfix'>";
+        
+        if(isset($postValues['nbreMaxLigneTableau']))
+        {
+        	$headPagination .= '<div class="no-margin pull-left">
+        						<label>'.$this->getTranslator("Nbre lignes").'</label>
+        							<select id="selectNbreLignePagin">';
+							        	foreach($optionsAffichageNbreLigne as $key => $value)
+							        	{
+							        		$selected = "";
+							        		if($key == $postValues['nbreMaxLigneTableau'])
+							        		{
+							        			$selected = "selected";
+							        		}
+							        		$headPagination .= '<option value="'.$key.'" '.$selected.'>'.$value.'</option>';
+							        	}
+			$headPagination 	.= ' </select>
+                			</div>';
+        }
+				
+        $headPagination .= "<div class='no-margin pull-right'>
+        						<b>".$this->getTranslator("De")." ".$numPremierElt." ".$this->getTranslator("a")." ".$numDernierElt." ".$this->getTranslator("sur")." ".$nbreResults."</b>
+        					</div>
+        				   </div>";
+        
+        
+        
+        //$varRetourControls .= "; nro page: ".$nroPage."; Nbre page: ".$nbrePages." premiere page".$premierePage;
+        
+        $varRetourControls .= '<div class="box-footer clearfix" id="pagination-controls">';
+        $varRetourControls .= '    <ul class="pagination pagination-sm no-margin pull-right">';
+        // <!-- Previous page link -->
+        
+        ($nroPage > 1) ? $desablePrevious = "" : $desablePrevious = "disabled";
+        
+        
+        
+        
+        $varRetourControls .= '   <li class="pagination '.$desablePrevious .'" rel="1" onclick="return cliquerEltPagination($(this));" title="'.$this->getTranslator("Premier").'">';
+        $varRetourControls .= '      <a href="#'.$postValues['idDivConteneurPaginHere'].'">';
+        $varRetourControls .= '          <<';
+        $varRetourControls .= '      </a>';
+        $varRetourControls .= '   </li>';
+        
+        $varRetourControls .= '   <li class="pagination '.$desablePrevious .' previous" onclick="return cliquerEltPagination($(this));" title="'.$this->getTranslator("Precedent").'">';
+        $varRetourControls .= '      <a href="#'.$postValues['idDivConteneurPaginHere'].'">';
+        $varRetourControls .= '          <';
+        $varRetourControls .= '      </a>';
+        $varRetourControls .= '   </li>';
+        
+        // <!-- Numbered page links -->
+        for ($page=$premierePage; $page<=$dernierePage; $page++)
+        {
+            ($page == $nroPage) ? $pageActive = "active" : $pageActive = "";
+            $varRetourControls .= ' <li class="pagination '.$pageActive .'" rel="'.$page.'" id="activeEltPaginEl'.$page.'"  onclick="return cliquerEltPagination($(this));">';
+            $varRetourControls .= '      <a href="#'.$postValues['idDivConteneurPaginHere'].'">'.$page.'</a>';
+            $varRetourControls .= ' </li>';
+        }
+        
+        ($nroPage < $nroMaxDernierePage) ? $desableLast = "" : $desableLast = "disabled";
+        // <!-- Next page link -->
+        $varRetourControls .= '   <li class="pagination '.$desableLast .' next"  onclick="return cliquerEltPagination($(this));" title="'.$this->getTranslator("Suivant").'">';
+        $varRetourControls .= '      <a href="#'.$postValues['idDivConteneurPaginHere'].'">';
+        $varRetourControls .= '          >';
+        $varRetourControls .= '      </a>';
+        $varRetourControls .= '   </li>';
+        
+        $varRetourControls .= '   <li class="pagination '.$desableLast .'" rel="'.$nroMaxDernierePage.'" onclick="return cliquerEltPagination($(this));" title="'.$this->getTranslator("Dernier").'">';
+        $varRetourControls .= '      <a href="#'.$postValues['idDivConteneurPaginHere'].'">';
+        $varRetourControls .= '          >>';
+        $varRetourControls .= '      </a>';
+        $varRetourControls .= '   </li>';
+        
+        
+        
+        $varRetourControls .= ' </ul>';
+        $varRetourControls .= '</div>';
+    }

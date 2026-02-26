@@ -1,0 +1,55 @@
+<?php if(isset($this->tabRecentLayout) && is_array($this->tabRecentLayout) && count($this->tabRecentLayout) > 0) : ?>
+
+	<?php 
+		$compteur = 0;
+		$classCss = "";
+	?>
+	<?php foreach ($this->tabRecentLayout as $element) : ?>
+		
+		<h4 class="heading-primary"><?= $element["titre"]; ?></h4>
+		
+		<?php 
+			
+			if(!isset($element['elements']))
+				continue;
+			
+			$compteur++;
+			if($compteur == 1)
+			{
+				$classCss = "active";
+			}
+		?>
+	
+		<div class="row mt-lg elements-recents">
+	
+			<?php foreach ($element['elements'] as $unSimpleElement) : ?>
+				
+				<div class="col-md-12 un-elements-recent">
+					
+					<?php if(substr_count($unSimpleElement["cheminImage"], "calendar.png") <= 0) :?>
+						<div class="img-thumbnail">
+							<?php if($unSimpleElement['extensionImage'] != "mp4") : ?>
+			                  	<img class="img-responsive" src="<?= $unSimpleElement["cheminImage"]?>" alt="" />
+			                  <?php else : ?>
+		                  		<video controls width="100%">
+									<source src="<?= $unSimpleElement["cheminImage"]?>" type="video/mp4" />
+								  	<?= $this->translate("Votre navigateur ne supporte pas la video HTML5", "application"); ?>
+								</video>
+			                  <?php endif ; ?>
+							
+						</div>
+					<?php endif; ?>
+					
+					<div class="recent-posts mt-md mb-lg">
+						<article class="post mini-post-left">
+							<h5><a class="text-dark" href="<?= $unSimpleElement["href"]?>"><?= $unSimpleElement["titre"]?></a></h5>
+						</article>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		
+		</div>
+	
+	<?php endforeach; ?>
+	
+<?php endif; ?>

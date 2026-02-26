@@ -1,0 +1,393 @@
+<?= $this->doctype(); ?>
+
+<?php
+	use Zend\Session\Container;
+	
+	$sessionInternaute = new Container('internaute');
+	$sessionAgence = new Container('agence');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	
+	$idInternauteHere = $sessionInternaute->offsetGet("id");
+
+	$internauteMotPasseOublieHere = $sessionInternaute->offsetGet('internaute_mot_passe_oublie');
+	
+	if(isset($this->titleHautPage) && !empty($this->titleHautPage))
+		$titlePage = $this->titleHautPage;
+	else
+		$titlePage = $this->nomPage;
+?>
+
+<html lang="<?= $sessionInternaute->offsetGet("code_iso_langue"); ?>" class="">
+    <head>
+    	<script src="https://apis.google.com/js/platform.js" async defer></script>
+		<meta name="google-signin-client_id" content="490762090175-5e17eni67sl3l5dgor9g10v0atr04rc4.apps.googleusercontent.com">
+    
+    
+    	<!-- Basic -->
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1' />
+
+		<?php 
+			
+			if(isset($this->titlePage)  && !empty($this->titlePage))
+			{
+				$titlePageHiri = $this->titlePage;
+			}
+			else
+			{
+				$titlePageHiri = $this->translate($appliConfig->get("nom_appli"), "application")." - ".$this->translate("Assurance auto, voyage, sante, habitation, responsabilite civile, individuel accident", "application");
+			}
+			
+		?>
+		
+		
+		
+		<title><?= $titlePageHiri; ?></title>	
+
+		<?php if(isset($this->metaMotClePage) && !empty($this->metaMotClePage)) : ?>
+			<meta name="keywords" content="<?= $this->metaMotClePage; ?>" />
+		<?php endif ; ?>
+		
+		<?php if(isset($this->metaDescriptionPage) && !empty($this->metaDescriptionPage)) : ?>
+			<meta name="description" content="<?= $this->metaDescriptionPage; ?>" />
+		<?php endif ; ?>
+		
+		<meta name="author" content="<?= $appliConfig->get("nom_appli"); ?>" />
+
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="<?= $this->basePath("img/favicon.ico"); ?>" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="<?= $this->basePath("img/apple-touch-icon.png"); ?>" />
+
+		<!-- Mobile Metas -->
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<!-- Web Fonts  -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CShadows+Into+Light" rel="stylesheet" type="text/css" />
+
+		
+		<!-- Sticky Modal -->
+		<link rel="stylesheet" href="<?= $this->basePath("modal-css3-powered-popups/css/slickModal.min.css"); ?>" media="screen" />
+		<link rel="stylesheet" href="<?= $this->basePath("Hover-master/css/hover-min.css"); ?>" media="screen" />
+		
+		
+		<!-- Vendor CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/bootstrap/css/bootstrap.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/bootstrap-social.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/jqueryui/development-bundle/themes/base/jquery.ui.all.css"); ?>" />
+
+		<link rel="stylesheet" href="<?= $this->basePath("AdminLTE-2.2.1/plugins/select2/select2.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("AdminLTE-2.2.1/plugins/iCheck/all.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/font-awesome/css/font-awesome.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/simple-line-icons/css/simple-line-icons.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/owl.carousel/assets/owl.carousel.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/owl.carousel/assets/owl.theme.default.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/magnific-popup/magnific-popup.min.css"); ?>" />
+
+		<!-- Theme CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-elements.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-blog.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-shop.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-animate.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/jquery-confirm-master-v3-0-1/css/jquery-confirm.css"); ?>" />
+
+		<!-- Current Page CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/rs-plugin/css/settings.css"); ?>" media="screen" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/rs-plugin/css/layers.css"); ?>" media="screen" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/rs-plugin/css/navigation.css"); ?>" media="screen" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/circle-flip-slideshow/css/component.css"); ?>" media="screen" />
+
+		<!-- Skin CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/skins/default.css"); ?>" />		
+
+		<!-- Theme Custom CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/custom.blue.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/intl-tel-input/build/css/intlTelInput.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/animate.css/3.4.0/animate.min.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/spinner-on-div/spinnerQueue.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("css/custom.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/style.css"); ?>" />
+		
+		<?php if($appliConfig->get("mode_demo") == "0") : ?>
+			<link rel="stylesheet" href="<?= $this->basePath("css/production.css"); ?>" />
+		<?php endif; ?>
+		
+		<link rel="stylesheet" href="<?= $this->basePath("css/langage/".$sessionInternaute->offsetGet("code_langue").".css"); ?>" />
+		
+
+		<?= $this->headScript()
+        	->prependFile($this->basePath().'/js/script.js')
+        	->prependFile($this->basePath().'/js/custumPagination.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/language/common_lang_'.$sessionInternaute->offsetGet("code_langue").'.js')
+        	
+        	->prependFile($this->basePath().'/js/spinner-on-div/spinnerQueue.js', 'text/javascript')
+        	->prependFile($this->basePath().'/vendor/intl-tel-input/build/js/intlTelInput.min.js', 'text/javascript')
+        	
+        	
+        	->prependFile($this->basePath().'/js/jquery.maskedinput.js', 'text/javascript')
+        	
+        	// FormValidation
+        	->prependFile($this->basePath().'/js/formValidation/js/bootstrap.min.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/formValidation/js/formValidation.min.js', 'text/javascript')
+        	
+        	
+        	
+        	       	
+        	// Current Page Vendor and Views
+			->prependFile($this->basePath().'/vendor/magnific-popup/jquery.magnific-popup.min.js', 'text/javascript')
+			
+			->prependFile($this->basePath().'/js/jquery-confirm-master-v3-0-1/js/jquery-confirm.js')
+			
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.full.min.js'))
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/iCheck/icheck.min.js'))
+			
+			->prependFile($this->basePath().'/vendor/owl.carousel/owl.carousel.min.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/views/view.home.js', 'text/javascript')
+        	->prependFile($this->basePath().'/vendor/circle-flip-slideshow/js/jquery.flipshow.min.js', 'text/javascript')
+        	->prependFile($this->basePath().'/vendor/rs-plugin/js/jquery.themepunch.revolution.min.js')
+        	->prependFile($this->basePath().'/vendor/rs-plugin/js/jquery.themepunch.tools.min.js')
+        	
+        	// Theme Base, Components and Settings
+        	// ->prependFile($this->basePath().'/js/theme.js', 'text/javascript')
+        	
+        	// Vendor
+			->prependFile($this->basePath().'/vendor/jquery.lazyload/jquery.lazyload.min.js')
+            ->prependFile($this->basePath().'/vendor/common/common.min.js')
+            ->prependFile($this->basePath().'/vendor/bootstrap/js/bootstrap.min.js')
+            ->prependFile($this->basePath().'/vendor/jquery-cookie/jquery-cookie.min.js')
+            ->prependFile($this->basePath().'/vendor/jquery.easing/jquery.easing.min.js')
+            ->prependFile($this->basePath().'/vendor/jquery.appear/jquery.appear.min.js')
+            
+            
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.datepicker.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.widget.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.core.min.js', 'text/javascript')
+            
+            
+            ->prependFile($this->basePath().'/modal-css3-powered-popups/js/slickModal.min.js', 'text/javascript')
+            
+            ->prependFile($this->basePath().'/vendor/jquery/jquery.min.js')
+            ->prependFile($this->basePath().'/vendor/modernizr/modernizr.min.js')
+        ; ?>
+    
+	</head>
+	
+    <body>
+		
+		<div class="loading-overlay">
+			<div class="loader"></div>
+		</div>
+
+		<div class="body">
+			
+			<?php if(isset($this->showHeader) && $this->showHeader == true) : ?>
+				<header id="header" class="header-narrow" data-plugin-options='{"stickyEnabled": true, "stickyEnableOnBoxed": true, "stickyEnableOnMobile": false, "stickyStartAt": 47, "stickySetTop": "-47px", "stickyChangeLogo": false}'>
+    				<?= $this->header; ?>
+    			</header>
+			<?php endif ; ?>
+
+			<div role="main" class="main">
+				
+				<?php if(isset($this->afficherSlide) && $this->afficherSlide) : ?>
+					<?= $this->slide; ?>
+				<?php endif ; ?>
+				
+				
+				<div class="" id="" style="background: #FFF;">
+					<?php if(isset($this->afficherCaroussel) && $this->afficherCaroussel) : ?>
+						<?= $this->caroussel; ?>
+					<?php endif ; ?>
+					
+					<?= $this->content; ?>
+				</div>
+
+			</div>
+
+			<?php if(isset($this->showFooter) && $this->showFooter == true) : ?>
+				<footer id="footer">
+    				<?= $this->footer; ?>
+    			</footer>
+			<?php endif ; ?>
+		</div>
+    	
+		
+		<!-- Theme Base, Components and Settings -->
+		<script src="<?= $this->basePath("js/theme.js"); ?>"></script>
+		
+		<script src="<?= $this->basePath("js/theme.init.js"); ?>"></script>
+		
+		
+		<!-- Theme Custom -->
+		<script src="<?= $this->basePath("js/custom.js"); ?>"></script>
+		
+		<!-- Theme Initialization Files -->
+		<script src="<?= $this->basePath("js/theme.customMsbt.init.js"); ?>"></script>
+    	
+        <?= $this->inlineScript(); ?>
+		
+		
+		<?php if($sessionInternaute->offsetExists('internaute_mot_passe_oublie') 
+				&& !empty($internauteMotPasseOublieHere)) : ?>
+				
+				
+			<div class="modal fade" id="ctneurRenouvellementMotPasseModale" role="dialog">
+				<div class="modal-dialog">
+					<!-- Modal content-->
+				    <div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="titleRenouvellementMotPasseModale"><?= $this->translate("Renouvellement mot de passe", "application"); ?></h4>
+						</div>
+						<div class="modal-body" id="divBodyFormAjaxRenouvellementMotPasse">
+							<form action="" id="formAjaxRenouvellementMotPasse" method="post">
+								<div class="row">
+									<div class="form-group">
+										<div class="col-md-12">
+											<label for="nouveauMotPasse"><?= $this->translate("Nouveau mot de passe", "application"); ?></label>
+					  						<input name="nouveauMotPasse" type="password" class="form-control" placeholder="<?= $this->translate("Veuillez saisir votre nouveau mot de passe", "application"); ?>" />
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group">
+										<div class="col-md-12">
+											<label for="confirmMotPasse"><?= $this->translate("Corfirmer", "application"); ?></label>
+					  						<input name="confirmMotPasse" type="password" class="form-control" placeholder="<?= $this->translate("Veuillez confirmer votre nouveau mot de passe", "application"); ?>" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="closeModalFormAjaxRenouvellementMotPasse"><?= $this->translate("Annuler", "application"); ?></button>
+							<button type="button" class="btn btn-primary" id="submitFormAjaxRenouvellementMotPasse"><?= $this->translate("Valider", "application"); ?></button>
+						</div>
+					</div><!-- /.modal-content -->
+			    </div>
+			</div>
+			
+			
+			
+			<input type="hidden" id="ouvrirModaleRenouvellementMotPasseModale" data-toggle="modal" data-target="#ctneurRenouvellementMotPasseModale" pull-right />
+			
+			
+			<script type="text/javascript">		         
+				$(document).ready(function() {
+					$("#ouvrirModaleRenouvellementMotPasseModale").click();
+		
+					$("body").on("click", "#submitFormAjaxRenouvellementMotPasse", function() {
+						$("#formAjaxRenouvellementMotPasse").submit();
+			        });
+		
+		
+					$("body").on("submit", "#formAjaxRenouvellementMotPasse", function() {
+						
+						$this = $(this);
+		
+						dataString = $this.serialize();
+				        
+				        // Launch AJAX request.
+						$.ajax({
+		
+							//Options signifiant a jQuery de ne pas s'occuper du type de donnees
+							
+				            type: "post",
+				            
+				            url: "<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/reecriremotpasse/<?= $sessionInternaute->offsetGet('internaute_mot_passe_oublie'); ?>",
+					            
+							data: dataString,
+								
+				            beforeSend: function() {
+				            	retirerAlert("divBodyFormAjaxRenouvellementMotPasse");
+				            	mettreLoaderSurDiv("divBodyFormAjaxRenouvellementMotPasse" , "<?= $this->translate("En cours de traitement, veuillez patienter ...", "application"); ?>", "");
+							},
+					            
+					       	success: function( html ) {
+						       	
+					       		if (html.error != "")
+					       		{
+					       			mettreErreurSurDiv("divBodyFormAjaxRenouvellementMotPasse" , html.error, "");
+					       		}
+					       		else
+					       		{
+
+					       			$("#formAjaxRenouvellementMotPasse").hide();
+					       			$("#ctneurRenouvellementMotPasseModale .modal-footer").hide();
+
+									msgSuccess = '<i class="fa fa-check-circle-o" style="font-size: 20px;"></i>';
+									msgSuccess += "<?= $this->translate("Mot de passe revouvelle avec success, redirection en cours ...", "application"); ?>";
+						       		
+					       			mettreSuccesSurDiv("divBodyFormAjaxRenouvellementMotPasse" , msgSuccess, "", false);
+					       			window.location = "<?= $this->basePath(); ?>";
+					       		}
+							},
+				            
+				            error: function() {
+				                mettreErreurSurDiv("divBodyFormAjaxRenouvellementMotPasse" , "Probleme d'acces au server, veuillez reessayer plus tard", "");
+							},
+				            
+				            complete: function() {
+				            	retirerLoaderSurDiv("divBodyFormAjaxRenouvellementMotPasse");
+							}
+						});
+		
+						return false;
+						
+			        });
+				});
+			</script>
+				
+				
+				
+			<?php 
+			
+				$sessionInternaute->offsetSet('internaute_mot_passe_oublie', '');
+			?>
+				
+		<?php endif; ?>
+        
+        
+        <?php 
+			include_once __DIR__.'/common.phtml';
+        	// include_once __DIR__.'/common/pop-up-annonce.phtml';
+		?>
+		
+		<script type="text/javascript">		         
+			$(document).ready(function() {
+				$('.ctneurICheck input').iCheck({
+			          checkboxClass: 'icheckbox_square-blue',
+			          radioClass: 'iradio_square-blue',
+			          increaseArea: '20%' // optional
+			    });
+			});
+		</script>
+		
+		
+		<?php 
+			include_once __DIR__.'/common/liveChat.phtml';
+		?>
+		
+		
+		<?php 
+			if(empty($idInternauteHere))
+			{
+				include_once __DIR__.'/../../../FrontAuth/view/front-auth/index/ajaxConnexion.phtml';
+			}
+		?>
+		
+		
+		<style type="text/css">
+			.panel-info img {
+				display: none;
+			}
+		</style>
+    </body> 
+</html>

@@ -1,0 +1,241 @@
+<?= $this->doctype(); ?>
+
+<?php
+	use Zend\Session\Container;
+		
+	$sessionInternaute = new Container('internaute');
+	$sessionAgence = new Container('agence');
+	$appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<html lang="<?= $this->langue->getCodeIso(); ?>" class="">
+    <head>
+    	<script src="https://apis.google.com/js/platform.js" async defer></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    	<!-- Basic -->
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1' />
+
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="<?= $this->basePath("img/favicon.ico"); ?>" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="<?= $this->basePath("img/apple-touch-icon.png"); ?>" />
+
+		<!-- Mobile Metas -->
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<!-- Web Fonts  -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CShadows+Into+Light" rel="stylesheet" type="text/css" />
+		
+		<!-- Sticky Modal -->
+		<link rel="stylesheet" href="<?= $this->basePath("modal-css3-powered-popups/css/slickModal.min.css"); ?>" media="screen" />
+		<link rel="stylesheet" href="<?= $this->basePath("Hover-master/css/hover-min.css"); ?>" media="screen" />
+	
+		
+		<!-- Vendor CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/bootstrap/css/bootstrap.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/bootstrap-social.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/jqueryui/development-bundle/themes/base/jquery.ui.all.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("AdminLTE-2.2.1/plugins/select2/select2.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("AdminLTE-2.2.1/plugins/iCheck/all.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/font-awesome/css/font-awesome.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/simple-line-icons/css/simple-line-icons.min.css"); ?>">
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/owl.carousel/assets/owl.carousel.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/owl.carousel/assets/owl.theme.default.min.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/magnific-popup/magnific-popup.min.css"); ?>" />
+		
+		<!-- Theme CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-elements.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/theme-blog.css"); ?>" />
+
+		<!-- Skin CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/skins/default.css"); ?>" />		
+
+		<!-- Theme Custom CSS -->
+		<link rel="stylesheet" href="<?= $this->basePath("css/custom.blue.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/intl-tel-input/build/css/intlTelInput.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("vendor/animate.css/3.4.0/animate.min.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/jquery-confirm-master-v3-0-1/css/jquery-confirm.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("js/spinner-on-div/spinnerQueue.css"); ?>" />
+		
+		<link rel="stylesheet" href="<?= $this->basePath("css/custom.css"); ?>" />
+		<link rel="stylesheet" href="<?= $this->basePath("css/style.css"); ?>" />
+		
+		<?php if($appliConfig->get("mode_demo") == "0") : ?>
+			<link rel="stylesheet" href="<?= $this->basePath("css/production.css"); ?>" />
+		<?php endif; ?>
+		
+		<link rel="stylesheet" href="<?= $this->basePath("css/langage/".$this->langue->getCode().".css"); ?>" />
+		
+		
+		<?= $this->headScript()
+        	->prependFile($this->basePath().'/js/script.js')
+        	->prependFile($this->basePath().'/js/custumPagination.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/language/common_lang_'.$this->langue->getCode().'.js')
+        	
+        	->prependFile($this->basePath().'/js/spinner-on-div/spinnerQueue.js', 'text/javascript')
+        	
+        	->prependFile($this->basePath().'/vendor/intl-tel-input/build/js/intlTelInput.min.js', 'text/javascript')
+        	
+        	
+        	->prependFile($this->basePath().'/js/jquery.maskedinput.js', 'text/javascript')
+        	
+        	 
+        	// FormValidation
+        	->prependFile($this->basePath().'/js/formValidation/js/bootstrap.min.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/formValidation/js/formValidation.min.js', 'text/javascript')
+        	
+        	// Vendor
+			->prependFile($this->basePath().'/vendor/magnific-popup/jquery.magnific-popup.min.js', 'text/javascript')
+			->prependFile($this->basePath().'/js/jquery-confirm-master-v3-0-1/js/jquery-confirm.js')
+			
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.full.min.js'))
+			->prependFile($this->basePath('AdminLTE-2.2.1/plugins/iCheck/icheck.min.js'))
+			
+        	->prependFile($this->basePath().'/vendor/owl.carousel/owl.carousel.min.js')
+            ->prependFile($this->basePath().'/vendor/common/common.min.js')
+            ->prependFile($this->basePath().'/vendor/bootstrap/js/bootstrap.min.js')
+            ->prependFile($this->basePath().'/vendor/jquery-cookie/jquery-cookie.min.js')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.datepicker.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.widget.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.core.min.js', 'text/javascript')
+            
+            ->prependFile($this->basePath().'/modal-css3-powered-popups/js/slickModal.min.js', 'text/javascript')
+            
+            ->prependFile($this->basePath().'/vendor/jquery/jquery.min.js')
+            ->prependFile($this->basePath().'/vendor/modernizr/modernizr.min.js')
+        ; ?>
+        
+        
+        
+        <style type="text/css">
+            table td {
+              /* These are technically the same, but use both */
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+            
+              -ms-word-break: break-all;
+              /* This is the dangerous one in WebKit, as it breaks things wherever */
+              word-break: break-all;
+              /* Instead use this non-standard one: */
+              word-break: break-word;
+            
+              /* Adds a hyphen where the word breaks, if supported (No Blink) */
+              -ms-hyphens: auto;
+              -moz-hyphens: auto;
+              -webkit-hyphens: auto;
+              hyphens: auto;
+              text-overflow: ellipsis;
+            }
+            table { 
+              table-layout: fixed;
+              box-sizing: border-box;
+              width: 100%;
+            }
+            
+            /*
+            @media only screen and (max-width: 420px) {
+                table td {
+                    display: block !important;
+                    width: 100% !important;
+                }
+            }
+            */
+            
+            
+        </style>
+        
+        
+	</head>
+	
+    <body style="padding: 0; background: #FFF">
+		
+		<div class="loading-overlay">
+			<div class="loader"></div>
+		</div>
+
+		<div class="body" style="padding: 0; background: #FFF">
+			<div role="main" class="main" style="padding: 0; background: #FFF">
+				<div class="ss" id="contenuPage" style="padding: 0; background: #FFF">
+					<div class="row">
+						<div class="col-md-12" id="ctneurZoneWork" style="padding: 0; background: #FFF">
+							<?php echo $this->layout()->content; ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		
+		<!-- Theme Base, Components and Settings -->
+		<script src="<?= $this->basePath("js/theme.js"); ?>"></script>
+		
+		<script src="<?= $this->basePath("js/theme.init.js"); ?>"></script>
+		
+		
+		<!-- Theme Custom -->
+		<script src="<?= $this->basePath("js/custom.js"); ?>"></script>
+		
+		<!-- Theme Initialization Files -->
+		<script src="<?= $this->basePath("js/theme.customMsbt.init.js"); ?>"></script>
+		
+        <?= $this->inlineScript(); ?>
+        
+        
+        
+        
+        <?php 
+			// include_once __DIR__.'/common.phtml';
+        	// include_once __DIR__.'/common/pop-up-annonce.phtml';
+		?>
+        
+        
+        
+        
+        
+        <script type="text/javascript">		         
+			$(document).ready(function() {
+
+				basePathLangue = "<?= $this->basePath()."/".$sessionInternaute->offsetGet("code_iso_langue"); ?>";
+				
+				// $(".form_einsurance select").select2();
+				
+				$('.ctneurICheck input').iCheck({
+			          checkboxClass: 'icheckbox_square-blue',
+			          radioClass: 'iradio_square-blue',
+			          increaseArea: '20%' // optional
+			    });
+			
+			    $( "input[type='text'].date" ).datepicker({
+		            changeYear: true,
+		            changeMonth: true,
+		            numberOfMonths: 1,
+		            dateFormat: "yy-mm-dd"
+		        }).attr("readonly", "readonly");
+				
+		        $('form .form-group label[class="msbt-tooltip"]').tooltip({"html" : true, "placement": "right", "trigger": "hover"});
+			});
+		</script>
+		
+		<?php 
+			// include_once __DIR__.'/common/liveChat.phtml';
+		?>
+		
+		<?php 
+// 			if(empty($idInternauteHere))
+// 			{
+// 				include_once __DIR__.'/../../../FrontAuth/view/front-auth/index/ajaxConnexion.phtml';
+// 			}
+		?>
+		
+    </body>
+</html>

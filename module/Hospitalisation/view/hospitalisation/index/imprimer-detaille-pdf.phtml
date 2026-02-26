@@ -1,0 +1,323 @@
+<?php 
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+// $typeProfil = $sessionEmploye->offsetGet("type_profil");
+
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+
+
+
+$varRetour .= '<div class="" id="cntneurDocExportPdf">';
+
+
+
+
+    $titre = $this->getTranslator("Liste des Plafonds en hospitalisation");
+
+
+
+
+if ($sessionEmploye->offsetGet("type_profil") == "prestataire")
+{
+    $afficherLogo = false;
+    $logoEntreprise = $sessionEmploye->offsetGet('logo_prestataire');
+    if(!empty($logoEntreprise) && file_exists(__DIR__."/../../../../../public/img/back/prestataire/logo/".$logoEntreprise))
+    {
+        $afficherLogo = true;
+    }
+    
+    
+    $tabParams = array(
+        "afficheLogo" =>  $afficherLogo,
+        "logoEntreprise" =>  $logoEntreprise,
+        "nomEntreprise" =>  $sessionEmploye->offsetGet('nom_prestataire'),
+        "adresseEntreprise" =>  $sessionEmploye->offsetGet('adresse_prestataire'),
+        "telephoneEntreprise" =>  $sessionEmploye->offsetGet('telephone_prestataire'),
+        "registreEntreprise" =>  $sessionEmploye->offsetGet('registre_prestataire'),
+    );
+}
+
+
+$varRetour .=   $this->construireEnteteDocPDF("", $tabParams);
+
+$varRetour .= '<div class="ctneurTitreExport" id="ctneurTitreExport">'.$titre.'</div>';
+
+
+$varRetour .= '<div class="box box-primary box-primary-adminlte">';
+
+// Mettre les elements selectionnes dans le filtre
+$varRetour .= '<table class="table table-striped">';
+
+
+$tabEltsFiltre = array();
+
+// Traitemepnt des valeurs du filtre
+
+
+if($typeProfil == "admin")
+{
+    if(!empty($postValues['prestataire']))
+    {
+        $nomPrestataire = "";
+        
+        $prestataire = $this->getEntityManager()->find('Entity\Prestataire', $postValues['prestataire']);
+        if($prestataire)
+        {
+            $prestataire->afficheChaine();
+            $nomPrestataire = $prestataire->getNom();
+        }
+        
+        
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Prestataire"),
+                                 "valeur" => $nomPrestataire);
+    }
+}
+else
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Prestataire"),
+                             "valeur" => $sessionEmploye->offsetGet("nom_prestataire"));
+}
+
+if(!empty($postValues['dateMin']))
+{
+    $dateMin = new \DateTime(date($postValues['dateMin']));
+    
+    if($dateMin)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date prestation min"),
+                                 "valeur" => $dateMin->format("d/m/Y"));
+    }
+}
+
+if(!empty($postValues['dateMax']))
+{
+    $dateMax = new \DateTime(date($postValues['dateMax']));
+    
+    if($dateMax)
+    {
+        $tabEltsFiltre[] = array("label" => $this->getTranslator("Date prestation max"),
+                                 "valeur" => $dateMax->format("d/m/Y"));
+    }
+}
+
+
+
+
+if(!empty($postValues['nomAdherent']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Nom adherent"),
+                             "valeur" => $postValues['dateMax']);
+}
+
+if(!empty($postValues['nomAyantDroit']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Nom ayant droit"),
+                             "valeur" => $postValues['nomAyantDroit']);
+}
+
+if(isset($postValues['idVisite']) && !empty($postValues['idVisite']))
+{
+    $tabEltsFiltre[] = array("label" => $this->getTranslator("Code visite"),
+                             "valeur" => $postValues['idVisite']);
+}
+
+
+$compteur = 0;
+foreach ($tabEltsFiltre as $eltFiltre)
+{
+    if($compteur%2 == 0)
+    {
+        $varRetour .= '<tr>';
+    }
+    
+    $varRetour .= '<td style="width: 25%;"><b>'.$eltFiltre['label'].'</b></td>';
+    $varRetour .= '<td style="width: 25%;">'.$eltFiltre['valeur'].'</td>';
+    
+    if($compteur%2 == 1)
+    {
+        $varRetour .= '</tr>';
+    }
+    
+    $compteur++;
+}
+
+if($compteur%2 == 1)
+{
+    $varRetour .= '<td style="width: 25%;"></td>';
+    $varRetour .= '<td style="width: 25%;"></td>';
+    $varRetour .= '</tr>';
+}
+
+
+
+$varRetour .= '</table>';
+
+
+
+
+
+$varRetour .= '</div>';
+
+
+$titreListeMedicaments = "";
+
+    $titreListeMedicaments = $this->getTranslator("Liste des Plafonds en hospitalisation");
+
+
+
+$varRetour .= '<div style="margin-bottom: 30px; margin-top: 30px;">';
+
+
+$varRetour .= '  <h4>'.$titreListeMedicaments.'</h4>';
+
+$varRetour .= '<table class="table dataTable table-striped">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+
+
+
+if($typeProfil == "admin" && empty($postValues['prestataire']))
+{
+    $varRetour .= '        <th>'.$this->getTranslator("Prestataire").'</th>';
+}
+
+
+$varRetour .= '        <th>'.$this->getTranslator("Souscripteur").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Assure principal").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Malade").'</th>';
+
+
+  
+
+
+
+
+    $varRetour .= '        <th>'.$this->getTranslator("Type prestation").'</th>';
+  $varRetour .= '        <th>'.$this->getTranslator("Valeur").'</th>';
+  $varRetour .= '        <th>'.$this->getTranslator("Observations").'</th>';
+
+
+
+$varRetour .= '        <th>'.$this->getTranslator("Date").'</th>';
+
+
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+
+
+
+
+
+$varRetour .= '  <tbody>';
+
+foreach ($tab as $uneLignePrestation)
+{
+    $prestation = $uneLignePrestation->getPrestation();
+    $prestataire = $uneLignePrestation->getPrestataire();
+    
+    $visite = $prestation->getVisite();
+    $adherent = $visite->getCodeAdherent();
+    $ayantDroit = $visite->getCodeAyantDroit();
+    
+    $adherent->afficheChaine();
+    
+    $nomAyantDroit = "";
+    if($ayantDroit)
+    {
+        $ayantDroit->afficheChaine();
+        $nomAyantDroit = $ayantDroit->getNom();
+    }
+    
+    $nomPrestataire = "";
+    if($prestataire)
+    {
+        $prestataire->afficheChaine();
+        $nomPrestataire = $prestataire->getNom();
+    }
+    
+    $date = $uneLignePrestation->getDate();
+    if($date)
+    {
+        $date = $date->format("d/m/Y");
+    }
+    else
+    {
+        $date = "";
+    }
+    
+    
+    $typePrestation = "";
+    
+        if($uneLignePrestation->getTypeExamen())
+        {
+            $typePrestation = $uneLignePrestation->getTypeExamen()->getId();
+        }
+  
+    
+    
+    
+    //     $paramsTauxCouverture = array("typePrestation" => $typePrestation, "police" => $adherent->getPolice(), "groupe" => $adherent->getGroupe());
+    //     $objetTauxPrestation = $this->getEntityManager()->getRepository('Entity\TauxPrestation')->findOneBy($paramsTauxCouverture);
+    //     if($objetTauxPrestation)
+        //     {
+        //         $tauxCouverture = $objetTauxPrestation->getTaux();
+        //     }
+    //     else
+        //     {
+        //         $tauxCouverture = 0;
+        //     }
+    
+    
+    
+    
+    if($uneLignePrestation->getEtat() == "valide")
+    {
+        $montantPropose = $uneLignePrestation->getPosologie();
+		$observations=$uneLignePrestation->getObservations();
+    }
+    
+    
+    
+    $uneLignePrestation->afficheChaine();
+    
+    $varRetour .= '  <tr>';
+    
+    if($typeProfil == "admin" && empty($postValues['prestataire']))
+    {
+        $varRetour .= '        <td>'.$nomPrestataire.'</td>';
+    }
+    
+    $varRetour .= '        <td>'.$adherent->getSouscripteur().'</td>';
+    $varRetour .= '        <td>'.$adherent->getAssurePrincipal().'</td>';
+    $varRetour .= '        <td>'.$nomAyantDroit.'</td>';
+   
+    
+        $nomTypeExamen = "";
+        if($uneLignePrestation->getTypeExamen())
+        {
+            $nomTypeExamen = $uneLignePrestation->getTypeExamen()->getNom();
+        }
+        
+        $varRetour .= '        <td>'.$nomTypeExamen.'</td>';
+   
+    
+    $varRetour .= '        <td>'.$montantPropose.'</td>';
+	
+	$varRetour .= '        <td>'.$observations.'</td>';
+    
+    $varRetour .= '        <td>'.$date.'</td>';
+	
+   
+    
+    
+    $varRetour .= '  </tr>';
+}
+
+$varRetour .= '   </tbody>';
+$varRetour .= '  </table></div>';
+
+
+?>

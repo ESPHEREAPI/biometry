@@ -1,0 +1,349 @@
+<?php
+
+use Zend\Session\Container;
+$sessionEmploye = new Container('employe');
+
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$typeProfil = $sessionEmploye->offsetGet("type_profil");
+
+
+$labelListe = "";
+
+
+	
+		 $labelListe = $this->translate("Liste des prestations en hospitalisation", "application");  
+
+?>
+
+
+
+<script type="text/javascript">
+
+	
+
+    var btnSubmit = "";
+
+
+	$(document).ready(function() {
+		$ligneVisite = $('#ligne_visite');
+	
+		$formPrestation = $('#form_ajout');
+		$originformAjoutPrestation = $formPrestation.find('#originformAjoutPrestation');	
+		$visite = $("#visite");
+		$prestataire = $("#prestataire");
+		
+		
+		$formPrestation
+
+
+		.on('init.field.fv', function(e, data) {
+            // data.field   --> The field name
+            // data.element --> The field element
+            
+        })
+
+		.formValidation({
+	        framework: 'bootstrap',
+	        excluded: [':disabled', ':hidden', ':not(:visible)'],
+	        icon: {
+	            valid: 'fa fa-check',
+	            invalid: 'fa fa-info',
+	            validating: 'fa fa-refresh'
+	        },
+	        locale: '<?= $sessionEmploye->offsetGet("code_langue"); ?>',
+	        fields: {
+	        	natureAffection: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    stringLength: {
+	                        min: 2,
+	                        max:255
+	                    },
+	                    blank: {}
+	                }
+	            },
+	            visite: {
+	            	// trigger: 'blur',
+	                validators: {
+	                    notEmpty: {
+	                    },
+	                    stringLength: {
+	                        min: 2,
+	                        max:255
+	                    },
+	                    regexp: {
+                            regexp: /^[a-z0-9A-Z]+$/i,
+                            message: "<?= $this->translate("Seuls les caracteres alphanumeriques sont acceptes.", "application"); ?>"
+                        },
+	                    blank: {}
+	                }
+	            },
+	            prestataire: {
+	        		// trigger: 'blur',
+	                validators: {
+	                	notEmpty: {
+		                },
+	                    blank: {}
+	                }
+	            },
+	        }
+	    })
+	    
+	    .on('prevalidate.form.fv', function(e) {
+            // $(e.target) --> The form instance
+            // $(e.target).data('formValidation')
+            //             --> The FormValidation instance
+
+            // Do something ...
+        })
+
+        .on('err.form.fv', function(e) {
+        	traiterErreurFormValidation(e, "jstContenuForm");
+        })
+        
+	    .on('success.form.fv', function(e) {
+
+	    	var tabAutresParametres = [];
+	    	// tabAutresParametres['element'] = "question";
+	    	tabAutresParametres['typeAction'] = "ajout";
+
+	    	var tabOtherPostValues = [];
+					
+
+			action = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/enregistrer/ajout";
+			
+			traiterSuccesFormValidation(e, "jstContenuForm", action, tabAutresParametres, tabOtherPostValues);
+
+
+        });
+
+
+		$formPrestation.on("click", "#submitClose", function() {
+			btnSubmit = "submitClose";
+		});
+		
+		$formPrestation.on("click", "#submit", function() {
+			btnSubmit = "submit";
+		});
+		
+
+
+
+		$("#content_form_ajout").prepend('<div id="contenuInfosMalade"></div>');
+
+		$('#visite').keypress(function(event) {
+			
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if(keycode == '13') {
+				$("#unite_visite").click();
+				return false;	
+			}
+
+		});
+		
+
+		$("body").on("click", "#unite_visite", function() {
+			
+			$this = $(this);
+			$visite = $("#visite");
+			$visteTouvee = $("#visteTouvee");
+			$prestataire = $("#prestataire");
+			dataString = $("#form_ajout").serialize();
+
+
+
+			if("<?= $typeProfil; ?>" == "prestataire")
+			{
+				if($visite.val() == "")
+				{
+					$.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Veuillez saisir le code de la visite", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+					return false;
+				}
+			}
+			else if("<?= $typeProfil; ?>" == "admin")
+			{
+				if($visite.val() == "" || $prestataire.val() == "")
+				{
+					$.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Veuillez selectionner le prestataire et saisir le code de la visite", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+					return false;
+				}
+			}
+			else
+			{
+				$.confirm({
+	        		icon: 'fa fa-exclamation-triangle',
+	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+	        	    content: "<?=  $this->translate("Impossible de trouver le profil de l'utilisateur", "application");?>",
+	        	    type: 'red',
+	        	    typeAnimated: true,
+	        	    buttons: {
+	        	        close: {
+	        	            text: "<?=  $this->translate("OK", "application");?>",
+	        	        }
+	        	    }
+	        	});
+				return false;
+			}
+
+			
+			
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/rechercher-visite/"+$visite.val(),
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	$('#content_form_ajout').spinnerQueue({'message' : commonTabLangue["Traitement en cours ..."]}).spinnerQueue('started', 'pageLoad');
+				},
+	            
+	            success: function( html ) {
+
+					if(html.error != "")
+					{
+						$.confirm({
+			        		icon: 'fa fa-exclamation-triangle',
+			        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			        	    content: html.error,
+			        	    type: 'red',
+			        	    typeAnimated: true,
+			        	    buttons: {
+			        	        close: {
+			        	            text: "<?=  $this->translate("OK", "application");?>",
+			        	        }
+			        	    }
+			        	});
+					}
+					else
+					{
+						$visteTouvee.val(html.idVisiteTrouvee);
+						// alert(html.idVisiteTrouvee);
+						
+						$natureAffection = $("#natureAffection");
+						// Il faut désactiver l'accès au champ
+						// $visite.prop('disabled', true);
+						// $this.prop('disabled', true);
+
+						content = '<table class="table dataTable table-striped" style="margin: 0 auto; width: 500px;"><tbody>';
+
+						content += '  <tr class="">';
+						content += '     <td width="30%" style="font-weight: bold; ">Assure principal</td>';
+						content += '     <td width="70%" style="">'+html.varRetour.adherent+'</td>';
+						content += '  </tr>';
+
+						if(html.varRetour.ayantDroit != "")
+						{
+							content += '  <tr class="">';
+							content += '     <td width="30%" style="font-weight: bold; ">Ayant droit</td>';
+							content += '     <td width="70%" style="">'+html.varRetour.ayantDroit+'</td>';
+							content += '  </tr>';
+						}
+
+						content += '  <tr class="">';
+						content += '     <td width="30%" style="font-weight: bold; ">Souscripteur</td>';
+						content += '     <td width="70%" style="">'+html.varRetour.souscripteur+'</td>';
+						content += '  </tr>';
+											
+						content += '</tbody></table>';
+
+
+						if($natureAffection.val() == "")
+						{
+							$natureAffection.val(html.varRetour.natureAffection);
+						}
+						
+						
+						$("#contenuInfosMalade").html(content);
+						$("#ctneurTsLignePrestation, #submit").slideDown(500);
+					}
+				},
+	            
+	            error: function() {
+	                $.confirm({
+		        		icon: 'fa fa-exclamation-triangle',
+		        	    title: "<?=  $this->translate("Erreur", "application");?>",
+		        	    content: "<?=  $this->translate("Probleme d'acces au server, veuillez reessayer plus tard", "application");?>",
+		        	    type: 'red',
+		        	    typeAnimated: true,
+		        	    buttons: {
+		        	        close: {
+		        	            text: "<?=  $this->translate("OK", "application");?>",
+		        	        }
+		        	    }
+		        	});
+				},
+	            
+	            complete: function() {
+	            	$('#content_form_ajout').spinnerQueue('finished', 'pageLoad');
+				}
+			});
+
+			return false;
+        });
+		
+			if("<?= $sessionEmploye->offsetGet("type_sous_profil"); ?>" == "centre_hospitalier")
+			{
+				$prestataire.val("<?= $sessionEmploye->offsetGet("id_prestataire"); ?>");
+			}
+			
+	
+		
+		function reinitialiserTemplate()
+	    {
+			
+	    }	    
+	});
+
+	function callbackSuccesFormValidation(html, tabAutresParametres, varRetour)
+    {
+		$.confirm({
+    		icon: 'fa fa-check',
+    	    title: "<?=  $this->translate("Succes", "application");?>",
+    	    content: "<?=  $this->translate("Operation effectuee avec success", "application");?>",
+    	    type: 'green',
+    	    typeAnimated: true,
+    	    buttons: {
+    	        close: {
+    	            text: "<?=  $this->translate("OK", "application");?>",
+    	            action: function(){
+
+						
+							window.location = "<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>";
+					
+	                }
+    	        },
+    	    }
+    	});
+    }
+
+    
+</script>

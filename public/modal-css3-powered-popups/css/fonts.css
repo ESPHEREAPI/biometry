@@ -1,0 +1,5 @@
+/* Font used for the demos */
+@import url('https://fonts.googleapis.com/css?family=Raleway:200,400,700');
+.slickModal * {
+    font-family: 'Raleway', sans-serif;
+}

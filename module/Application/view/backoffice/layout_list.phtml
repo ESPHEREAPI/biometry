@@ -1,0 +1,335 @@
+<?= $this->doctype(); ?>
+
+<?php
+	use Zend\Session\Container;
+	
+	$sessionEmploye = new Container('employe');
+	$sessionAgence = new Container('agence');
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<html lang="<?= $sessionEmploye->offsetGet("lang"); ?>">
+    <head>
+		<meta charset="utf-8" />
+		
+		<!-- Pour empecher l'indexation des pages du backoffice -->
+		<meta name="robots" content="noindex,nofollow" />
+		
+		<?= $this->headTitle($this->nomPage." - ".$sessionAgence->offsetGet("nom"))->setSeparator(' - ')->setAutoEscape(false) ?>
+		
+		<!-- Tell the browser to be responsive to screen width -->
+		<?= $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+        
+        <!-- Le styles -->
+        <?= $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+        				->prependStylesheet($this->basePath('css/style.css'))
+        				->prependStylesheet ($this->basePath().'/css/jquery.alerts.css')
+        				->prependStylesheet ($this->basePath().'/js/jquery-confirm-master-v3-0-1/css/jquery-confirm.css')
+        				->prependStylesheet ($this->basePath().'/js/spinner-on-div/spinnerQueue.css')
+        				
+        				->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/datatables/dataTables.bootstrap.css'))
+        				->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/iCheck/all.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/dist/css/skins/_all-skins.min.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/dist/css/AdminLTE.min.css'))
+                        ->prependStylesheet($this->basePath('css/jquery-ui-timepicker-addon.css'))
+                        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.min.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/ionicons.min.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/plugins/font-awesome.min.css'))
+        				
+				        ->prependStylesheet($this->basePath('js/jqueryui/development-bundle/themes/base/jquery.ui.all.css'))
+				        ->prependStylesheet($this->basePath('AdminLTE-2.2.1/bootstrap/css/bootstrap.min.css')) ?>
+        
+        
+        
+        <!-- Scripts -->
+        <?= $this->headScript()
+        	->prependFile($this->basePath('js/script.js'))
+        	->prependFile($this->basePath().'/js/custumPagination.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/language/common_lang_'.$sessionEmploye->offsetGet("code_langue").'.js')
+        	
+        	->prependFile($this->basePath().'/js/spinner-on-div/spinnerQueue.js', 'text/javascript')
+        	
+        	// FormValidation
+            ->prependFile($this->basePath().'/js/formValidation/js/bootstrap.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/formValidation/js/formValidation.min.js', 'text/javascript')
+        	
+        	->prependFile($this->basePath().'/js/jquery.jqprint-0.3.js', 'text/javascript')
+        	->prependFile($this->basePath().'/AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.numeric.extensions.js', 'text/javascript')
+        	->prependFile($this->basePath().'/AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.extensions.js', 'text/javascript')
+        	->prependFile($this->basePath().'/AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.js', 'text/javascript')
+        	->prependFile($this->basePath().'/js/jquery.alerts.js')
+        	->prependFile($this->basePath().'/js/jquery-confirm-master-v3-0-1/js/jquery-confirm.js')
+        	->prependFile($this->basePath('AdminLTE-2.2.1/plugins/select2/select2.full.min.js'))
+        	->prependFile($this->basePath('AdminLTE-2.2.1/plugins/iCheck/icheck.min.js'))
+        	
+            
+            ->prependFile($this->basePath('AdminLTE-2.2.1/dist/js/app.min.js'))
+            ->prependFile($this->basePath('AdminLTE-2.2.1/bootstrap/js/bootstrap.min.js'))
+            ->prependFile($this->basePath('js/jquery-ui-timepicker-addon.js'))
+//             ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.sortable.min.js', 'text/javascript')
+//             ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.datepicker.min.js', 'text/javascript')
+//             ->prependFile($this->basePath().'/js/jqueryui/development-bundle/ui/minified/jquery.ui.widget.min.js', 'text/javascript')
+            ->prependFile($this->basePath().'/js/jquery-ui.min.js', 'text/javascript')
+            ->prependFile($this->basePath('AdminLTE-2.2.1/plugins/jQuery/jQuery-2.1.4.min.js'))
+        ; ?>
+	</head>
+	
+    <body class="skin-blue sidebar-mini wysihtml5-supported">
+		
+    
+	    <div class="wrapper">
+	
+	      <header class="main-header">
+			<?= $this->header; ?>
+	      </header>
+	      <!-- Left side column. contains the logo and sidebar -->
+	      <aside class="main-sidebar left-side">
+	        <?= $this->sidebar; ?>
+	      </aside>
+	
+	      <!-- Content Wrapper. Contains page content -->
+	      <div class="content-wrapper right-side">
+	        <!-- Content Header (Page header) -->
+	        <section class="content-header">
+	          <h1>
+	            <?= $this->nomPage; ?>
+	          </h1>
+	          
+	          <?= $this->navigation; ?>
+	        </section>
+	
+	        <!-- Main content -->
+	        <section class="content" id="content_page">
+	        	<div class="row">
+					<div class="col-md-12">
+						<div class="box">
+
+							<?php if ((isset($this->descriptionPage)  && !empty($this->descriptionPage)) || (isset($this->actionsList) && !empty($this->actionsList))) : ?>
+								<div class="box-header" id="cteneurActionList">
+									<h3 class="box-title"><?= $this->descriptionPage; ?></h3>
+									<?= $this->actionsList; ?>
+								</div>
+							<?php endif ; ?>
+							<div class="box-body">
+								
+								<?php if (isset($this->filtre)  && !empty($this->filtre)) : ?>
+									<!-- general form elements -->
+									<div class="box box-primary">
+										<form role="form" id="formFiltreListeElt">
+											<div class="box-body">
+								                <?= $this->filtre; ?>  
+											</div><!-- /.box-body -->
+										</form>
+									</div><!-- /.box -->
+								<?php endif ; ?>
+								
+								<?php if(isset($this->optionsOnglets) && is_array($this->optionsOnglets) && count($this->optionsOnglets) > 0) : ?>
+
+									<div class="box box-primary">
+										<?= $this->onglet; ?>
+									</div><!-- /.box -->
+									
+								<?php endif ; ?>
+
+								<div class="ctneurLiteEltsTab table-responsive" id="ctneurLiteEltsTab" idMsbt="contenuPage"></div>
+								<?= $this->content; ?>
+							</div>
+						</div>
+					</div>
+				</div>
+	        	
+	        </section>  
+	      </div><!-- /.content-wrapper -->
+			
+		  
+	      <footer class="main-footer">
+	        <?= $this->footer; ?>
+	      </footer>
+	
+	    </div><!-- ./wrapper -->
+    
+        <?= $this->inlineScript() ?>
+        
+        
+        <script type="text/javascript">		         
+			$(document).ready(function() {
+
+				basePathBackoffice = "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>";
+				
+				$("body").on("click", "#activer_commun, #desactiver_commun, #supprimer_commun", function() {
+					$this = $(this);
+					statut = "";
+					if($this.attr("id") == "activer_commun")
+					{
+						statut = 1;
+					}
+					else if($this.attr("id") == "desactiver_commun")
+					{
+						statut = -1;
+					}
+					
+					idElt = "";
+					$("#liteEltsTab input[name='elt_check_tableau']").each(function( index ) {
+						$thisHere = $(this);
+						if($thisHere.prop('checked') == true)
+						{
+							if(idElt != "")
+								idElt += ";";
+							
+							idElt += $thisHere.attr("rel");
+						}
+						  
+					});
+		
+					if(idElt == "")
+					{
+						$.confirm({
+        	        		icon: 'fa fa-exclamation-triangle',
+        	        	    title: "<?=  $this->translate("Avertissement", "application");?>",
+        	        	    content: "<?= $this->translate("Vous devez selectionner au moins un element pour effectuer cette action", "application"); ?>",
+        	        	    type: 'orange',
+        	        	    typeAnimated: true,
+        	        	    buttons: {
+        	        	        close: {
+        	        	            text: "<?=  $this->translate("OK", "application");?>",
+        	        	        }
+        	        	    }
+        	        	});
+					}
+					else
+					{
+						if($this.attr("id") == "activer_commun" || $this.attr("id") == "desactiver_commun")
+						{
+							window.location = '<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/activer_commun/'+statut+'/<?= $this->nomEntite; ?>/'+idElt;
+						}
+						else if($this.attr("id") == "supprimer_commun")
+						{
+							window.location = '<?= $this->basePath(); ?>/<?= $appliConfig->get('lienBackoffice'); ?>/supprimer_commun/1/'+'<?= $this->nomEntite; ?>/'+idElt;
+						}
+					}
+		        });
+		
+		        $("#formFiltreListeElt select").select2();
+		        if($(".form-horizontal select + span.select2").length > 0)
+				{
+					$(".form-horizontal select + span.select2").attr("style", "width: 100%;");
+				}
+
+
+
+		        
+		        $("#formFiltreListeElt input.number").inputmask('decimal',
+		        	{ 
+			        	'alias': 'numeric',
+			            'groupSeparator': '  ',
+			            'autoGroup': true,
+			            'digits': 2,
+			            'radixPoint': ",",
+			            'digitsOptional': false,
+			            'allowMinus': false,
+			            'rightAlign': false
+		          }
+		        );
+		
+		        $( "input[type='text'].date" ).datepicker({
+		            changeYear: true,
+		            changeMonth: true,
+		            numberOfMonths: 1,
+		            dateFormat: "yy-mm-dd"
+		        });
+		
+		        $("#formFiltreListeElt").on("change", "select", function() {
+					choisirPage(1);
+		        });
+		
+		        $("body").on("click", "table.tableSortinMsbt tr th.isOrdered", function() {
+		
+					$this = $(this);
+		
+					nomColoneTriPagination = $this.attr("nomColone");
+					
+					if($this.hasClass("sorting_asc")) 
+					{
+						typeTriColonePagination = "DESC";
+						otherElementsToPost = "&nomColoneTriPagination="+nomColoneTriPagination+"&typeTriColonePagination="+typeTriColonePagination+"&nbreMaxLigneTableau="+nbreMaxLigneTableau;
+					}
+					else
+					{
+						typeTriColonePagination = "ASC";
+						otherElementsToPost = "&nomColoneTriPagination="+nomColoneTriPagination+"&typeTriColonePagination="+typeTriColonePagination+"&nbreMaxLigneTableau="+nbreMaxLigneTableau;
+					}
+					
+		        	choisirPage(1);
+		        });
+		
+		        $("body").on("change", "#selectNbreLignePagin", function() {
+		
+					$this = $(this);
+					nbreMaxLigneTableau = $this.val();
+					otherElementsToPost = "&nomColoneTriPagination="+nomColoneTriPagination+"&typeTriColonePagination="+typeTriColonePagination+"&nbreMaxLigneTableau="+nbreMaxLigneTableau;
+					
+		        	choisirPage(1);
+		        });
+		
+		        $("body").on("click", ".btn-modifier-heres", function() {
+					$this = $(this);
+					window.location = $this.attr("href");
+		        });
+
+
+
+		        $("body").on("click", ".btn-selectionner-heres", function() {
+					$this = $(this);
+					$this.next().find(".caret").first().click();
+		        });
+
+		        
+
+		        $("#formFiltreListeElt").on("click", "div.input-group .input-group-addon", function() {
+		        	choisirPage(1);
+		        });
+
+		        $("#formFiltreListeElt").on("keyup keypress", "div.input-group input[type='text']", function(e) {
+					var code = e.keyCode || e.which;
+					
+					if (code === 13) { 
+					    e.preventDefault();
+					    choisirPage(1);
+					    return false; // Pour ne pas soumettre le formulaire
+					}
+			    });
+
+
+		        $("#formFiltreListeElt").on("change", "div.input-group input[type='text'].date", function(e) {
+					$this = $(this);
+			        
+					if($this.val().length == 10 || $this.val().length == 0)
+					{
+						choisirPage(1);
+					    return false; // Pour ne pas soumettre le formulaire
+					}
+			    });
+
+
+
+		        $(".msbtSortable").sortable({
+            	    helper: fixWidthHelper
+            	}).disableSelection();
+
+			    
+
+		
+		        cheminControlleurPaginHere = '<?= $this->cheminPagination; ?>';
+		        idDivConteneurPaginHere = 'ctneurLiteEltsTab';
+		        idFormPaginHere = "formFiltreListeElt";        
+		        
+		        choisirPage(1);
+		        
+			});
+		</script>
+    </body>
+</html>

@@ -1,0 +1,570 @@
+<?php 
+
+use Zend\Session\Container;
+use Application\Core\Utilitaire;
+
+$sessionInternaute = new Container('internaute');
+$sessionActuelle = new Container($this->nomSession);
+$appliConfig =  new \Application\Core\AppliConfig();
+$utilitaire = new Utilitaire();
+
+// $donneesToutesEtapes = $sessionActuelle->offsetGet("donneesToutesEtapes");
+// $infosPaypal = $appliConfig->get("infos_paypal");
+
+
+
+
+if($typeEtape == "Sinistre")
+{
+	$donneesToutesEtapes = $sessionActuelle->offsetGet("donneesToutesEtapes");
+}
+else
+{
+	$donnneesToutesEtapeCotation = array();
+	$sessionCotation = new Container($this->nomSessionCotation);
+	
+	
+	if($typeEtape == "Cotation")
+	{
+		for($compteur = 1; $compteur <= $this->nbreEtapesCotation; $compteur++)
+		{
+			if(is_array($sessionCotation->offsetGet("donneesEtape_".$compteur)))
+			{
+				$donnneesToutesEtapeCotation = array_merge_recursive(
+						$donnneesToutesEtapeCotation,
+						$sessionCotation->offsetGet("donneesEtape_".$compteur)
+				);
+			}
+		}
+	}
+	elseif($typeEtape == "Souscription")
+	{
+		if(is_array($sessionCotation->offsetGet("donneesToutesEtapes")))
+		{
+			$donnneesToutesEtapeCotation = $sessionCotation->offsetGet("donneesToutesEtapes");
+		}
+	}
+	
+	
+	
+	$donnneesToutesEtapeSouscription = array();
+	$sessionSouscription = new Container($this->nomSessionSouscription);
+	// Toutes les donnes souscription
+	for($compteur = 1; $compteur <= $this->nbreEtapesSouscription; $compteur++)
+	{
+		if(is_array($sessionSouscription->offsetGet("donneesEtape_".$compteur)))
+		{
+			$donnneesToutesEtapeSouscription = array_merge_recursive(
+					$donnneesToutesEtapeSouscription,
+					$sessionSouscription->offsetGet("donneesEtape_".$compteur)
+			);
+		}
+	}
+	
+	
+	$donneesToutesEtapes = array_merge(
+			$donnneesToutesEtapeCotation,
+			$donnneesToutesEtapeSouscription
+	);
+}
+
+
+
+
+
+
+
+
+?>
+
+
+<link rel="stylesheet" href="<?= $this->basePath("js/formWizard/css/gsi-step-indicator.min.css"); ?>" />
+<link rel="stylesheet" href="<?= $this->basePath("js/formWizard/css/tsf-step-form-wizard.min.css"); ?>" />
+
+<script src="<?= $this->basePath("js/jquery.mask.min.js"); ?>"></script>
+<script src="<?= $this->basePath("js/jquery.maskedinput.js"); ?>"></script>
+
+
+
+<script src="<?= $this->basePath("AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.js"); ?>"></script>
+<script src="<?= $this->basePath("AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.extensions.js"); ?>"></script>
+<script src="<?= $this->basePath("AdminLTE-2.2.1/plugins/input-mask/jquery.inputmask.numeric.extensions.js"); ?>"></script>
+
+
+
+
+<script src="<?= $this->basePath("js/formWizard/js/tsf-wizard-plugin.js"); ?>"></script>
+
+
+<script src="<?= $this->basePath("js/einsurance.js"); ?>"></script>
+
+
+
+<?php 
+	
+	$nomTitleSteps = "";
+	if($this->typeEtape == "Cotation")
+	{
+		$nomTitleSteps = $this->translate("Obtenez un devis", "application");
+	}
+	elseif($this->typeEtape == "Souscription")
+	{
+		$nomTitleSteps = $this->translate("Souscription", "application");
+	}
+	elseif($this->typeEtape == "Sinistre")
+	{
+		$nomTitleSteps = $this->translate("Declarez un sinistre", "application");
+	}
+
+?>
+
+
+<div class="cteneurBlockMsbt form-wizard ctneurformValidation">
+	
+	<div class="ctneurTitreDevis">
+		<h2><i class="fa <?= $this->nomFontAnsewone; ?>"></i> <?= $nomTitleSteps; ?></h2>
+	</div>
+	
+	<?php if($this->codeEtape < count($this->tabEtapes)) : ?>
+		<?php 
+			$messageBtnSuivant = $this->translate("Etape suivante", "application");
+		?>
+	<?php else : ?>
+		
+		<?php 
+			$messageBtnSuivant = $this->nomDerniereEtape;
+		?>
+	<?php endif?>
+	
+	
+	<?php if($this->codeEtape == 1) : ?>
+		<?php 
+			$desabledEtapePrecedente = "disabled";
+		?>
+	<?php else : ?>
+		
+		<?php 
+			$desabledEtapePrecedente = "";
+		?>
+	<?php endif?>
+	
+	
+	<div class="tsf-wizard tsf-wizard-1">
+		<!-- BEGIN NAV STEP-->
+		<div class="tsf-nav-step">
+			<!-- BEGIN STEP INDICATOR-->
+			<ul class="gsi-step-indicator triangle gsi-style-1 gsi-transition">
+				<?php 
+				
+					$tabEtapesActu = array();
+					if(count($this->tabEtapes) == 1)
+					{
+						$tabEtapesActu = array(1);
+					}
+					elseif($this->codeEtape < count($this->tabEtapes))
+					{
+						$tabEtapesActu = array($this->codeEtape, $this->codeEtape + 1);
+					}
+					else
+					{
+						$tabEtapesActu = array($this->codeEtape-1, $this->codeEtape);
+					}
+				?>
+				
+				<?php foreach($this->tabEtapes as $keyEtape => $nomEtape) : ?>
+					<?php 
+						$classTitreEtape = "";
+						$styleHideTitreEtape = "";
+						
+						if(in_array($this->codeEtape, $tabEtapesActu)) // Condition a supprimer si le code derange
+						{
+							if($keyEtape < $this->codeEtape)
+							{
+								$classTitreEtape = "completed";
+							}
+							elseif($keyEtape == $this->codeEtape)
+							{
+								$classTitreEtape = "current";
+							}	
+						}
+						
+						
+						if(!in_array($keyEtape, $tabEtapesActu))
+						{
+							// echo $keyEtape; exit;
+							$styleHideTitreEtape = "display: none;";
+						}
+						
+						$widthUneEtape = 100;
+						if(count($this->tabEtapes) == 1)
+						{
+							$widthUneEtape = 100;
+						}
+						elseif($keyEtape < count($this->tabEtapes))
+						{
+							$widthUneEtape = 48.5;
+						}
+						elseif($keyEtape == count($this->tabEtapes))
+						{
+							$widthUneEtape = 50.5;
+						}
+					?>
+
+					<li id="titreWizard<?= $keyEtape; ?>" class="<?= $classTitreEtape; ?>" style="width: <?= $widthUneEtape; ?>%; <?= $styleHideTitreEtape; ?>">
+						<a href="##">
+							<span class="number"><?= $keyEtape; ?></span>
+							<span class="desc">
+								<label><?= $nomEtape; ?></label>
+							</span>
+						</a>
+					</li>
+				<?php endforeach ; ?>
+			</ul>
+			<!-- END STEP INDICATOR-->
+		</div>
+		<!-- END NAV STEP-->
+		
+
+		<!-- BEGIN STEP CONTAINER -->
+		<div class="tsf-container">
+			<!-- BEGIN CONTENT-->
+			<div class="ctneurFormEInsurance" id="ctneurFormEInsurance">
+				<?php foreach($this->tabEtapes as $keyEtape => $nomEtape) : ?>
+
+					<?php 
+						$nomFormHere = "form".$keyEtape;
+						$form = $this->$nomFormHere;
+						$tabMsgLabelCom = array();
+						$nbreEltsForm = count($form->getElements());
+						$compteurForm = 0;
+					?>
+
+					<?= $this->form()->openTag($form); ?>
+
+					<div class="box-body" id="body_form_einsurance<?= $keyEtape; ?>">
+						<?php foreach ($form as $element) : ?>
+							<?php
+								
+								$compteurForm++;
+								
+								$options = $element->getOptions();
+								$attributes = $element->getAttributes();
+								$errorMessages = $element->getMessages();
+								$methode = 'form'.$attributes['type'];
+								$classColoneLabel = "col-md-4";
+								$classColoneInput = "col-md-8";
+								
+								
+								// Pour les fieldsets
+								if($attributes['type'] == "msbtFieldset")
+								{
+									echo '<fieldset id="'.$attributes['id'].'"><legend>'.$options['label'].'</legend></fieldset>';
+									
+									continue;
+								}
+								
+								
+								
+								if(in_array($attributes['name'], $this->notUsedElt))
+									continue;
+								
+								$classError = "";
+								if(is_array($errorMessages) && count($errorMessages) > 0)
+									$classError = "has-error";
+								
+								$classRequired = "";
+								if(isset($attributes['class']) && substr_count($attributes['class'], "required") > 0)
+									$classRequired = "required";
+								
+								$classEltLiaison = "";
+								$styleEltLiaison = "";
+								if(isset($attributes['classEltLiaison']))
+								{
+									$styleEltLiaison = " display: none;";
+									$classEltLiaison = $attributes['classEltLiaison'];
+								}
+								
+								if(isset($attributes['msgLabelCom']))
+								{
+									$classColoneInput = "col-md-12";
+									
+									if(!in_array($attributes['msgLabelCom'], $tabMsgLabelCom))
+									{
+										$tabMsgLabelCom[] = $attributes['msgLabelCom'];
+										echo '<div class="form-group" id="msgLabelCom_'.$attributes['name'].'">';
+										echo '	<div class="col-md-12">';
+										echo '		<label style="text-align: left;">'.$attributes['msgLabelCom'].'</label>';
+										echo '	</div>';
+										echo '</div>';
+									}
+									
+									if(isset($options['onlyLabel']) && $options['onlyLabel'] == true)
+									{
+									    continue;
+									}
+								}
+								
+								$styleLigne = "";
+								if(isset($attributes['styleLigne']))
+								{
+									$styleLigne = $attributes['styleLigne'];
+								}
+								
+								$classLigne = "";
+								if(isset($attributes['classLigne']))
+								{
+									$classLigne = $attributes['classLigne'];
+								}
+							?>
+							
+							
+							<?php 
+								
+								if($classEltLiaison != "" && (!isset($oldClassEltLiaison) || $classEltLiaison != $oldClassEltLiaison))
+								{
+									echo '<div class="ctneurEltTogle" id="ctneur_'.$classEltLiaison.'">';
+								}
+								
+								if(isset($oldClassEltLiaison) && $oldClassEltLiaison != "" && ($compteurForm == $nbreEltsForm || $classEltLiaison != $oldClassEltLiaison))
+								{
+									echo '</div>';
+									$classEltLiaison = "";
+									$oldClassEltLiaison = "";
+								}
+								
+							?>
+							
+							
+							<?php if($attributes['type'] == "hidden") : ?>
+								<?php
+			                    	try {
+			                    		echo  $this->$methode($element);
+			                    	} 
+			                    	catch (\Exception $e) {
+
+			                    	}
+			                    ?>
+							<?php elseif($attributes['type'] != "submit" && $attributes['name'] != "cancel") : ?>
+								<div id="ligne_<?= $attributes['name']; ?>" class="form-group <?= $classError." ".$classRequired." ".$classEltLiaison." ".$classLigne; ?>" style="<?= $styleEltLiaison." ".$styleLigne; ?>">
+									<!-- The feedback icon will be placed here -->
+        							<span id="<?= $attributes['name']; ?>Icon" class="msbtCtnIconError"></span>
+									
+									<?php if(!isset($attributes['msgLabelCom'])) : ?>
+										<div class="<?= $classColoneLabel; ?>">
+											<?php
+							                   	try {
+							                   		echo  $this->formlabel($element);
+							                   	} 
+							                   	catch (\Exception $e) {
+							                   	}
+							                ?>
+						                </div>
+									<?php endif ; ?>
+
+									<div class="<?= $classColoneInput; ?>">
+					                    <?php
+					                    	if($attributes['type'] == "radio" || $attributes['type'] == "checkbox" || $attributes['type'] == "multi_checkbox")
+					                    	{
+					                    		$valueOptions = $element->getValueOptions();
+					                    		$values = $element->getValue();
+					                    		$attributTypeInput = $attributes['type'];
+					                    		if($attributTypeInput == "multi_checkbox")
+					                    			$attributTypeInput = "checkbox";
+					                    		
+					                    		foreach ($valueOptions as $option => $elementHiri)
+					                    		{
+					                    			$checked = "";
+					                    			$selected = "";
+					                    			$disabled = "";
+					                    			$classConteneur = "col-md-6";
+					                    			$classSousConteneur = "";
+					                    			$nameElt = $attributes['name'];
+					                    			$classDataTogle = "";
+					                    			$msbtValueToggle = "";
+					                    			$classInput = "";
+					                    			$classLabelHere = "";
+					                    			
+					                    			if(($attributes['type'] == "checkbox" || $attributes['type'] == "multi_checkbox") && $values && in_array($elementHiri['value'], $values))
+					                    				$checked = 'checked="checked"';
+					                    			if($attributes['type'] == "radio" && $values && $elementHiri['value'] == $values)
+					                    				$checked = 'checked="checked"';
+					                    			if(isset($elementHiri['selected']))
+					                    				$checked = 'checked="checked"';
+					                    			if(isset($elementHiri['disabled']))
+					                    				$disabled = 'disabled="disabled"';
+					                    			if(isset($elementHiri['attributes']['classConteneur']))
+					                    				$classConteneur = $elementHiri['attributes']['classConteneur'];
+					                    			if(isset($elementHiri['attributes']['data-toggle']))
+					                    			{
+					                    				$classDataTogle = $elementHiri['attributes']['data-toggle'];
+					                    				$classInput = " cstm-btn-choix-form";
+					                    			}
+					                    			if($attributes['type'] == "checkbox" || $attributes['type'] == "multi_checkbox")
+					                    			{
+					                    				$nameElt .= "[]";
+					                    				$classSousConteneur .= " checkbox";
+					                    			}
+					                    			if($attributes['type'] == "radio")
+					                    			{
+					                    				$classSousConteneur .= " radio";
+					                    				if(!isset($attributes['typeRadioMsbt']) || $attributes['typeRadioMsbt'] != "simple")
+					                    				{
+					                    					$classSousConteneur .= " cstmBtnChoix";
+					                    				}
+					                    				else
+					                    				{
+					                    					$classSousConteneur .= " spleRadio";
+					                    				}
+					                    				
+					                    				$msbtValueToggle = "oui";
+					                    				if(isset($attributes['msbt-value-toggle']))
+					                    				{
+					                    					$msbtValueToggle = $attributes['msbt-value-toggle'];
+					                    				}
+					                    				
+					                    				
+					                    				
+					                    				if(substr_count($classInput, "cstm-btn-choix-form") == 0)
+					                    					$classInput .= "cstm-btn-choix-form";
+					                    				
+					                    				
+					                    				$classConteneur .= " ctneurUnIcheck";
+					                    				
+					                    				$classLabelHere = "cstm-btn-choix-form";
+					                    				if(!isset($attributes['typeRadioMsbt']) || $attributes['typeRadioMsbt'] != "simple")
+					                    				{
+					                    					$classLabelHere .= " btn btn-primary btn-borders";
+					                    				}
+					                    			}
+					                    			
+					                    			try {
+					                    				
+					                    				$idEltHere = "elt_".$attributes['name']."_".$elementHiri['value'];
+					                    				
+					                    				
+					                    				echo '		<div class="'.$classConteneur.'" id="'.$idEltHere.'">';
+														echo '			<div class="ctneurICheck '.$classSousConteneur.'">';
+														echo '				<label class="'.$classLabelHere.'" '.$disabled.'>';
+														echo '					<input idForm="form_einsurance_'.$keyEtape.'" class="'.$classInput.'" type="'.$attributTypeInput.'" name="'.$nameElt.'" value="'.$elementHiri['value'].'" data-toggle="'.$classDataTogle.'" msbt-value-toggle="'.$msbtValueToggle.'" '.$checked.' '.$selected.' '.$disabled.' /> '.$elementHiri['label'];
+														echo '				</label>';
+														echo '			</div>';
+														echo '		</div>';
+					                    			}
+					                    			catch (\Exception $e) {
+					                    			}
+					                    			
+					                    		}
+					                    	}
+					                    	else
+					                    	{
+					                    		try {
+
+													if(isset($options['concatUnite']) && isset($options['concatUnite']['unite']))
+													{
+														$attributTitle = "";
+														if(isset($options['concatUnite']['title']))
+														{
+															$attributTitle = $options['concatUnite']['title'];
+														}
+														
+														echo '<div class="input-group">';
+														echo  	$this->$methode($element);
+														echo '	<div class="input-group-addon" id="unite_'.$attributes['name'].'" title="'.$attributTitle.'">
+					                    							'.$options['concatUnite']['unite'].'
+					                    					 	</div>
+					                    					 </div>';
+													}
+													elseif(isset($options['concatUnite']) && isset($options['concatUnite']['options']))
+													{
+														$attributTitle = "";
+														if(isset($options['concatUnite']['title']))
+														{
+															$attributTitle = $options['concatUnite']['title'];
+														}
+														
+														echo '<div class="input-group">';
+														echo  	$this->$methode($element);
+														echo '	<div class="input-group-addon input-group-select" id="unite_'.$attributes['name'].'" title="'.$attributTitle.'" style="">
+																<select id="selectUnite_'.$attributes['name'].'" name="selectUnite_'.$attributes['name'].'">';
+
+																foreach ($options['concatUnite']['options'] as $uneOption)
+																{
+																	echo '<option value="'.$uneOption['value'].'">'.$uneOption['unite'].'</option>';
+																}
+														
+					                    				echo '	</select></div>
+					                    					  </div>';
+													}
+													else
+													{
+														echo  	$this->$methode($element);
+													}
+													
+					                    		}
+					                    		catch (\Exception $e) {
+					                    		}
+					                    	}
+					                    	
+					                    ?>
+					                    
+					                    <?php if($this->formPosted === true && $classError != "") : ?>
+					                    	<ul class="form-error">
+					                    		<?php foreach ($errorMessages as $unErrorMessage) : ?>
+					                    			<li>
+					                    				<?= $unErrorMessage; ?>
+					                    			</li>
+												<?php endforeach ; ?>   
+					                    	</ul>
+					                    <?php endif ; ?>
+					                    
+					                    <div class="clearBoth"></div>
+					                    <!-- The container to place the error of checkboxes -->
+       								 	<div id="<?= $attributes['name']; ?>Message"  class="msbtCtnMsgError"></div>
+					                                     
+					                 </div>
+				                 	<div class="clearBoth"></div>
+				                 	
+				                 	
+				                 	<?php 
+				                 	
+				                 		$oldClassEltLiaison = $classEltLiaison;
+				                 	?>
+				                 	
+								</div>
+								
+								
+									
+							<?php endif ; ?>
+							
+						<?php endforeach ; ?>
+					</div>
+					<div class="clearBoth"></div>
+					
+					<?= $this->form()->closeTag($form); ?>
+
+				<?php endforeach ; ?>
+				
+				<div class="box-footer">
+					<span class="btn btn-primary" id="btnPrecedent" <?= $desabledEtapePrecedente; ?>><i class="fa fa-angle-left"></i> <?= $this->translate("Etape precedente", "application"); ?></span>
+					<button name="submitButton" class="btn btn-primary pull-right " id="btnSuivant"><?= $messageBtnSuivant; ?></button>
+				</div>
+			</div>
+			<!-- END CONTENT-->
+		</div>
+		<!-- END STEP CONTAINER -->
+	</div>
+</div>
+
+<script type="text/javascript">		         
+			
+	var codeEtape = parseInt("<?= $this->codeEtape; ?>");
+	nbreEtape = parseInt("<?= count($this->tabEtapes); ?>");
+	nomSession = "<?= $this->nomSession; ?>";
+	basePathLangue = "<?= $this->basePath()."/".$sessionInternaute->offsetGet("code_iso_langue"); ?>";
+
+	listeTtesEtapes = "<?= implode(",", $tabEtapesActu); ?>";
+
+	$(document).ready(function() {
+		
+	});
+</script>

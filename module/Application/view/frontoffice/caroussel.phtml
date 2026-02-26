@@ -1,0 +1,27 @@
+<?php if(isset($this->tabElementsCaroussel) && is_array($this->tabElementsCaroussel) && count($this->tabElementsCaroussel) > 0) : ?>
+
+	<section class="section m-none carousselAccueil appear-animation fadeInUp appear-animation-visible" id="carousselAccueil">
+		<div class="container">
+			<div class="row mt-lg ca-menu">
+				<?php foreach ($this->tabElementsCaroussel as $unElementsCaroussel) : ?>	
+					<div class="col-md-3">
+						<div class="row">
+							<div class="col-md-12 just-one-element">
+								<a href="<?= $unElementsCaroussel['url']; ?>">
+									<div>
+										<img class="img-responsive mb-lg ca-icon" src="<?= $unElementsCaroussel['cheminImage']; ?>" alt="" />
+									</div>
+									<div class="ca-content">
+										<h4 class="mb-xs titreCaoussel ca-main"><?= $unElementsCaroussel['nom_court']; ?></h4>
+										<p class="descriptionCaoussel ca-sub"><?= $unElementsCaroussel['description']; ?></p>
+									</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				<?php endforeach; ?> 
+			</div>
+		</div>
+	</section>
+
+<?php endif ; ?>

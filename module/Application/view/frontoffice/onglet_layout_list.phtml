@@ -1,0 +1,15 @@
+<?php if(isset($this->optionsOnglets) && is_array($this->optionsOnglets) && count($this->optionsOnglets) > 0) : ?>
+
+	<div class="cteneurOnglets">
+	    <ul class="nav nav-pills">
+	        <?php foreach ($this->optionsOnglets as $menuTabElement) : ?>
+	         <?php 
+	             $classActive = "";
+	             if($menuTabElement['active']) $classActive = "active";
+	         ?>
+	         <li class="<?= $classActive; ?>"><a href="<?= $menuTabElement['href']; ?>"><?= $menuTabElement['nom']; ?></a></li>
+	        <?php endforeach; ?> 
+	    </ul>
+	</div>
+<?php endif ; ?>
+

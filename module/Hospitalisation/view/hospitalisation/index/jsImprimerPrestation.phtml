@@ -1,0 +1,151 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+?>
+
+<script type="text/javascript" src="<?= $this->basePath()."/js/biometry.js"; ?>"></script>
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+		contentDetailsAssure = '<div><table class="table dataTable table-striped" style="margin: 0 auto; width: 500px;"><tbody>';
+
+		contentDetailsAssure += '  <tr class="">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Assure principal", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style="" class="nomAdherent"></td>';
+		contentDetailsAssure += '  </tr>';
+
+		contentDetailsAssure += '  <tr class="detailsAyantDroit">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Ayant droit", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="nomAyantDroit"></td>';
+		contentDetailsAssure += '  </tr>';
+
+		contentDetailsAssure += '  <tr class="">';
+		contentDetailsAssure += '     <td width="30%" style="font-weight: bold;"><?= $this->translate("Souscripteur", "application"); ?> : </td>';
+		contentDetailsAssure += '     <td width="70%" style=""  class="nomSouscripteur"></td>';
+		contentDetailsAssure += '  </tr>';
+		
+							
+		contentDetailsAssure += '</tbody></table></div>';
+
+
+		$("body").on("click", ".imprimerRecuPrestation", function() {
+
+			$this = $(this);
+
+			$contentDetailsAssure = $(contentDetailsAssure);
+
+			// console.log($contentDetailsAssure.html()); return false;
+
+			$contentDetailsAssure.find(".nomAdherent").html($("#ligne_prestation_"+$this.attr("rel")).attr("nomAdherent"));
+			$contentDetailsAssure.find(".nomSouscripteur").html($("#ligne_prestation_"+$this.attr("rel")).attr("nomSouscripteur"));
+
+			if($("#ligne_prestation_"+$this.attr("rel")).attr("nomAyantDroit") != "")
+			{
+				$contentDetailsAssure.find(".nomAyantDroit").html($("#ligne_prestation_"+$this.attr("rel")).attr("nomAyantDroit"));
+			}
+			else
+			{
+				$contentDetailsAssure.find(".detailsAyantDroit").remove();
+			}
+			
+			$contentDetailsAssure.find("table").attr("style", "");
+
+
+			contenuFenetre = $contentDetailsAssure.html();
+			
+				contenuFenetre += "\n<?= $this->translate("Voulez-vous vraiment imprimer le recu pour cette hospitalisation?", "application"); ?> ?";
+			
+			
+
+			
+
+			$.confirm({
+				icon: 'fa fa-info',
+			    title: "<?= $this->translate("Confirmation", "application"); ?>",
+			    content: contenuFenetre,
+			    columnClass: 'col-md-6 col-md-offset-3',
+			    buttons: {
+			    	confirm: {
+			    		closeIcon: true,
+			            text: "<?= $this->translate("Oui", "application"); ?>",
+			            action: function() {
+			            	$.confirm({
+			            	    content: function () {
+			            	        var self = this;
+				            	        return $.ajax({
+				            	            url: "<?= $this->basePath()."/".$appliConfig->get('lienBackoffice'); ?>/<?= $this->naturePrestation; ?>/imprimer-recu/"+$this.attr("rel"),
+				            	            dataType: 'json',
+				            	            method: 'post'
+				            	        }).done(function (response) {
+
+										if(response.error != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-exclamation-triangle',
+				            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+				            	        	    content: response.error,
+				            	        	    type: 'red',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.info != "")
+										{
+											$.confirm({
+				            	        		icon: 'fa fa-info',
+				            	        	    title: "<?=  $this->translate("Info", "application");?>",
+				            	        	    content: response.info,
+				            	        	    type: 'orange',
+				            	        	    typeAnimated: true,
+				            	        	    buttons: {
+				            	        	        close: {
+				            	        	            text: "<?=  $this->translate("OK", "application");?>",
+				            	        	            action: function(){
+						            	        	    	location.reload();
+						            	                }
+				            	        	        }
+				            	        	    }
+				            	        	});
+										}
+										else if(response.varRetour != "")
+										{
+											$('body').append(response.varRetour);
+							       			
+							       			$printStuff = $("#cntneurDocExportPdf");
+							       			$printStuff.jqprint();
+							    			$printStuff.empty().remove();
+										}
+
+			            	            self.close();
+			            	        }).fail(function(){
+			            	        	$.confirm({
+			            	        		icon: 'fa fa-exclamation-triangle',
+			            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+			            	        	    content: "<?=  $this->translate("Probleme d'acces au serveur, veuillez reessayer", "application");?>",
+			            	        	    type: 'red',
+			            	        	    typeAnimated: true,
+			            	        	    buttons: {
+			            	        	        close: {
+			            	        	            text: "<?=  $this->translate("OK", "application");?>",
+			            	        	        }
+			            	        	    }
+			            	        	});
+
+			            	        	self.close();
+			            	        });
+			            	    }
+			            	});
+			            }
+			        },
+			        cancel: {
+			        	text: "<?= $this->translate("Non", "application"); ?>",
+			        }
+			    }
+			});
+        });      
+	});
+</script>

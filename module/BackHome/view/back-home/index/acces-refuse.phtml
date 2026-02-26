@@ -1,0 +1,33 @@
+<?php 
+    $appliConfig =  new \Application\Core\AppliConfig();
+
+    $urlRedirection = $this->basePath()."/".$appliConfig->get('lienBackoffice');
+    if(isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER']))
+    {
+        $urlRedirection = $_SERVER['HTTP_REFERER'];
+    }
+?>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        $.confirm({
+        	icon: 'fa fa-exclamation-triangle',
+            title: "<?=  $this->nomPage; ?>",
+            content: "<?=  $this->descriptionPage; ?>",
+            type: 'orange',
+            typeAnimated: true,
+            buttons: {
+                close: {
+                    text: "<?=  $this->translate("OK", "application");?>",
+                    action: function() {
+            	    	window.location = "<?= $urlRedirection; ?>"
+                    }
+                },
+            }
+        });
+    });
+
+</script>

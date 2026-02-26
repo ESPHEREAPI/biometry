@@ -1,0 +1,77 @@
+<?php 
+$appliConfig =  new \Application\Core\AppliConfig();
+
+$varRetour .= '<table class="table table-bordered table-striped table-hover" id="liteEltsTab">';
+$varRetour .= '  <thead>';
+$varRetour .= '    <tr>';
+$varRetour .= '        <th class="rsv-table-title-checkbox"><input type="checkbox" name="check_all_list" id="check_all_list" /></th>';
+$varRetour .= '        <th>'.$this->getTranslator("Nom").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Module").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Controlleur").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Action").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Numero d'ordre").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Url").'</th>';
+$varRetour .= '        <th>'.$this->getTranslator("Position").'</th>';
+$varRetour .= '        <th class="rsv-table-title-status">'.$this->getTranslator("Statut").'</th>';
+$varRetour .= '        <th class="rsv-table-title-action">'.$this->getTranslator("Actions").'</th>';
+$varRetour .= '    </tr>';
+$varRetour .= '  </thead>';
+$varRetour .= '  <tbody>';
+ 
+foreach($tab as $element)
+{
+	if($element->getMenu()->getStatut() == -1) { $classtatut =  "table_inactive"; $titleStatut =  $this->getTranslator("Activer"); $newStatut = 1; }
+	else { $classtatut =  "table_active"; $titleStatut =  $this->getTranslator("Desactiver"); $newStatut = -1; }
+	
+	$varRetour .= '    <tr>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><input type="checkbox" name="elt_check_tableau" class="elt_check_tableau" rel="'.$element->getMenu()->getId().'" /></td>';
+	$varRetour .= '        <td>'.$this->construireComplementNomAncetre($element->getMenu())." ".$element->getNom().'</td>';
+	$varRetour .= '        <td>'.$element->getMenu()->getNomModule().'</td>';
+	$varRetour .= '        <td>'.$element->getMenu()->getNomControlleur().'</td>';
+	$varRetour .= '        <td>'.$element->getMenu()->getNomAction().'</td>';
+	$varRetour .= '        <td>'.$element->getMenu()->getNumeroOrdre().'</td>';
+	$varRetour .= '        <td>'.$element->getUrl().'</td>';
+	$varRetour .= '        <td>'.$element->getMenu()->getPosition().'</td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn"><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/activer_commun/'.$newStatut.'/Menu/'.$element->getMenu()->getId().'"><span class="'.$classtatut.'" title="'.$titleStatut.'"></span></a></td>';
+	$varRetour .= '        <td class="rsv-table-elt-btn">';
+	$varRetour .= '             <div class="btn-group">
+							                      <button class="btn btn-default btn-modifier-heres" type="button" href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/menu/modifier/'.$element->getId().'"><a><i class="fa fa-edit"></i> '.$this->getTranslator("Modifier").'</a></button>
+							                      <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+							                        <span class="caret"></span>
+							                        <span class="sr-only">'.$this->getTranslator("Toggle Dropdown").'</span>
+							                      </button>
+							                      <ul role="menu" class="dropdown-menu rsv-btn-group-tab">
+							                        <li><a data-toggle="modal" data-target="#modalEnvoyerNewsLetter" href="#liteEltsTab" rel="'.$element->getId().'" class="envoiNewsLetter" id="envoiNewsLetter_'.$element->getId().'"><i class="fa fa-envelope"></i> '.$this->getTranslator("Envoyer newsletter").'</a></li>
+							                        <li><a href="'.$basePath.'/'.$appliConfig->get('lienBackoffice').'/supprimer_commun/1/Menu/'.$element->getMenu()->getId().'"><i class="fa fa-trash-o"></i> '.$this->getTranslator("Supprimer").'</a></li>
+							                      </ul>
+											</div>';
+	$varRetour .= '        </td>';
+	$varRetour .= '    </tr>';
+}
+
+$varRetour .= '  </tbody>';
+$varRetour .= '</table>';
+
+
+$varRetour .=  '<div class="modal fade" id="modalEnvoyerNewsLetter" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">'.$this->getTranslator("Envoi newsletter menu").'</h4>
+                  </div>
+                  <div class="modal-body" id="modalEnvoyerNewsLetterBodyId">
+          			<p class="help-block">'.$this->getTranslator("Envoyer ce menu par email a tous les internautes ayant souscrits a la newsletter").' ?</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">'.$this->getTranslator("Fermer", "application").'</button>
+                    <button type="button" class="btn btn-primary" id="envoyerNewsletterModale">'.$this->getTranslator("Envoyer", "application").'</button>
+                  </div>
+                </div><!-- /.modal-content -->
+
+    </div>
+  </div>';
+
+?>

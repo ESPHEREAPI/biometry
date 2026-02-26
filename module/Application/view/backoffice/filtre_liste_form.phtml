@@ -1,0 +1,72 @@
+<?php if ($formFiltre) : ?>
+
+	<?php foreach ($formFiltre as $element) : ?>
+		
+		<?php 
+
+			$options = $element->getOptions();
+			$attributes = $element->getAttributes();
+			$errorMessages = $element->getMessages();
+			$methode = 'form'.$attributes['type'];
+		
+			
+			if(isset($options['concatUnite']) && isset($options['concatUnite']['unite'])
+			  || isset($options['concatUnite']) && isset($options['concatUnite']['options']))
+			{
+				echo '<div class="form-group col-md-3">';
+			}
+			else
+			{
+				echo '<div class="form-group col-md-2">';
+			}
+			
+		
+			if(isset($options['concatUnite']) && isset($options['concatUnite']['unite']))
+			{
+				$attributTitle = "";
+				if(isset($options['concatUnite']['title']))
+				{
+					$attributTitle = $options['concatUnite']['title'];
+				}
+					
+				echo '<div class="input-group">';
+				echo  	$this->$methode($element);
+				echo '	<div style="cursor: pointer;" class="input-group-addon" id="unite_'.$attributes['name'].'" title="'.$attributTitle.'">
+                    							'.$options['concatUnite']['unite'].'
+                    					 	</div>
+                    					 </div>';
+			}
+			elseif(isset($options['concatUnite']) && isset($options['concatUnite']['options']))
+			{
+				$attributTitle = "";
+				if(isset($options['concatUnite']['title']))
+				{
+					$attributTitle = $options['concatUnite']['title'];
+				}
+					
+				echo '<div class="input-group">';
+				echo  	$this->$methode($element);
+				echo '	<div class="input-group-addon input-group-select" id="unite_'.$attributes['name'].'" title="'.$attributTitle.'" style="">
+											<select id="selectUnite_'.$attributes['name'].'" name="selectUnite_'.$attributes['name'].'">';
+			
+				foreach ($options['concatUnite']['options'] as $uneOption)
+				{
+					echo '<option value="'.$uneOption['value'].'">'.$uneOption['unite'].'</option>';
+				}
+					
+				echo '	</select></div>
+                    					  </div>';
+			}
+			else
+			{
+				echo  	$this->$methode($element);
+			}
+			
+			
+			echo '</div>';
+		
+		?>
+
+	<?php endforeach ; ?>
+
+<?php endif ; ?>

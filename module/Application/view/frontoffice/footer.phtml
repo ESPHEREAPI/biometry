@@ -1,0 +1,278 @@
+<?php 
+	use Zend\Session\Container;
+	use Application\Core\Utilitaire;
+	
+	$sessionInternaute = new Container('internaute');
+	$sessionAgence = new Container('agence');
+	$utilitaire = new Utilitaire();
+	
+	$appliConfig =  new \Application\Core\AppliConfig();
+	$reseauxSociaux = $appliConfig->get("reseaux_sociaux");
+?>
+
+
+<div class="container">
+	<div class="row">
+		<div class="footer-ribbon">
+			<span><?= $appliConfig->get("nom_appli"); ?></span>
+		</div>
+		<div class="col-md-3">
+			<div class="newsletter">
+				<h4><?= $this->translate("Newsletter", "application")?></h4>
+				<p><?= $this->translate("Restez informe sur nos activites. Saisissez votre e-mail et abonnez-vous a notre newsletter", "application")?></p>
+
+				<div id="ctneurFormNewsletter">
+					<form id="newsletterFormFooter" class="newsletterForm">
+						<div class="input-group">
+							<input class="form-control" placeholder="<?= $this->translate("Adresse email", "application")?>" name="email" type="text" />
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="submit"><?= $this->translate("Ok", "application")?></button>
+							</span>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 recent-posts-footer">
+			<h4><?= $this->translate("Articles recents", "application"); ?></h4>
+			<ul class="nav mb-xl">
+				<?php foreach ($this->derniersArticles as $unArticle) : ?>
+				
+					<?php 
+					
+						$cheminImage = "";
+						// Recuperation des images
+						if ($handle = @opendir(__DIR__.'/../../../../public/img/back/article/'.$unArticle->getId().'/'))
+						{
+							while (false !== ($entry = readdir($handle))) {
+								if ($entry != "." && $entry != "..") { // Verifier si c'est un fichier
+									$extension = $utilitaire->_findexts($entry);
+									if($extension == "JPG" || $extension == "jpg" || $extension == "PNG" || $extension == "png" || $extension == "JPEG" || $extension == "jpeg" || $extension == "GIF" || $extension == "gif") // Verifier s
+									{
+										$tabImages[] = array('chemin' => $this->basePath().'/img/back/article/'.$unArticle->getId()."/".$entry,
+												'nom' => $entry,
+												'nomSimple' => str_replace(".", "_", $entry),
+												'extension' => $extension,
+										);
+											
+											
+										$cheminImage = $this->basePath().'/img/back/article/'.$unArticle->getId()."/".$entry;
+						
+										break;
+									}
+								}
+							}
+							closedir($handle);
+						}
+						
+						if($cheminImage == "")
+							$cheminImage = $this->basePath().'/img/calendar.png';
+					
+					?>
+				
+					<li>
+
+						<div class="widget-post-info">
+							<h4>
+								<a href="<?= $this->basePath().'/'.$sessionInternaute->offsetGet("code_iso_langue").'/'.$unArticle->getId().'_'.$unArticle->getCode()?>" title="<?= $utilitaire->afficherChaineBD($unArticle->getTitre()); ?>">
+									<?= $utilitaire->tronque($utilitaire->afficherChaineBD($unArticle->getTitre()), 35); ?>
+								</a>
+							</h4>
+							
+							<?php if($unArticle->getDatePublication()) : ?>
+								<div class="meta">
+									<span><i class="fa fa-clock-o"></i> <?= $utilitaire->construireDateLocale($unArticle->getDatePublication()->format("Y-m-d H:i:s")); ?></span>
+								</div>
+							<?php endif ; ?>
+						</div>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		<div class="col-md-4">
+			<div class="contact-details">
+				<h4><?= $this->translate("Nous contacter", "application"); ?></h4>
+				<ul class="contact">
+					<li><p><i class="fa fa-map-marker"></i> <strong><?= $this->translate("Addresse", "application"); ?> :</strong> <?= $this->translate($appliConfig->get("adresse"), "application"); ?></p></li>
+					<li><p><i class="fa fa-phone"></i> <strong><?= $this->translate("Telephone", "application"); ?> :</strong> <a href="tel:<?= $appliConfig->get("telephone_complet"); ?>"><?= $appliConfig->get("telephone"); ?></a> / <a href="tel:<?= $appliConfig->get("telephone_service_client_complet"); ?>"><?= $appliConfig->get("telephone_service_client"); ?></a></p></li>
+					<li><p><i class="fa fa-envelope"></i> <strong><?= $this->translate("Email", "application"); ?> :</strong> <a href="mailto:<?= $appliConfig->get("email_contact"); ?>"><?= $appliConfig->get("email_contact"); ?></a></p></li>
+				</ul>
+			</div>
+			<div class="" style="margin-top: 20px;">
+				<h4 style="margin-bottom: 5px;"><?= $this->translate("Liens utiles", "application"); ?></h4>
+    			<ul class="list list-icons" style="padding-left: 5px; list-style: none;">
+    				<li style="margin-bottom: 4px;">
+    					<i class="fa fa-check"></i> <a href="<?= $this->basePath()."/".$sessionInternaute->offsetGet("code_iso_langue"); ?>/centres-sante-agrees"><?= $this->translate("Centres de sante agrees", "application"); ?></a>
+    				</li>
+    				<li style="margin-bottom: 4px;">
+						<i class="fa fa-check"></i> <a href="<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/zenithe-business-club"><?= $this->translate("Zenithe Business Club", "application") ?></a>
+					</li>
+					<li style="margin-bottom: 4px;">
+						<i class="fa fa-check"></i> <a href="##" data-toggle="modal" data-target="#ctneurFormDetailSinistre" id="openModalFormDetailSinistre"><?= $this->translate("Consulter les details de votre sinistre", "application") ?></a>
+					</li>
+    			</ul>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<?php if(is_array($reseauxSociaux) && count($reseauxSociaux) > 0) : ?>
+				<h4><?= $this->translate("Suivez nous", "application"); ?></h4>
+				<ul class="social-icons">
+					<?php foreach ($reseauxSociaux as $keyReseau => $unReseau) : ?>
+						<li class="<?= $unReseau['class'] ?>"><a href="<?= $unReseau['lien'] ?>" target="_blank" title="<?= $unReseau['nom'] ?>"><i class="<?= $unReseau['icon'] ?>  msbt-social-icon"></i></a></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+		</div>
+	</div>
+</div>
+
+
+<?php 
+	
+	(date("Y") <= "2016") ? $copyright = "2016" : $copyright = "2016 - ".date("Y");
+	// $copyright .= " ".$this->translate("Par", "application"); 
+?>
+
+
+<div class="footer-copyright">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8">
+				<p>© Copyright <?= $copyright; ?> <a href="<?= $this->basePath(""); ?>"><?= $appliConfig->get("nom_appli"); ?></a>. <?= $this->translate("Tous droits reserves", "application"); ?>.</p>
+			</div>
+			<div class="col-md-4">
+				<nav id="sub-menu">
+					<ul>
+						<li><a href="<?= $this->basePath()."/".$sessionInternaute->offsetGet("code_iso_langue"); ?>/sitemap"><?= $this->translate("Sitemap", "application"); ?></a></li>
+						<li><a href="<?= $this->basePath()."/".$sessionInternaute->offsetGet("code_iso_langue"); ?>/contact"><?= $this->translate("Nous contacter", "application"); ?></a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+		$("body").on("submit", "form.newsletterForm", function() {
+
+			retirerAlert("ctneurFormNewsletter");
+			$this = $(this);
+			emailHere = $this.find("[name='email']").val();
+
+
+			
+			
+			if(!isValidEmailAddress(emailHere))
+			{
+				 $.confirm({
+					 	icon: 'fa fa-exclamation-triangle',
+					    title: "<?= $this->translate("Erreur", "application"); ?>",
+					    content: "<?= $this->translate("Veuillez saisir une adresse mail valide", "application"); ?>",
+					    type: 'red',
+					    typeAnimated: true,
+					    buttons: {
+					    	close: {
+					        	text: "<?= $this->translate("OK", "application"); ?>",
+					        },
+					    }
+					});
+
+				return false;
+			}
+
+			dataString = $this.serialize();
+
+			$.confirm({
+			    content: function () {
+			        var self = this;
+			        return $.ajax({
+			            url: "<?= $this->basePath()."/".$sessionInternaute->offsetGet('code_iso_langue'); ?>/newsletter",
+			            dataType: 'json',
+			            method: 'post',
+        	            data: dataString
+			        }).done(function (response) {
+			        	if(response.error != "")
+						{
+							$.confirm({
+            	        		icon: 'fa fa-exclamation-triangle',
+            	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+            	        	    content: response.error,
+            	        	    type: 'red',
+            	        	    typeAnimated: true,
+            	        	    buttons: {
+            	        	        close: {
+            	        	            text: "<?=  $this->translate("OK", "application");?>",
+            	        	        }
+            	        	    }
+            	        	});
+						}
+						else if(response.info != "")
+						{
+							$.confirm({
+            	        		icon: 'fa fa-exclamation-triangle',
+            	        	    title: "<?=  $this->translate("Info", "application");?>",
+            	        	    content: response.info,
+            	        	    type: 'orange',
+            	        	    typeAnimated: true,
+            	        	    buttons: {
+            	        	        close: {
+            	        	            text: "<?=  $this->translate("OK", "application");?>",
+            	        	        }
+            	        	    }
+            	        	});
+						}
+						else
+						{
+							$.confirm({
+            	        		icon: 'fa fa-exclamation-triangle',
+            	        	    title: "<?= $this->translate("Success", "application");?>",
+            	        	    content: "<?= $this->translate("Vous recevrez desormais notre actualite par mail", "application"); ?>",
+            	        	    type: 'green',
+            	        	    typeAnimated: true,
+            	        	    buttons: {
+            	        	        close: {
+            	        	            text: "<?=  $this->translate("OK", "application");?>",
+            	        	        },
+            	        	    }
+            	        	});
+						}
+
+        	            self.close();
+			        }).fail(function(){
+			        	$.confirm({
+        	        		icon: 'fa fa-exclamation-triangle',
+        	        	    title: "<?=  $this->translate("Erreur", "application");?>",
+        	        	    content: "<?= $this->translate("Probleme d'acces au server, veuillez reessayer plus tard", "application");?>",
+        	        	    type: 'red',
+        	        	    typeAnimated: true,
+        	        	    buttons: {
+        	        	        close: {
+        	        	            text: "<?=  $this->translate("OK", "application");?>",
+        	        	        }
+        	        	    }
+        	        	});
+
+        	        	self.close();
+			        });
+			    }
+			});
+
+			return false;
+			
+        });  
+	});
+</script>

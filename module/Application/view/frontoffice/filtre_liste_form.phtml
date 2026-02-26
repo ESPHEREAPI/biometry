@@ -1,0 +1,9 @@
+<?php if ($formFiltre) : ?>
+
+	<?php foreach ($formFiltre as $element) : ?>
+		<div class="form-group col-md-2">
+			<?=  $this->formrow($element); ?>
+		</div>	
+	<?php endforeach ; ?>
+
+<?php endif ; ?>

@@ -1,0 +1,235 @@
+<?php 
+
+	use Zend\Session\Container;
+
+	$sessionApplication = new Container('application');
+	$sessionInternaute = new Container('internaute');
+	
+	
+?>
+
+
+
+<?php if(!$sessionApplication->offsetExists("pop_up_annonce_end") || $sessionApplication->offsetExists("pop_up_annonce_end") == false) : ?>
+
+	<div class="modal fade modal-popup-annonce" id="ctneurPopUpAnnonce" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+		    <div class="modal-content" id="modalContentPopUpAnnonce">
+		    
+		    	<button style="margin-top: -26px;margin-right: -5px;" type="button" class="close" data-dismiss="modal" aria-label="Close" title="<?= $this->translate("Fermer", "application"); ?>"><span aria-hidden="true">×</span></button>
+				<div class="modal-body" id="divBodyPopUpAnnonce">
+					
+					<form action="" id="formAjaxConnexion" method="post">
+						<div class="heading heading-secondary heading-border">
+							<h1 class="heading-secondary" style="width: 80%; display: block; margin: 0 auto; text-align: center;"><strong>Toutes nos offres a portee de main</strong></h1>
+						</div>
+						
+						<div class="row">
+							<div class="form-group">
+								<div class="col-md-12">
+			  						<input name="nom" id="nomAnnonce" type="text" class="form-control" placeholder="<?= $this->translate("Veuillez saisir votre nom", "application"); ?>" />
+								</div>
+							</div>
+						</div>						
+						<div class="row">
+							<div class="form-group" style="margin-bottom: 0;">
+								<div class="col-md-12">
+			  						<input name="email" id="emailAnnonce" type="text" class="form-control" placeholder="<?= $this->translate("Veuillez saisir votre adresse mail", "application"); ?>" />
+								</div>
+							</div>
+						</div>
+						
+						<div class="row">
+							<button style="" type="button" class="btn btn-primary btn-custom-annonce" id="btnTelechargerAnnonce"><?= $this->translate("Telechargez", "application"); ?></button>
+						</div>
+						
+												
+					</form>
+					
+					
+					
+					<form action="" id="formNePlusAfficherAnnonce" method="post">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="ctneurICheck" style="margin-top: 20px; text-align: center;">
+									<label for="nePlusAfficher" style="cursor: pointer; display: inline-block;">
+										<input type="checkbox" name="nePlusAfficher" id="nePlusAfficherAnnonce" /> <?= $this->translate("Ne plus afficher", "application"); ?>
+									</label>
+								</div>
+							</div>
+						</div>
+					</form>
+					
+					
+					<button type="button" class="displayNone" data-dismiss="modal" id="closePopUpAnnonce"><?= $this->translate("Close", "application"); ?></button>
+
+				</div>
+			</div><!-- /.modal-content -->
+	    </div>
+	</div>
+	
+	<input type="hidden" id="ouvrirPopUpAnnonce" data-toggle="modal" data-target="#ctneurPopUpAnnonce" />
+
+
+<script type="text/javascript">		         
+	$(document).ready(function() {
+
+		setTimeout(function() {
+			$("#ouvrirPopUpAnnonce").click();
+        }, 1000);
+
+
+		$('#nePlusAfficherAnnonce').on('ifChecked', function() {
+			
+	    	dataString = "";
+	        
+	        // Launch AJAX request.
+			$.ajax({
+				
+	            type: "post",
+	            
+	            url: '<?= $this->basePath()."/ne-plus-afficher-annonce"; ?>',
+	            
+	            data: dataString,
+				
+	            beforeSend: function() {
+	            	
+				},
+	            
+	            success: function( html ) {
+					
+				},
+	            
+				error: function(){
+					 
+				},
+	            
+	            complete: function(){
+	                
+				}
+			});
+	    });
+
+		$('#btnTelechargerAnnonce').on('click', function() {
+			window.location = "https://zenitheinsurance.com/download/docs_*-*_to-download_*-*_Offre de service assurance en ligne - ZENITHE.pdf";
+
+			setTimeout(function() {
+				$("#closePopUpAnnonce").click();
+	        }, 2000);
+	    });
+		    
+	});
+</script>
+
+
+<style type="text/css">
+
+.ctneurTxtAnnonce {
+	position: absolute;
+	color: #fff;
+    font-size: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 12px 20px;
+    width: 95%;
+    min-height: 200px;
+}
+
+.modal-backdrop.in {
+    filter: alpha(opacity=90);
+    opacity: 0.9;
+}
+
+.modal-popup-annonce.modal.fade .modal-dialog {
+    -webkit-transform: scale(0.1);
+    -moz-transform: scale(0.1);
+    -ms-transform: scale(0.1);
+    transform: scale(0.1);
+    top: 300px;
+    opacity: 0;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+.modal-popup-annonce.modal.fade.in .modal-dialog {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+    -webkit-transform: translate3d(0, -300px, 0);
+    transform: translate3d(0, -300px, 0);
+    opacity: 1;
+}
+
+
+#modalContentPopUpAnnonce {
+	border: solid 2px #006699;
+	border-radius: 50%;
+	border-top-right-radius: 0;
+	padding : 40px 20px;
+	
+	
+	background: #0088CC; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(#0088CC, #FFF); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#0088CC, #FFF); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#0088CC, #FFF); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#0088CC, #FFF); /* Standard syntax */
+}
+
+#modalContentPopUpAnnonce .form-control {
+    background: #f5f5f5;
+    border: none;
+    width: 80%;
+    height: 50px;
+    padding-left: 20px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    border-radius: 0;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#modalContentPopUpAnnonce form label {
+    font-weight: bold;
+    color: #414141;
+    display: block;
+    width: 80%;
+    margin: 0 auto;
+}
+
+
+.btn-custom-annonce {
+  background-color: hsl(201, 100%, 30%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#00a5ff", endColorstr="#006399");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#00a5ff), to(#006399));
+  background-image: -moz-linear-gradient(top, #00a5ff, #006399);
+  background-image: -ms-linear-gradient(top, #00a5ff, #006399);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #00a5ff), color-stop(100%, #006399));
+  background-image: -webkit-linear-gradient(top, #00a5ff, #006399);
+  background-image: -o-linear-gradient(top, #00a5ff, #006399);
+  background-image: linear-gradient(#00a5ff, #006399);
+  border-color: #006399 #006399 hsl(201, 100%, 25%);
+  color: #fff !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.33);
+  -webkit-font-smoothing: antialiased;
+  
+  display: block;
+  margin: 0 auto;
+  padding: 10px 30px;
+}
+
+
+</style>
+
+
+
+<?php if($sessionInternaute->offsetGet("code_langue") != "en_US") : ?>
+	<script src="<?= $this->basePath("js/formValidation/js/language/".$sessionInternaute->offsetGet("code_langue").".js"); ?>"></script>
+<?php endif ; ?>
+
+
+<?php endif ; ?>
+
